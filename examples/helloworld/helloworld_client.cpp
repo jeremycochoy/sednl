@@ -39,7 +39,7 @@ void on_event(Connection &connection, const Event &e)
     std::cout << e.get_packet() << std::endl;
 }
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
     try
     {

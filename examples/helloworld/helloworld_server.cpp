@@ -59,7 +59,7 @@ void on_event(Connection &e, const Event &e)
     std::cout << e;
 }
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
     try
     {
