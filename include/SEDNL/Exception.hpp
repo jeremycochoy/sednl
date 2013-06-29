@@ -52,6 +52,8 @@ namespace SedNL
     class SEDNL_API TypeException : virtual public Exception
     {
     public:
+        inline TypeException(TypeExceptionT type);
+
         //! \brief Return the type of the exception
         inline TypeExceptionT getType();
 
@@ -79,5 +81,7 @@ namespace SedNL
     };
 
 } // namespace SedNL
+
+#include "Exception.ipp"
 
 #endif /* !EXCEPTION_HPP_ */
