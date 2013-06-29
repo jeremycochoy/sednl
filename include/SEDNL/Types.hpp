@@ -19,29 +19,24 @@
 //     3. This notice may not be removed or altered from any source
 //        distribution.
 
-#ifndef EXPORT_HPP_
-#define EXPORT_HPP_
+#ifndef TYPES_HPP_
+#define TYPES_HPP_
 
-#if !defined(SEDNL_STATIC)
+// cstdin is a C++11 header that define fixed size integers,
+// if they are available.
+// Cf http://en.cppreference.com/w/cpp/header/cstdint
+#include <cstdint>
 
-// For dynamic library, we export only the symbols
-// marked with SEDNL_API_EXPORT
+namespace SedNL
+{
+    //Fixed size int
+    typedef int8_t  Int8;
+    typedef int16_t Int16;
+    typedef int32_t Int32;
+    typedef int64_t Int64;
 
-    // Clang support __visibility__ since ~ 2011
-    #if (defined(__clang__) && __clang_major__ >= 3)
-        #define SEDNL_API __attribute__ ((__visibility__ ("default")))
-    #elif defined(__GNUG__) && (__GNUG__ >= 4)
-        #define SEDNL_API __attribute__ ((__visibility__ ("default")))
-    #else
-        #define SEDNL_API
-    #endif
+    //A Byte
+    typedef Int8 Byte;
+}
 
-#else
-
-// Static library export all symbols
-
-    #define SEDNL_API
-
-#endif
-
-#endif /* !EXPORT_HPP_ */
+#endif /* !TYPES_HPP_ */
