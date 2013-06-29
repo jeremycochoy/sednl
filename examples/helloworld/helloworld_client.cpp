@@ -7,7 +7,7 @@
 
 using namespace SedNL;
 
-on_event(Connection &connection, const Event &e)
+void on_event(Connection &connection, const Event &e)
 {
     //Event name
     std::cout << "Event from server :"

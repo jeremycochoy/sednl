@@ -6,6 +6,8 @@
 #include <iostream>
 #include <cstdlib>
 
+using namespace SedNL;
+
 int client_id = 0;
 
 void on_disconnect(Connection &e)
