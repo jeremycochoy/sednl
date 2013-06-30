@@ -22,8 +22,8 @@
 #ifndef CONNECTION_HPP_
 #define CONNECTION_HPP_
 
-#include "Export.hpp"
-#include "Exception.hpp"
+#include "SEDNL/Export.hpp"
+#include "SEDNL/Exception.hpp"
 
 namespace SedNL
 {
@@ -33,10 +33,10 @@ namespace SedNL
     template<typename... Arguments>
     class Slot;
 
-//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+///////////////////////////////////////////////////////////////
 //! \brief Define the the Connection type wich
 //!        handle a connection and allow sending Event objects.
-//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+///////////////////////////////////////////////////////////////
 class SEDNL_API Connection
 {
 public:

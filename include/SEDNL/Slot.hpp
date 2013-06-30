@@ -19,35 +19,23 @@
 //     3. This notice may not be removed or altered from any source
 //        distribution.
 
-#ifndef TYPES_HPP_
-#define TYPES_HPP_
+#ifndef SLOT_HPP_
+#define SLOT_HPP_
 
-// cstdin is a C++11 header that define fixed size integers,
-// if they are available.
-// Cf http://en.cppreference.com/w/cpp/header/cstdint
-#include <cstdint>
-
-#include <list>
-#include <string>
+#include <unordered_map>
 
 namespace SedNL
 {
-    //Fixed size int
 
-    //! \brief 8 bits integer
-    typedef int8_t  Int8;
-    //! \brief 16 bits integer
-    typedef int16_t Int16;
-    //! \brief 32 bits integer
-    typedef int32_t Int32;
-    //! \brief 64 bits integer
-    typedef int64_t Int64;
+template <typename... Arguments>
+class Slot
+{
+};
 
-    //! \brief A byte
-    typedef Int8 Byte;
+//! \brief A hash map to retrieve quickly slots
+template <typename... Arguments>
+using SlotMap = std::unordered_map< std::string, Slot<Arguments...> >;
 
-    //! A list of strings
-    typedef std::list<std::string> StringList;
-}
+} // namespace SedNL
 
-#endif /* !TYPES_HPP_ */
+#endif /* !SLOT_HPP_ */
