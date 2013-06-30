@@ -30,12 +30,17 @@
 namespace SedNL
 {
     //Fixed size int
+
+    //! \brief 8 bits integer
     typedef int8_t  Int8;
+    //! \brief 16 bits integer
     typedef int16_t Int16;
+    //! \brief 32 bits integer
     typedef int32_t Int32;
+    //! \brief 64 bits integer
     typedef int64_t Int64;
 
-    //A Byte
+    //! \brief A byte
     typedef Int8 Byte;
 }
 

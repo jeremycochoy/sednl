@@ -33,10 +33,10 @@ namespace SedNL
     template<typename... Arguments>
     class Slot;
 
-//-------------------------------------------------------------
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 //! \brief Define the the Connection type wich
 //!        handle a connection and allow sending Event objects.
-//-------------------------------------------------------------
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 class SEDNL_API Connection
 {
 public:

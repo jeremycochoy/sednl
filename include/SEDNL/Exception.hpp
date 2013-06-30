@@ -29,15 +29,15 @@
 namespace SedNL
 {
 
-    //--------------------------------------------
+    //////////////////////////////////////////////
     //! \brief The root of SedNL's exception tree.
-    //--------------------------------------------
+    //////////////////////////////////////////////
     class SEDNL_API Exception : virtual public std::exception
     {};
 
-    //-----------------------------------------
+    //////////////////////////////////////////!
     //! \brief Different kind of TypeException.
-    //-----------------------------------------
+    //////////////////////////////////////////!
     enum class SEDNL_API TypeExceptionT
     {
         Unknown,
@@ -45,13 +45,14 @@ namespace SedNL
         UserDataWrongTypeGiven,
     };
 
-    //--------------------------------------------------
+    ////////////////////////////////////////////////////
     //! \brief Exception throw when the type asked/given
     //!        isn't the type expected.
-    //--------------------------------------------------
+    ////////////////////////////////////////////////////
     class SEDNL_API TypeException : virtual public Exception
     {
     public:
+        //! \brief Create a TypeException
         inline TypeException(TypeExceptionT type);
 
         //! \brief Return the type of the exception
@@ -64,18 +65,18 @@ namespace SedNL
         TypeExceptionT type;
     };
 
-    //-------------------------------------------------
+    ///////////////////////////////////////////////////
     //! \brief Exception throw by the low level network
     //! part of the library.
-    //-------------------------------------------------
+    ///////////////////////////////////////////////////
     class SEDNL_API NetworkException : virtual public Exception
     {
     };
 
-    //--------------------------------------------------
+    ////////////////////////////////////////////////////
     //! \brief Exception throw when packet are read with
     //!        the wrong format.
-    //--------------------------------------------------
+    ////////////////////////////////////////////////////
     class SEDNL_API PacketException : virtual public Exception
     {
     };
