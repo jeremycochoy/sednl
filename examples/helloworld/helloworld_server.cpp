@@ -66,20 +66,28 @@ int main(int argc, char* argv[])
         //Create a server
         TCPServer server;
 
-        //Set the on_connect function
-        server.on_connect().setFunction(on_connect);
-
         //Listen on port 1337
         server.open(1337);
 
-        //Create a listener
+        //Create a event listener
         EventListener listener(server);
-        listener.on_connect().set_function(on_connect);
-        listener.on_connect().set_function(on_disconnect);
-        listener.on_connect().set_function(on_event);
 
-        //Listen for events and dispatche them
-        listener.listen();
+        //Create a event consumer
+        EventConsumer consumer(listener);
+        listener.on_connect().set_function(on_connect);
+        listener.on_disconnect().set_function(on_disconnect);
+        listener.on_event().set_function(on_event);
+
+        //Listen for events in a second thread
+        listener.run();
+        //Consume events in a third thread
+        consumer.run();
+
+        //We are in the first (main) thread.
+        //Since we have nothing to do, we wait 100ms,
+        //to let the two other works.
+        while (true)
+            Time::sleep(100);
     }
     catch (Exception &e)
     {

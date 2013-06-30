@@ -46,9 +46,6 @@ int main(int argc, char* argv[])
         //Create a client and connect it to localhost, port 1337
         TCPClient client(SocketAddress(1337, "localhost"));
 
-        //Set the on_event function
-        client.on_event().set_function(on_event);
-
         //Create a packet
         Packet packet;
         //Put a random string
@@ -59,12 +56,19 @@ int main(int argc, char* argv[])
         //Create an event and send it to the server
         client.send(Event("hello_msg", packet));
 
-        //Wait 100ms
-        Time::sleep(100);
+        //Create an event listener
+        EventListener listener(client);
 
-        //Non blocking processing. It check if new event are
-        //Available and call the on_something if needed.
-        client.process();
+        //Create an event consumer
+        EventConsumer consumer(listener);
+        consumer.on_event().set_function(on_event);
+
+        //Wait 1000ms
+        Time::sleep(1000);
+
+        //Join the listener and consumer threads
+        listener.join();
+        consumer.join();
 
         //Close connection (it's facultative, since the destructor of
         //client call disconnect).
