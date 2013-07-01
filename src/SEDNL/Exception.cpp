@@ -27,7 +27,7 @@ namespace SedNL
 template<>
 const char* TemplateException<NetworkExceptionT>::what() const noexcept
 {
-    return "";
+    return "TODO";
 }
 
 }

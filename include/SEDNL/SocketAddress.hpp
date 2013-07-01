@@ -56,6 +56,9 @@ private:
 
     //! \brief Tell if it's an empty socket address.
     bool m_empty;
+
+    friend class TCPClient;
+    friend class TCPServer;
 };
 
 } // namespace SedNL

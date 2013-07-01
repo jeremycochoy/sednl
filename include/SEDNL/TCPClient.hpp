@@ -24,6 +24,8 @@
 
 #include "SEDNL/Export.hpp"
 #include "SEDNL/Connection.hpp"
+#include "SEDNL/Types.hpp"
+#include "SEDNL/SocketInterface.hpp"
 
 #ifdef SEDNL_WINDOWS
 #else /* SEDNL_WINDOWS */
@@ -31,6 +33,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netdb.h>
+#include <unistd.h>
 
 #endif /* SEDNL_WINDOWS */
 
@@ -42,7 +45,7 @@ namespace SedNL
 ////////////////////////////////////////////////////////////
 //! \brief Create a connection to a server
 ////////////////////////////////////////////////////////////
-class SEDNL_API TCPClient : Connection
+class SEDNL_API TCPClient : SocketInterface, Connection
 {
 public:
     //! \brief Create an empty client
@@ -65,14 +68,11 @@ public:
     //! \argument socket_address Server and port to connect to
     void connect(const SocketAddress& socket_address);
 
+    //! \brief Cut the connection
+    void disconnect() noexcept;
+
 private:
-
-#ifdef SEDNL_WINDOWS
-#else /* SEDNL_WINDOWS */
-    //! Contain port, ip, netmode, and many informations about the server.
-    struct addrinfo m_addrinfo;
-#endif /* SEDNL_WINDOWS */
-
+    FileDescriptor m_fd;
 };
 
 } // namespace SedNL

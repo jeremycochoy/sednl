@@ -48,6 +48,9 @@ namespace SedNL
 
     //! A list of strings
     typedef std::list<std::string> StringList;
+
+    //! A (socket) file descriptor
+    typedef int FileDescriptor;
 }
 
 #endif /* !TYPES_HPP_ */

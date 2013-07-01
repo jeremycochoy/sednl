@@ -28,12 +28,17 @@ namespace SedNL
 template<typename T>
 T TemplateException<T>::getType()
 {
-    return type;
+    return m_type;
 }
 
 template<typename T>
 TemplateException<T>::TemplateException(T type)
-    :type(type)
+    :m_type(type), m_msg(nullptr)
+{}
+
+template<typename T>
+TemplateException<T>::TemplateException(T type, const char* msg)
+    :m_type(type), m_msg(msg)
 {}
 
 } // namespace SedNL

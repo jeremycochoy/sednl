@@ -51,6 +51,8 @@ namespace SedNL
     enum class SEDNL_API NetworkExceptionT
     {
         InvalidSocketAddress,
+        CantRetrieveHost,
+        ConnectFailed,
     };
 
     //////////////////////////////////////////////
@@ -67,8 +69,15 @@ namespace SedNL
     class SEDNL_API TemplateException : virtual public Exception
     {
     public:
-        //! \brief Create a TypeException
+        //! \brief Create an Exception
         inline TemplateException(T type);
+
+        //! \brief Create an exception with a message
+        //!
+        //! The message should be a static string (you shouldn't
+        //! use string from std::string::c_str() oranything that
+        //! will be destructed / freed).
+        inline TemplateException(T type, const char* msg);
 
         //! \brief Return the type of the exception
         inline T getType();
@@ -77,7 +86,8 @@ namespace SedNL
         //!        based on it's type.
         virtual const char* what() const noexcept;
     private:
-        T type;
+        T m_type;
+        const char* m_msg;
     };
 
 
