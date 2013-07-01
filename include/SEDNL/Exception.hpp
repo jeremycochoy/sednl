@@ -35,9 +35,9 @@ namespace SedNL
     class SEDNL_API Exception : virtual public std::exception
     {};
 
-    //////////////////////////////////////////!
+    ///////////////////////////////////////////
     //! \brief Different kind of TypeException.
-    //////////////////////////////////////////!
+    ///////////////////////////////////////////
     enum class SEDNL_API TypeExceptionT
     {
         Unknown,
@@ -45,41 +45,59 @@ namespace SedNL
         UserDataWrongTypeGiven,
     };
 
+    //////////////////////////////////////////////
+    //! \brief Different kind of NetowrkException.
+    //////////////////////////////////////////////
+    enum class SEDNL_API NetworkExceptionT
+    {
+        InvalidSocketAddress,
+    };
+
+    //////////////////////////////////////////////
+    //! \brief Different kind of PacketException.
+    //////////////////////////////////////////////
+    enum class SEDNL_API PacketExceptionT
+    {
+    };
+
     ////////////////////////////////////////////////////
-    //! \brief Exception throw when the type asked/given
-    //!        isn't the type expected.
+    //! \brief Describe how to build a SedNL::Exception.
     ////////////////////////////////////////////////////
-    class SEDNL_API TypeException : virtual public Exception
+    template<typename T>
+    class SEDNL_API TemplateException : virtual public Exception
     {
     public:
         //! \brief Create a TypeException
-        inline TypeException(TypeExceptionT type);
+        inline TemplateException(T type);
 
         //! \brief Return the type of the exception
-        inline TypeExceptionT getType();
+        inline T getType();
 
         //! \brief Return a message describing the exception,
         //!        based on it's type.
         virtual const char* what() const noexcept;
     private:
-        TypeExceptionT type;
+        T type;
     };
+
+
+    ////////////////////////////////////////////////////
+    //! \brief Exception throw when the type asked/given
+    //!        isn't the type expected.
+    ////////////////////////////////////////////////////
+    typedef TemplateException<TypeExceptionT> TypeException;
 
     ///////////////////////////////////////////////////
     //! \brief Exception throw by the low level network
     //! part of the library.
     ///////////////////////////////////////////////////
-    class SEDNL_API NetworkException : virtual public Exception
-    {
-    };
+    typedef TemplateException<NetworkExceptionT> NetworkException;
 
     ////////////////////////////////////////////////////
     //! \brief Exception throw when packet are read with
     //!        the wrong format.
     ////////////////////////////////////////////////////
-    class SEDNL_API PacketException : virtual public Exception
-    {
-    };
+    typedef TemplateException<PacketExceptionT> PacketException;
 
 } // namespace SedNL
 

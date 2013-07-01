@@ -19,23 +19,43 @@
 //     3. This notice may not be removed or altered from any source
 //        distribution.
 
-#ifndef EXCEPTION_IPP_
-#define EXCEPTION_IPP_
+#ifndef SOCKET_ADDRESS_HPP_
+#define SOCKET_ADDRESS_HPP_
+
+#include <string>
 
 namespace SedNL
 {
 
-template<typename T>
-T TemplateException<T>::getType()
+class SocketAddress
 {
-    return type;
-}
+public:
+    //! \brief Construct an empty SocketAddress
+    SocketAddress();
 
-template<typename T>
-TemplateException<T>::TemplateException(T type)
-    :type(type)
-{}
+    //! \brief Construct a SocketAddress containing only a port number
+    SocketAddress(int port);
+
+    //! \brief Construct a SocketAddress containing port and server name
+    SocketAddress(int port, std::string server_name);
+
+    //! \brief Tell if it's a valid TCPClient SocketAddress
+    bool is_client_valid() const noexcept;
+
+    //! \brief Tell if it's a valid TCPServer SocketAddress
+    bool is_server_valid() const noexcept;
+
+private:
+    //! \brief Port to connect to, or to listen
+    int m_port;
+
+    //! \brief Server name, for a TCPClient
+    std::string m_name;
+
+    //! \brief Tell if it's an empty socket address.
+    bool m_empty;
+};
 
 } // namespace SedNL
 
-#endif /* !EXCEPTION_IPP_ */
+#endif /* !SOCKET_ADDRESS_HPP_ */

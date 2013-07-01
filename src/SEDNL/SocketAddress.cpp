@@ -19,23 +19,32 @@
 //     3. This notice may not be removed or altered from any source
 //        distribution.
 
-#ifndef EXCEPTION_IPP_
-#define EXCEPTION_IPP_
+#include "SEDNL/SocketAddress.hpp"
 
 namespace SedNL
 {
 
-template<typename T>
-T TemplateException<T>::getType()
-{
-    return type;
-}
-
-template<typename T>
-TemplateException<T>::TemplateException(T type)
-    :type(type)
+SocketAddress::SocketAddress()
+    :m_port(0), m_name(""), m_empty(true)
 {}
 
-} // namespace SedNL
+SocketAddress::SocketAddress(int port)
+    :m_port(port), m_name(""), m_empty(false)
+{}
 
-#endif /* !EXCEPTION_IPP_ */
+SocketAddress::SocketAddress(int port, std::string server_name)
+    :m_port(port), m_name(server_name), m_empty(false)
+{}
+
+bool SocketAddress::is_client_valid() const noexcept
+{
+    return (m_name != "" && !m_empty);
+}
+
+bool SocketAddress::is_server_valid() const noexcept
+{
+    return (!m_empty);
+}
+
+}
+
