@@ -25,6 +25,15 @@
 #include "SEDNL/Export.hpp"
 #include "SEDNL/Connection.hpp"
 
+#ifdef SEDNL_WINDOWS
+#else /* SEDNL_WINDOWS */
+
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
+
+#endif /* SEDNL_WINDOWS */
+
 namespace SedNL
 {
 
@@ -37,7 +46,7 @@ class SEDNL_API TCPClient : Connection
 {
 public:
     //! \brief Create an empty client
-    TCPClient();
+    TCPClient() noexcept;
 
     //! \brief Create a connection to the SocketAddress
     //!
@@ -55,6 +64,15 @@ public:
     //!
     //! \argument socket_address Server and port to connect to
     void connect(const SocketAddress& socket_address);
+
+private:
+
+#ifdef SEDNL_WINDOWS
+#else /* SEDNL_WINDOWS */
+    //! Contain port, ip, netmode, and many informations about the server.
+    struct addrinfo m_addrinfo;
+#endif /* SEDNL_WINDOWS */
+
 };
 
 } // namespace SedNL

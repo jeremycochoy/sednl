@@ -19,30 +19,9 @@
 //     3. This notice may not be removed or altered from any source
 //        distribution.
 
-#include "SEDNL/TCPClient.hpp"
-#include "SEDNL/SocketAddress.hpp"
-
-#include <cstring>
+#include "SEDNL/Connection.hpp"
 
 namespace SedNL
 {
-
-TCPClient::TCPClient() noexcept
-{
-    std::memset(&m_addrinfo, 0, sizeof(m_addrinfo));
-}
-
-TCPClient::TCPClient(const SocketAddress& socket_address)
-    :Connection()
-{
-    connect(socket_address);
-}
-
-void TCPClient::connect(const SocketAddress& socket_address)
-{
-    if (!socket_address.is_client_valid())
-        throw NetworkException(NetworkExceptionT::InvalidSocketAddress);
-    //TODO
-}
 
 }

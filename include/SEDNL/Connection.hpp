@@ -114,10 +114,15 @@ public:
     //! Warning, if you stored an object as a void* pointer, you should
     //! retrieve the pointer before calling release_user_data().
     void release_user_data();
+
+private:
+    //TODO Store socket here
 };
 
 
 } // namespace SedNL
+
+#include "Connection.ipp"
 
 #endif /* !CONNECTION_HPP_ */
 
