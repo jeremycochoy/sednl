@@ -19,45 +19,10 @@
 //     3. This notice may not be removed or altered from any source
 //        distribution.
 
-#ifndef SOCKET_ADDRESS_HPP_
-#define SOCKET_ADDRESS_HPP_
-
-#include "SEDNL/Export.hpp"
-
-#include <string>
+#include "SEDNL/TCPClient.hpp"
+#include "SEDNL/SocketAddress.hpp"
 
 namespace SedNL
 {
 
-class SEDNL_API SocketAddress
-{
-public:
-    //! \brief Construct an empty SocketAddress
-    SocketAddress();
-
-    //! \brief Construct a SocketAddress containing only a port number
-    SocketAddress(int port);
-
-    //! \brief Construct a SocketAddress containing port and server name
-    SocketAddress(int port, std::string server_name);
-
-    //! \brief Tell if it's a valid TCPClient SocketAddress
-    bool is_client_valid() const noexcept;
-
-    //! \brief Tell if it's a valid TCPServer SocketAddress
-    bool is_server_valid() const noexcept;
-
-private:
-    //! \brief Port to connect to, or to listen
-    int m_port;
-
-    //! \brief Server name, for a TCPClient
-    std::string m_name;
-
-    //! \brief Tell if it's an empty socket address.
-    bool m_empty;
-};
-
-} // namespace SedNL
-
-#endif /* !SOCKET_ADDRESS_HPP_ */
+}

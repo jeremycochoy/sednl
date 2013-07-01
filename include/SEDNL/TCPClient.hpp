@@ -23,9 +23,12 @@
 #define TCP_CLIENT_HPP_
 
 #include "SEDNL/Export.hpp"
+#include "SEDNL/Connection.hpp"
 
 namespace SedNL
 {
+
+    class SocketAddress;
 
 ////////////////////////////////////////////////////////////
 //! \brief Create a connection to a server
