@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 2.6)
 
-find_package(Doxygen REQUIRED)
+find_package(Doxygen)
 
 # set the input and output documentation paths
 set(DOXYGEN_INPUT_DIRECTORY ${PROJECT_SOURCE_DIR})

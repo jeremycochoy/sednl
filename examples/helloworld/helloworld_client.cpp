@@ -28,7 +28,7 @@
 
 using namespace SedNL;
 
-void on_event(Connection &connection, const Event &e)
+void on_event(Connection& connection, const Event& e)
 {
     //Event name
     std::cout << "Event from server :"
@@ -74,7 +74,7 @@ int main(int argc, char* argv[])
         //client call disconnect).
         client.disconnect();
     }
-    catch (Exception &e)
+    catch (Exception& e)
     {
         std::cout << "An exception occured :" << e.what() << std::endl;
         return EXIT_FAILED;

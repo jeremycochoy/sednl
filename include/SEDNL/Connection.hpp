@@ -48,14 +48,6 @@ public:
     //! \param event The event to send
     void send(const Event& event);
 
-    //! \brief
-    Slot<Connection&> on_disconnect();
-
-    //! \brief
-    Slot<Connection&, const Event&> on_event();
-
-    void process();
-
     //! \brief Store a value specific to this connection
     //!
     //! This class assume that you will allways use the same
@@ -128,3 +120,15 @@ public:
 } // namespace SedNL
 
 #endif /* !CONNECTION_HPP_ */
+
+////////////////////////////////////////////////////////////
+//! \class SedNL::Connection
+//!
+//! A Connection object is obtained as a connection from a client
+//! (created by an EventListener) or a TCPClient object.
+//!
+//! TCPServer aren't connection, because it's meaningless to
+//! 'send an event' throught a server. You should select one (or more)
+//! users, which are represented as connections.
+//!
+////////////////////////////////////////////////////////////
