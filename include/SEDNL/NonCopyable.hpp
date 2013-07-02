@@ -19,37 +19,26 @@
 //     3. This notice may not be removed or altered from any source
 //        distribution.
 
-#ifndef SOCKET_INTERFACE_HPP_
-#define SOCKET_INTERFACE_HPP_
+#ifndef NON_COPYABLE_HPP_
+#define NON_COPYABLE_HPP_
 
-#include "Export.hpp"
-#include "SEDNL/NonCopyable.hpp"
+#include "SEDNL/Export.hpp"
 
 namespace SedNL
 {
 
 ///////////////////////////////////////////////////////////////
-//! \brief Describe functions that connect, client and server
-//!        should have (like a connected/unconnected state).
+//! \brief Class inheriting from NonCopyable won't be copyable.
 ///////////////////////////////////////////////////////////////
-class SEDNL_API SocketInterface : NonCopyable
+class SEDNL_API NonCopyable
 {
-public:
-    //! \brief Initialise member data
-    inline SocketInterface() noexcept;
-
-    //! \brief Should be implemented by client/server/connection.
-    virtual void disconnect() = 0;
-
-    //! \brief Tell if the client/server/connection is connected.
-    inline bool is_connected() const noexcept;
-
 protected:
-    bool m_connected;
+    NonCopyable() = default;
+    ~NonCopyable() = default;
+    NonCopyable(const NonCopyable&) = delete;
+    NonCopyable& operator=(const NonCopyable&) = delete;
 };
 
-} // namespace SedNL
+} //namespace SedNL
 
-#include "SocketInterface.ipp"
-
-#endif /* !SOCKET_INTERFACE_HPP_ */
+#endif /* !NON_COPYABLE_HPP_ */

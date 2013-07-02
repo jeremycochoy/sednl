@@ -137,13 +137,6 @@ void TCPClient::connect(const SocketAddress& socket_address, int timeout)
     m_fd = fd;
 }
 
-void TCPClient::disconnect() noexcept
-{
-    //The call to close may fail, for example if the last write failed.
-    //But what can we do to that? So we silently ignore the return value.
-    close(m_fd);
-}
-
 bool TCPClient::blocking_connect(FileDescriptor fd, struct addrinfo *addr)
 {
     return (::connect(fd, addr->ai_addr, addr->ai_addrlen) == 0);

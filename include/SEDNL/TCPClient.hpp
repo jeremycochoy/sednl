@@ -24,7 +24,6 @@
 
 #include "SEDNL/Export.hpp"
 #include "SEDNL/Connection.hpp"
-#include "SEDNL/SocketInterface.hpp"
 
 #ifdef SEDNL_WINDOWS
 #else /* SEDNL_WINDOWS */
@@ -44,7 +43,7 @@ namespace SedNL
 ////////////////////////////////////////////////////////////
 //! \brief Create a connection to a server
 ////////////////////////////////////////////////////////////
-class SEDNL_API TCPClient : SocketInterface, Connection
+class SEDNL_API TCPClient : public Connection
 {
 public:
     //! \brief Create an empty client
@@ -82,9 +81,6 @@ public:
     //! \argument[in] socket_address Server and port to connect to
     //! \argument[in] timeout The socket timeout in miliseconds.
     void connect(const SocketAddress& socket_address, int timeout = 1000);
-
-    //! \brief Cut the connection
-    void disconnect() noexcept;
 
 private:
 

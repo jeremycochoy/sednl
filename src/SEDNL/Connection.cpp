@@ -21,7 +21,23 @@
 
 #include "SEDNL/Connection.hpp"
 
+#ifdef SEDNL_WINDOWS
+#else /* SEDNL_WINDOWS */
+
+#include <unistd.h>
+
+#endif /* SEDNL_WINDOWS */
+
 namespace SedNL
 {
+
+void Connection::disconnect() noexcept
+{
+    //The call to close may fail, for example if the last write failed.
+    //But what can we do to that? So we silently ignore the return value.
+    if (m_connected)
+        close(m_fd);
+    m_connected = false;
+}
 
 }

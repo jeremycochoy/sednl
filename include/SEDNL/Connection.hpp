@@ -25,6 +25,7 @@
 #include "SEDNL/Export.hpp"
 #include "SEDNL/Exception.hpp"
 #include "SEDNL/Types.hpp"
+#include "SEDNL/SocketInterface.hpp"
 
 namespace SedNL
 {
@@ -38,11 +39,14 @@ namespace SedNL
 //! \brief Define the the Connection type wich
 //!        handle a connection and allow sending Event objects.
 ///////////////////////////////////////////////////////////////
-class SEDNL_API Connection
+    class SEDNL_API Connection : public SocketInterface, NonCopyable
 {
 public:
     //! \brief Construct an empty connection
     inline Connection();
+
+    //! \brief Cut the connection
+    virtual void disconnect() noexcept;
 
     //! \brief Send an event
     //!
