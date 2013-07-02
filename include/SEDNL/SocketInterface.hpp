@@ -40,7 +40,7 @@ public:
     inline SocketInterface() noexcept;
 
     //! \brief Should be implemented by client/server/connection.
-    virtual void disconnect() = 0;
+    virtual void disconnect() noexcept = 0;
 
     //! \brief Tell if the client/server/connection is connected.
     inline bool is_connected() const noexcept;

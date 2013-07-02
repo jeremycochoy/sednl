@@ -31,6 +31,11 @@ Connection::Connection()
     :m_data_double(0)
 {}
 
+Connection::~Connection() noexcept
+{
+    disconnect();
+}
+
 } // namespace Sednl
 
 #endif /* !CONNECTION_IPP_ */

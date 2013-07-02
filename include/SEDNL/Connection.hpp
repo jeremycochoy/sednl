@@ -44,6 +44,9 @@ public:
     //! \brief Construct an empty connection
     inline Connection();
 
+    //! \brief Call disconnect
+    inline ~Connection() noexcept;
+
     //! \brief Cut the connection
     virtual void disconnect() noexcept;
 
