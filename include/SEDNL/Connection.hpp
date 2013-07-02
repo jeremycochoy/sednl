@@ -38,7 +38,7 @@ namespace SedNL
 //! \brief Define the the Connection type wich
 //!        handle a connection and allow sending Event objects.
 ///////////////////////////////////////////////////////////////
-    class SEDNL_API Connection : public SocketInterface, NonCopyable
+class SEDNL_API Connection : public SocketInterface
 {
 public:
     //! \brief Construct an empty connection
