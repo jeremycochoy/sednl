@@ -51,7 +51,6 @@ void TCPClient::connect(const SocketAddress& socket_address, int timeout)
     hints.ai_socktype = SOCK_STREAM; // TCP
 
     struct addrinfo* addrs = nullptr;
-    bool should_try_again = true;
 
     //Create a lambda deleter
     auto deleter = [](struct addrinfo* ptr)
@@ -61,40 +60,9 @@ void TCPClient::connect(const SocketAddress& socket_address, int timeout)
     std::unique_ptr<struct addrinfo, decltype(deleter)>
         resources_keeper(nullptr, deleter);
 
-    // Port
-    std::string port = std::to_string(socket_address.m_port);
-
-    //Allow two tries
-    for (int i = 0; i < 2; i++)
-    {
-        int errcode = getaddrinfo(socket_address.m_name.c_str(),
-                                  port.c_str(),
-                                  &hints, &addrs);
-
-        std::unique_ptr<struct addrinfo, decltype(deleter)>
-            inloop_keeper(addrs, deleter);
-
-        //Check the error code. Depending of the error, we may allow one more try.
-        if (errcode < 0)
-        {
-            switch (errcode)
-            {
-            case EAI_MEMORY:
-                throw std::bad_alloc();
-            case EAI_AGAIN:
-                if (should_try_again)
-                {
-                    //TODO: Add a small 1ms sleep to let the kernel do some work and
-                    //      try again.
-                    break;
-                }
-            default:
-                throw NetworkException(NetworkExceptionT::CantRetrieveHost,
-                                       gai_strerror(errcode));
-            }
-        }
-        resources_keeper.swap(inloop_keeper);
-    }
+    retrieve_addresses(socket_address.m_name, socket_address.m_port,
+                       hints, addrs,
+                       resources_keeper, deleter);
 
     //Socket FileDescriptor
     FileDescriptor fd;

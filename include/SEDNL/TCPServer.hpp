@@ -25,6 +25,16 @@
 #include "SEDNL/Export.hpp"
 #include "SEDNL/SocketInterface.hpp"
 
+#ifdef SEDNL_WINDOWS
+#else /* SEDNL_WINDOWS */
+
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
+#include <unistd.h>
+
+#endif /* SEDNL_WINDOWS */
+
 namespace SedNL
 {
 

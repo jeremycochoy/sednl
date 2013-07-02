@@ -20,6 +20,11 @@
 //        distribution.
 
 #include "SEDNL/TCPServer.hpp"
+#include "SEDNL/SocketHelp.hpp"
+#include "SEDNL/Exception.hpp"
+#include "SEDNL/SocketAddress.hpp"
+
+#include <cstring>
 
 namespace SedNL
 {
@@ -34,6 +39,18 @@ TCPServer::TCPServer(const SocketAddress& socket_address)
 
 void TCPServer::connect(const SocketAddress& socket_address)
 {
+    if (!socket_address.is_client_valid())
+        throw NetworkException(NetworkExceptionT::InvalidSocketAddress);
+
+    struct addrinfo hints;
+    std::memset(&hints, 0, sizeof(hints));
+    hints.ai_family = AF_UNSPEC; // Both IPV6 and IPV4
+    hints.ai_socktype = SOCK_STREAM; // TCP
+    hints.ai_flags = AI_PASSIVE; // We want to bind on
+
+    struct addrinfo* addrs = nullptr;
+    bool should_try_again = true;
+
     //TODO
 }
 
