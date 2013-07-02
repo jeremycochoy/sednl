@@ -24,6 +24,7 @@
 
 #include "SEDNL/Export.hpp"
 #include "SEDNL/Exception.hpp"
+#include "SEDNL/Types.hpp"
 
 namespace SedNL
 {
@@ -115,8 +116,9 @@ public:
     //! retrieve the pointer before calling release_user_data().
     void release_user_data();
 
-private:
-    //TODO Store socket here
+protected:
+    //! \brief Socket file descriptor
+    FileDescriptor m_fd;
 };
 
 

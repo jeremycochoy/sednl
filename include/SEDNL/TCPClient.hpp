@@ -24,7 +24,6 @@
 
 #include "SEDNL/Export.hpp"
 #include "SEDNL/Connection.hpp"
-#include "SEDNL/Types.hpp"
 #include "SEDNL/SocketInterface.hpp"
 
 #ifdef SEDNL_WINDOWS
@@ -54,10 +53,12 @@ public:
     //! \brief Create a connection to the SocketAddress
     //!
     //! Calling this constructor is the same as creating an
-    //! empty TCPClient and then calling connect().
+    //! empty TCPClient and then calling TCPClient::connect().
     //!
-    //! \argument socket_address Server and port to connect to
-    TCPClient(const SocketAddress& socket_address);
+    //! \argument[in] socket_address Server and port to connect to
+    //! \argument[in] timeout Socket timeout in miliseconds.
+    //!                       See TCPClient::connect.
+    TCPClient(const SocketAddress& socket_address, int timeout = 1000);
 
     //! \brief Connect to a SocketAddress
     //!
@@ -65,14 +66,42 @@ public:
     //! an exception. You can check if the connection was already
     //! openend with is_open().
     //!
-    //! \argument socket_address Server and port to connect to
-    void connect(const SocketAddress& socket_address);
+    //! You can give the timeout you allow to connect.
+    //! If you want to block until sucess or failure
+    //! (it's discouraged), put 0 or -1. You'll then
+    //! have a "blocking" connect call.
+    //! You should know that it doesn't means that
+    //! connect will return after timeout miliseconds.
+    //! Actualy, connect will try with each available
+    //! server ip / connection interface, and for each
+    //! of them, connect will wait timeout ms.
+    //! For example, if google is unreachable, since
+    //! google.fr have 4 ips, it will try at least 4
+    //! times.
+    //!
+    //! \argument[in] socket_address Server and port to connect to
+    //! \argument[in] timeout The socket timeout in miliseconds.
+    void connect(const SocketAddress& socket_address, int timeout = 1000);
 
     //! \brief Cut the connection
     void disconnect() noexcept;
 
 private:
-    FileDescriptor m_fd;
+
+    //! \brief Try to connect with a call to 'connect'.
+    //!
+    //! \argument[in] fd The socket file descriptor
+    //! \argument[in] addr The addrinfo description of the server
+    bool blocking_connect(FileDescriptor fd, struct addrinfo *addr);
+
+    //! \brief Try to connect with connect, select, and non blocking socket.
+    //!
+    //! Change the fd socket to non-blocking.
+    //!
+    //! \argument[in] fd The socket file descriptor
+    //! \argument[in] addr The addrinfo description of the server
+    //! \argument[in] timeout Select's timeout in ms
+    bool non_blocking_connect(FileDescriptor fd, struct addrinfo *addr, int timeout);
 };
 
 } // namespace SedNL
@@ -88,7 +117,7 @@ private:
 //! \code
 //!
 //! //Create a connection
-//! TCPConnection connection(SocketAddress(4242, "localhost"));
+//! TCPClient connection(SocketAddress(4242, "localhost"));
 //!
 //! //Create an empty event
 //! Event event("hello_msg");

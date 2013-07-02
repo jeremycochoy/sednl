@@ -53,6 +53,8 @@ namespace SedNL
         InvalidSocketAddress,
         CantRetrieveHost,
         ConnectFailed,
+        CantSetNonblocking,
+        TimedOut,
     };
 
     //////////////////////////////////////////////

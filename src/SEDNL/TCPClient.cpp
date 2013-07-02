@@ -21,6 +21,8 @@
 
 #include "SEDNL/TCPClient.hpp"
 #include "SEDNL/SocketAddress.hpp"
+#include "SEDNL/SocketHelp.hpp"
+#include "SEDNL/Types.hpp"
 
 #include <cstring>
 #include <memory>
@@ -32,13 +34,13 @@ TCPClient::TCPClient() noexcept
 {
 }
 
-TCPClient::TCPClient(const SocketAddress& socket_address)
+    TCPClient::TCPClient(const SocketAddress& socket_address, int timeout)
     :Connection()
 {
-    connect(socket_address);
+    connect(socket_address, timeout);
 }
 
-void TCPClient::connect(const SocketAddress& socket_address)
+void TCPClient::connect(const SocketAddress& socket_address, int timeout)
 {
     if (!socket_address.is_client_valid())
         throw NetworkException(NetworkExceptionT::InvalidSocketAddress);
@@ -59,11 +61,14 @@ void TCPClient::connect(const SocketAddress& socket_address)
     std::unique_ptr<struct addrinfo, decltype(deleter)>
         resources_keeper(nullptr, deleter);
 
+    // Port
+    std::string port = std::to_string(socket_address.m_port);
+
     //Allow two tries
     for (int i = 0; i < 2; i++)
     {
         int errcode = getaddrinfo(socket_address.m_name.c_str(),
-                                  std::to_string(socket_address.m_port).c_str(),
+                                  port.c_str(),
                                   &hints, &addrs);
 
         std::unique_ptr<struct addrinfo, decltype(deleter)>
@@ -102,9 +107,19 @@ void TCPClient::connect(const SocketAddress& socket_address)
         if (fd == -1)
             continue;
 
-        //Success
-        if (::connect(fd, addr->ai_addr, addr->ai_addrlen) == 0)
-            break;
+        //Blocking connect
+        if (timeout == 0 || timeout == -1)
+        {
+            //Success
+            if (blocking_connect(fd, addr))
+                break;
+        }
+        //Non blocking connect with timeout
+        else
+        {
+            if (non_blocking_connect(fd, addr, timeout))
+                break;
+        }
 
         close(fd);
         //Try again
@@ -112,7 +127,11 @@ void TCPClient::connect(const SocketAddress& socket_address)
 
     //If we failed
     if (addr == nullptr)
+    {
+        if (timeout != 0 && timeout != -1)
+            throw NetworkException(NetworkExceptionT::TimedOut);
         throw NetworkException(NetworkExceptionT::ConnectFailed);
+    }
 
     m_connected = true;
     m_fd = fd;
@@ -125,4 +144,52 @@ void TCPClient::disconnect() noexcept
     close(m_fd);
 }
 
+bool TCPClient::blocking_connect(FileDescriptor fd, struct addrinfo *addr)
+{
+    return (::connect(fd, addr->ai_addr, addr->ai_addrlen) == 0);
 }
+
+bool TCPClient::non_blocking_connect(FileDescriptor fd, struct addrinfo *addr,
+                                     int timeout)
+{
+    //Set non-blocking
+    if (!set_non_blocking(fd))
+        return false;
+
+    //Try to connect
+    int errcode = ::connect(fd, addr->ai_addr, addr->ai_addrlen);
+
+    //We are lucky, it worked instantaneously
+    if (errcode == 0)
+        return true;
+
+    //Failed to start processing connect
+    if (EINPROGRESS != errno)
+        return false;
+
+    //We have to wait a bit with select
+    fd_set wfds;
+    FD_ZERO(&wfds);
+    FD_SET(fd, &wfds);
+    struct timeval tv;
+    tv.tv_sec = timeout / 1000;
+    tv.tv_usec = (timeout % 1000) * 1000;
+    errcode = select(fd + 1, nullptr, &wfds, nullptr, &tv);
+
+    //0 == timed out, -1 == error.
+    if (errcode == 0 || errcode == -1)
+        return false;
+
+    //We should check if connect completed
+    int so_error = -1;
+    int optlen = sizeof(so_error);
+
+    if (getsockopt(fd, SOL_SOCKET, SO_ERROR, &so_error, (socklen_t*)&optlen) == -1)
+        return false;
+    return false;
+
+    //The connection is valid if so_error == 0
+    return so_error == 0;
+}
+
+} // namespace SedNL
