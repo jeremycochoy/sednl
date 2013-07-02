@@ -19,7 +19,7 @@
 //     3. This notice may not be removed or altered from any source
 //        distribution.
 
-#ifndef EXEPTION_HPP_
+#ifndef EXCEPTION_HPP_
 #define EXCEPTION_HPP_
 
 #include <exception>

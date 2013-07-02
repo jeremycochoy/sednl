@@ -26,6 +26,8 @@
 #include "SEDNL/Exception.hpp"
 #include "SEDNL/SocketInterface.hpp"
 
+#include <mutex>
+
 namespace SedNL
 {
 
@@ -63,7 +65,7 @@ public:
     //! \argument[in] data Value to store. If the string was allocated,
     //!                    you shouldn't free it before the connection was
     //!                    destroyed, or released.
-    void set_user_data(const char* data);
+    void set_user_data(const char* data) throw(TypeException);
 
     //! \brief Store a value specific to this connection
     //!
@@ -71,7 +73,7 @@ public:
     //! datatype, until you released it with Connection::release_user_data().
     //!
     //! \argument[in] data Value to store.
-    void set_user_data(int data);
+    void set_user_data(int data) throw(TypeException);
 
     //! \brief Store a value specifit to this connection
     //!
@@ -79,7 +81,7 @@ public:
     //! datatype, until you released it with Connection::release_user_data().
     //!
     //! \argument[in] data Value to store.
-    void set_user_data(char data);
+    void set_user_data(char data) throw(TypeException);
 
     //! \brief Store a value specifit to this connection
     //!
@@ -87,7 +89,7 @@ public:
     //! datatype, until you released it with Connection::release_user_data().
     //!
     //! \argument[in] data Value to store.
-    void set_user_data(float data);
+    void set_user_data(float data) throw(TypeException);
 
     //! \brief Store a value specifit to this connection
     //!
@@ -95,7 +97,7 @@ public:
     //! datatype, until you released it with Connection::release_user_data().
     //!
     //! \argument[in] data Value to store.
-    void set_user_data(double data);
+    void set_user_data(double data) throw(TypeException);
 
     //! \brief Store a value specifit to this connection
     //!
@@ -111,7 +113,7 @@ public:
     //! to retrive your data. See the integer version of Connection::set_user_data.
     //!
     //! \argument[in] data Value to store.
-    void set_user_data(void* data);
+    void set_user_data(void* data) throw(TypeException);
 
     //! \brief Retrieve previously stored data.
     //!
@@ -119,6 +121,9 @@ public:
     //! a TypeException.
     //!
     //! If no values was set, it will also raise a TypeException.
+    //!
+    //! Types allowed are :
+    //! int, float, double, char, void*, const char*
     //!
     //! \return The value previously stored by set_user_data().
     template<class T>
@@ -131,6 +136,20 @@ public:
     void release_user_data();
 
 private:
+    //! \brief List of types that can be stored
+    enum class UserDataType
+    {
+        String,
+        Int,
+        Char,
+        Float,
+        Ptr,
+        Double,
+        None,
+    };
+
+    //! \brief The type stored
+    UserDataType m_data_type;
     //! \brief User data
     union
     {
@@ -141,6 +160,10 @@ private:
         void* m_data_ptr;
         double m_data_double;
     };
+
+    //! \brief Mutex used for synchronisation while sending events,
+    //!        closing the connection, or changing the user data.
+    std::mutex m_mutex;
 };
 
 

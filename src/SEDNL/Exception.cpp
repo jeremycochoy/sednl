@@ -40,4 +40,10 @@ const char* TemplateException<NetworkExceptionT>::what() const noexcept
     }
 }
 
+template<>
+const char* TemplateException<TypeExceptionT>::what() const noexcept
+{
+    return "TODO";
+}
+
 }

@@ -28,7 +28,7 @@ namespace SedNL
 {
 
 Connection::Connection()
-    :m_data_double(0)
+    :m_data_type(UserDataType::None), m_data_double(0)
 {}
 
 Connection::~Connection() noexcept

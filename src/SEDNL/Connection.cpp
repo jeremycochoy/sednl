@@ -40,4 +40,95 @@ void Connection::disconnect() noexcept
     m_connected = false;
 }
 
+void Connection::set_user_data(const char* data) throw(TypeException)
+{
+    std::lock_guard<std::mutex> lock(m_mutex);
+
+    if (m_data_type != UserDataType::None
+            && m_data_type != UserDataType::String)
+        throw TypeException(TypeExceptionT::UserDataWrongTypeGiven);
+
+    m_data_string = data;
+    m_data_type = UserDataType::String;
+}
+
+void Connection::set_user_data(int data) throw(TypeException)
+{
+    std::lock_guard<std::mutex> lock(m_mutex);
+
+    if (m_data_type != UserDataType::None
+            && m_data_type != UserDataType::Int)
+        throw TypeException(TypeExceptionT::UserDataWrongTypeGiven);
+
+    m_data_int = data;
+    m_data_type = UserDataType::Int;
+}
+
+void Connection::set_user_data(char data) throw(TypeException)
+{
+    std::lock_guard<std::mutex> lock(m_mutex);
+
+    if (m_data_type != UserDataType::None
+            && m_data_type != UserDataType::Char)
+        throw TypeException(TypeExceptionT::UserDataWrongTypeGiven);
+
+    m_data_char = data;
+    m_data_type = UserDataType::Char;
+}
+
+void Connection::set_user_data(float data) throw(TypeException)
+{
+    std::lock_guard<std::mutex> lock(m_mutex);
+
+    if (m_data_type != UserDataType::None
+            && m_data_type != UserDataType::Float)
+        throw TypeException(TypeExceptionT::UserDataWrongTypeGiven);
+
+    m_data_float = data;
+    m_data_type = UserDataType::Float;
+}
+
+void Connection::set_user_data(void* data) throw(TypeException)
+{
+    std::lock_guard<std::mutex> lock(m_mutex);
+
+    if (m_data_type != UserDataType::None
+            && m_data_type != UserDataType::Ptr)
+        throw TypeException(TypeExceptionT::UserDataWrongTypeGiven);
+
+    m_data_ptr = data;
+    m_data_type = UserDataType::Ptr;
+}
+
+void Connection::set_user_data(double data) throw(TypeException)
+{
+    std::lock_guard<std::mutex> lock(m_mutex);
+
+    if (m_data_type != UserDataType::None
+            && m_data_type != UserDataType::Double)
+        throw TypeException(TypeExceptionT::UserDataWrongTypeGiven);
+
+    m_data_double = data;
+    m_data_type = UserDataType::Double;
+}
+
+void Connection::release_user_data()
+{
+    std::lock_guard<std::mutex> lock(m_mutex);
+
+    m_data_double = 0;
+    m_data_type = UserDataType::None;
+}
+
+template<>
+int Connection::get_user_data<int>() throw(TypeException)
+{
+    std::lock_guard<std::mutex> lock(m_mutex);
+
+    if (m_data_type != UserDataType::Int)
+        throw TypeException(TypeExceptionT::UserDataWrongTypeAsked);
+
+    return m_data_int;
+}
+
 }
