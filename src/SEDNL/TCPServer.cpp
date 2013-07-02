@@ -25,6 +25,7 @@
 #include "SEDNL/SocketAddress.hpp"
 
 #include <cstring>
+#include <memory>
 
 namespace SedNL
 {
@@ -39,7 +40,7 @@ TCPServer::TCPServer(const SocketAddress& socket_address)
 
 void TCPServer::connect(const SocketAddress& socket_address)
 {
-    if (!socket_address.is_client_valid())
+    if (!socket_address.is_server_valid())
         throw NetworkException(NetworkExceptionT::InvalidSocketAddress);
 
     struct addrinfo hints;
@@ -49,7 +50,37 @@ void TCPServer::connect(const SocketAddress& socket_address)
     hints.ai_flags = AI_PASSIVE; // We want to bind on
 
     struct addrinfo* addrs = nullptr;
-    bool should_try_again = true;
+
+    //Create a lambda deleter
+    auto deleter = [](struct addrinfo* ptr)
+        {if (ptr != nullptr) {freeaddrinfo(ptr);} };
+
+    //Will store addresses to allow RAII.
+    std::unique_ptr<struct addrinfo, decltype(deleter)>
+        resources_keeper(nullptr, deleter);
+
+    retrieve_addresses(socket_address.m_name, socket_address.m_port,
+                       hints, addrs,
+                       resources_keeper, deleter);
+
+    //Socket FileDescriptor
+    FileDescriptor fd;
+    struct addrinfo *addr = nullptr;
+    for (addr = addrs; addr != nullptr; addr = addr->ai_next)
+    {
+        fd = socket(addr->ai_family, addr->ai_socktype, addr->ai_protocol);
+        if (fd == -1)
+            continue;
+
+        int errcode = bind(fd, addr->ai_addr, addr->ai_addrlen);
+
+        //We binded on this socket
+        if (errcode == 0)
+            break;
+
+        //Failed, let's try again
+        close (fd);
+    }
 
     //TODO
 }

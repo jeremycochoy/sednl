@@ -26,9 +26,15 @@ namespace SedNL
 {
 
 template<typename T>
-T TemplateException<T>::getType()
+T TemplateException<T>::get_type()
 {
     return m_type;
+}
+
+template<typename T>
+const char* TemplateException<T>::get_message()
+{
+    return m_msg;
 }
 
 template<typename T>

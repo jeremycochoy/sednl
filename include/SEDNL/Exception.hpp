@@ -82,7 +82,15 @@ namespace SedNL
         inline TemplateException(T type, const char* msg);
 
         //! \brief Return the type of the exception
-        inline T getType();
+        inline T get_type();
+
+        //! \brief Return an attached message
+        //!
+        //!  Return system-dependent error message, given by a
+        //!  call to the socket api.
+        //!
+        //! \return A message, or nullptr if nothing is available
+        inline const char* get_message();
 
         //! \brief Return a message describing the exception,
         //!        based on it's type.
