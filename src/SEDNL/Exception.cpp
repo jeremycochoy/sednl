@@ -27,7 +27,17 @@ namespace SedNL
 template<>
 const char* TemplateException<NetworkExceptionT>::what() const noexcept
 {
-    return "TODO";
+    switch(m_type)
+    {
+    case NetworkExceptionT::InvalidSocketAddress:
+        return "The SocketAddress object given is invalid for it's purpose.";
+    case NetworkExceptionT::CantRetrieveHost:
+        return "Can't retrieve host ip from the host name.";
+    case NetworkExceptionT::ConnectFailed:
+        return "Can't connect to the server.";
+    default:
+        return "Unknown exception.";
+    }
 }
 
 }
