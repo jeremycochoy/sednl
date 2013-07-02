@@ -147,7 +147,6 @@ bool TCPClient::non_blocking_connect(FileDescriptor fd, struct addrinfo *addr,
 
     if (getsockopt(fd, SOL_SOCKET, SO_ERROR, &so_error, (socklen_t*)&optlen) == -1)
         return false;
-    return false;
 
     //The connection is valid if so_error == 0
     return so_error == 0;
