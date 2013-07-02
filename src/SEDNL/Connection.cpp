@@ -33,6 +33,8 @@ namespace SedNL
 
 void Connection::disconnect() noexcept
 {
+    std::lock_guard<std::mutex> lock(m_mutex);
+
     //The call to close may fail, for example if the last write failed.
     //But what can we do to that? So we silently ignore the return value.
     if (m_connected)
