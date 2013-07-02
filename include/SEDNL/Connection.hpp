@@ -24,7 +24,6 @@
 
 #include "SEDNL/Export.hpp"
 #include "SEDNL/Exception.hpp"
-#include "SEDNL/Types.hpp"
 #include "SEDNL/SocketInterface.hpp"
 
 namespace SedNL
@@ -58,9 +57,9 @@ public:
     //! This class assume that you will allways use the same
     //! datatype, until you released it with Connection::release_user_data().
     //!
-    //! \argument data Value to store. If the string was allocated,
-    //!                you shouldn't free it before the connection was
-    //!                destroyed, or released.
+    //! \argument[in] data Value to store. If the string was allocated,
+    //!                    you shouldn't free it before the connection was
+    //!                    destroyed, or released.
     void set_user_data(const char* data);
 
     //! \brief Store a value specific to this connection
@@ -68,7 +67,7 @@ public:
     //! This class assume that you will allways use the same
     //! datatype, until you released it with Connection::release_user_data().
     //!
-    //! \argument data Value to store.
+    //! \argument[in] data Value to store.
     void set_user_data(int data);
 
     //! \brief Store a value specifit to this connection
@@ -76,7 +75,7 @@ public:
     //! This class assume that you will allways use the same
     //! datatype, until you released it with Connection::release_user_data().
     //!
-    //! \argument data Value to store.
+    //! \argument[in] data Value to store.
     void set_user_data(char data);
 
     //! \brief Store a value specifit to this connection
@@ -84,8 +83,16 @@ public:
     //! This class assume that you will allways use the same
     //! datatype, until you released it with Connection::release_user_data().
     //!
-    //! \argument data Value to store.
+    //! \argument[in] data Value to store.
     void set_user_data(float data);
+
+    //! \brief Store a value specifit to this connection
+    //!
+    //! This class assume that you will allways use the same
+    //! datatype, until you released it with Connection::release_user_data().
+    //!
+    //! \argument[in] data Value to store.
+    void set_user_data(double data);
 
     //! \brief Store a value specifit to this connection
     //!
@@ -100,7 +107,7 @@ public:
     //! An other solution is to use a connection id, and then use this id
     //! to retrive your data. See the integer version of Connection::set_user_data.
     //!
-    //! \argument data Value to store.
+    //! \argument[in] data Value to store.
     void set_user_data(void* data);
 
     //! \brief Retrieve previously stored data.
@@ -120,9 +127,17 @@ public:
     //! retrieve the pointer before calling release_user_data().
     void release_user_data();
 
-protected:
-    //! \brief Socket file descriptor
-    FileDescriptor m_fd;
+private:
+    //! \brief User data
+    union
+    {
+        const char* m_data_string;
+        int m_data_int;
+        char m_data_char;
+        float m_data_float;
+        void* m_data_ptr;
+        double m_data_double;
+    };
 };
 
 

@@ -19,28 +19,22 @@
 //     3. This notice may not be removed or altered from any source
 //        distribution.
 
-#ifndef SOCKET_INTERFACE_IPP_
-#define SOCKET_INTERFACE_IPP_
-
-#include "Export.hpp"
+#include "SEDNL/TCPServer.hpp"
 
 namespace SedNL
 {
 
-SocketInterface::SocketInterface() noexcept
-    :m_connected(false), m_fd(-1)
+TCPServer::TCPServer() noexcept
 {}
 
-bool SocketInterface::is_connected() const noexcept
+TCPServer::TCPServer(const SocketAddress& socket_address)
 {
-    return m_connected;
+    connect(socket_address);
 }
 
-SocketInterface::operator bool() const noexcept
+void TCPServer::connect(const SocketAddress& socket_address)
 {
-    return is_connected();
+    //TODO
 }
 
-} // namespace Sednl
-
-#endif /* !SOCKET_INTERFACE_IPP_ */
+} //namespace SedNL

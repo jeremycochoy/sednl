@@ -28,6 +28,7 @@ namespace SedNL
 {
 
 Connection::Connection()
+    :m_data_double(0)
 {}
 
 } // namespace Sednl

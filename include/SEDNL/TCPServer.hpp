@@ -19,44 +19,41 @@
 //     3. This notice may not be removed or altered from any source
 //        distribution.
 
-#ifndef SOCKET_INTERFACE_HPP_
-#define SOCKET_INTERFACE_HPP_
+#ifndef TCP_SERVER_HPP_
+#define TCP_SERVER_HPP_
 
-#include "Export.hpp"
-#include "SEDNL/NonCopyable.hpp"
-#include "SEDNL/Types.hpp"
+#include "SEDNL/Export.hpp"
+#include "SEDNL/SocketInterface.hpp"
 
 namespace SedNL
 {
 
-///////////////////////////////////////////////////////////////
-//! \brief Describe functions that connect, client and server
-//!        should have (like a connected/unconnected state).
-///////////////////////////////////////////////////////////////
-class SEDNL_API SocketInterface : NonCopyable
+    class SocketAddress;
+
+class SEDNL_API TCPServer : SocketInterface
 {
 public:
-    //! \brief Initialise member data
-    inline SocketInterface() noexcept;
+    //! \brief Create an empty server
+    TCPServer() noexcept;
 
-    //! \brief Should be implemented by client/server/connection.
-    virtual void disconnect() = 0;
+    //! \brief Create a server connection on the SocketAddress
+    //!
+    //! Calling this constructor is the same as creating an
+    //! empty TCPServer, then calling TCPServer::connect().
+    //!
+    //! \argument[in] socket_address Describe the port on wich the server will listen.
+    TCPServer(const SocketAddress &socket_address);
 
-    //! \brief Tell if the client/server/connection is connected.
-    inline bool is_connected() const noexcept;
+    //! \brief Create a server connection on the SocketAddress
+    //!
+    //! Calling this constructor is the same as creating an
+    //! empty TCPServer, then calling TCPServer::connect().
+    //!
+    //! \argument[in] socket_address Describe the port on wich the server will listen.
+    void connect(const SocketAddress &socket_address);
 
-    inline operator bool() const noexcept;
-
-protected:
-    //! \brief Connection state
-    bool m_connected;
-
-    //! \brief Socket file descriptor
-    FileDescriptor m_fd;
 };
 
 } // namespace SedNL
 
-#include "SocketInterface.ipp"
-
-#endif /* !SOCKET_INTERFACE_HPP_ */
+#endif /* !TCP_SERVER_HPP_ */
