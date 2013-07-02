@@ -141,4 +141,59 @@ int Connection::get_user_data<int>() throw(TypeException)
     return m_data_int;
 }
 
+template<>
+void* Connection::get_user_data<void*>() throw(TypeException)
+{
+    std::lock_guard<std::mutex> lock(m_mutex);
+
+    if (m_data_type != UserDataType::Ptr)
+        throw TypeException(TypeExceptionT::UserDataWrongTypeAsked);
+
+    return m_data_ptr;
+}
+
+template<>
+char Connection::get_user_data<char>() throw(TypeException)
+{
+    std::lock_guard<std::mutex> lock(m_mutex);
+
+    if (m_data_type != UserDataType::Char)
+        throw TypeException(TypeExceptionT::UserDataWrongTypeAsked);
+
+    return m_data_char;
+}
+
+template<>
+float Connection::get_user_data<float>() throw(TypeException)
+{
+    std::lock_guard<std::mutex> lock(m_mutex);
+
+    if (m_data_type != UserDataType::Float)
+        throw TypeException(TypeExceptionT::UserDataWrongTypeAsked);
+
+    return m_data_float;
+}
+
+template<>
+double Connection::get_user_data<double>() throw(TypeException)
+{
+    std::lock_guard<std::mutex> lock(m_mutex);
+
+    if (m_data_type != UserDataType::Double)
+        throw TypeException(TypeExceptionT::UserDataWrongTypeAsked);
+
+    return m_data_double;
+}
+
+template<>
+const char* Connection::get_user_data<const char*>() throw(TypeException)
+{
+    std::lock_guard<std::mutex> lock(m_mutex);
+
+    if (m_data_type != UserDataType::String)
+        throw TypeException(TypeExceptionT::UserDataWrongTypeAsked);
+
+    return m_data_string;
+}
+
 }
