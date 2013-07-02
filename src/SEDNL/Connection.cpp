@@ -42,6 +42,14 @@ void Connection::disconnect() noexcept
     m_connected = false;
 }
 
+void Connection::send(const Event& event)
+{
+    std::lock_guard<std::mutex> lock(m_mutex);
+
+    //TODO
+    write(m_fd, "TODO", 4);
+}
+
 void Connection::set_user_data(const char* data) throw(TypeException)
 {
     std::lock_guard<std::mutex> lock(m_mutex);
