@@ -50,13 +50,13 @@ public:
         UInt64  = 8,
         Float   = 20,
         Double  = 21,
-        //! \brief A string
+        //! \brief A C string (from a const char* or std::string)
         String  = 30,
         //! \brief An user defined type
         Object  = 40,
     };
 
-    //! Create an empty pcket
+    //! Create an empty packet
     Packet();
 
     //! \brief Write \a dt into the packet
