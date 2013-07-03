@@ -86,13 +86,15 @@ private:
 
     //! \brief Try to connect with a call to 'connect'.
     //!
+    //! If the function success, fd is now a blocking socket.
+    //!
     //! \argument[in] fd The socket file descriptor
     //! \argument[in] addr The addrinfo description of the server
     bool blocking_connect(FileDescriptor fd, struct addrinfo *addr);
 
     //! \brief Try to connect with connect, select, and non blocking socket.
     //!
-    //! Change the fd socket to non-blocking.
+    //! If the function success, fd is now a nonblocking socket.
     //!
     //! \argument[in] fd The socket file descriptor
     //! \argument[in] addr The addrinfo description of the server

@@ -38,7 +38,7 @@
 namespace SedNL
 {
 
-    class SocketAddress;
+class SocketAddress;
 
 class SEDNL_API TCPServer : SocketInterface
 {
