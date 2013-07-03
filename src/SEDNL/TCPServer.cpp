@@ -82,7 +82,8 @@ void TCPServer::connect(const SocketAddress& socket_address)
         close (fd);
     }
 
-    //TODO
+    if (addr == nullptr)
+        throw NetworkException(NetworkExceptionT::BindFailed);
 }
 
 } //namespace SedNL
