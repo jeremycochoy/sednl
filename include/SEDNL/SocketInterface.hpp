@@ -57,6 +57,6 @@ protected:
 
 } // namespace SedNL
 
-#include "SocketInterface.ipp"
+#include "SEDNL/SocketInterface.ipp"
 
 #endif /* !SOCKET_INTERFACE_HPP_ */

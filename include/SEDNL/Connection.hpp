@@ -169,7 +169,7 @@ private:
 
 } // namespace SedNL
 
-#include "Connection.ipp"
+#include "SEDNL/Connection.ipp"
 
 #endif /* !CONNECTION_HPP_ */
 

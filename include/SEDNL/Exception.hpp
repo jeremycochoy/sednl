@@ -122,6 +122,6 @@ namespace SedNL
 
 } // namespace SedNL
 
-#include "Exception.ipp"
+#include "SEDNL/Exception.ipp"
 
 #endif /* !EXCEPTION_HPP_ */

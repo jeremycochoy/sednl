@@ -27,7 +27,6 @@
 // Cf http://en.cppreference.com/w/cpp/header/cstdint
 #include <cstdint>
 
-#include <list>
 #include <string>
 
 namespace SedNL
@@ -43,11 +42,17 @@ namespace SedNL
     //! \brief 64 bits integer
     typedef int64_t Int64;
 
+    //! \brief 8 bits integer
+    typedef uint8_t  UInt8;
+    //! \brief 16 bits integer
+    typedef uint16_t UInt16;
+    //! \brief 32 bits integer
+    typedef uint32_t UInt32;
+    //! \brief 64 bits integer
+    typedef uint64_t UInt64;
+
     //! \brief A byte
     typedef Int8 Byte;
-
-    //! A list of strings
-    typedef std::list<std::string> StringList;
 
     //! A (socket) file descriptor
     typedef int FileDescriptor;

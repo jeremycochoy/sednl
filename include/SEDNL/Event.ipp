@@ -29,6 +29,16 @@ Event::Event(std::string name)
     :m_name(name)
 {}
 
+Event::Event(std::string name, const Packet& packet)
+    :m_name(name), m_packet(packet)
+{}
+
+
+const Packet& Event::get_packet() const
+{
+    return m_packet;
+}
+
 } //namespace SedNL
 
 #endif /* !EVENT_IPP_ */

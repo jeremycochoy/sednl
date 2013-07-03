@@ -23,6 +23,7 @@
 #define EVENT_HPP_
 
 #include "SEDNL/Export.hpp"
+#include "SEDNL/Packet.hpp"
 
 #include <string>
 
@@ -35,14 +36,28 @@ class SEDNL_API Event
 {
 public:
     //! \brief Construct an empty event
-    Event(std::string name);
+    //!
+    //! \argument[in] name Name of the event
+    inline Event(std::string name);
+
+    //! \brief Construct an event from a packet
+    //!
+    //! \argument[in] name Name of the event
+    //! \argument[in] packet The data attached
+    inline Event(std::string name, const Packet& packet);
+
+    //! \brief Return a reference to the packet
+    //!
+    //! \return The currently handled packet
+    inline const Packet& get_packet() const;
 
 private:
     std::string m_name;
+    Packet m_packet;
 };
 
 } // namespace SedNL
 
-#include "Event.ipp"
+#include "SEDNL/Event.ipp"
 
 #endif /* !EVENT_HPP_ */

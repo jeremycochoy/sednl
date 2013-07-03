@@ -25,6 +25,8 @@
 #include "SEDNL/Export.hpp"
 #include "SEDNL/Connection.hpp"
 
+#include <vector>
+
 #ifdef SEDNL_WINDOWS
 #else /* SEDNL_WINDOWS */
 
@@ -39,6 +41,9 @@ namespace SedNL
 {
 
     class SocketAddress;
+
+    //! A binary array
+    typedef std::vector<Byte> ByteArray;
 
 ////////////////////////////////////////////////////////////
 //! \brief Create a connection to a server

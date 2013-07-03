@@ -149,6 +149,6 @@ private:
 
 } // namespace SedNL
 
-#include "Slot.ipp"
+#include "SEDNL/Slot.ipp"
 
 #endif /* !SLOT_HPP_ */

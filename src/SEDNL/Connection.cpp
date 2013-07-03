@@ -20,6 +20,7 @@
 //        distribution.
 
 #include "SEDNL/Connection.hpp"
+#include "SEDNL/Event.hpp"
 
 #ifdef SEDNL_WINDOWS
 #else /* SEDNL_WINDOWS */
@@ -46,8 +47,14 @@ void Connection::send(const Event& event)
 {
     std::lock_guard<std::mutex> lock(m_mutex);
 
-    //TODO
-    write(m_fd, "TODO", 4);
+    const Packet& packet = event.get_packet();
+    const UInt16 length = packet.get_network_length();
+    const char* length_ptr = reinterpret_cast<const char *>(&length);
+    const ByteArray& data = packet.get_data();
+    const char* data_ptr = reinterpret_cast<const char *>(&data[0]);
+    //TODO : Handle write errors with exceptions
+    write(m_fd, length_ptr, 2);
+    write(m_fd, data_ptr, data.size());
 }
 
 void Connection::set_user_data(const char* data) throw(TypeException)
