@@ -51,6 +51,21 @@ public:
     //! \return The currently handled packet
     inline const Packet& get_packet() const;
 
+    //! \brief Compute the binary header of an event
+    //!
+    //! Low level function.
+    //!
+    //! \return The binary header.
+    ByteArray get_header() const;
+
+    //! \brief Compute a binary event ready to send
+    //!
+    //! Low level function. Return the concatenated value
+    //! of Event::get_header() and Packet::get_data().
+    //!
+    //! \return The serialised event as a binary string
+    ByteArray pack() const;
+
 private:
     std::string m_name;
     Packet m_packet;

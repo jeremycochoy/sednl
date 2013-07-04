@@ -23,14 +23,27 @@
 #define SOCKET_HELP_HPP_
 
 #include "SEDNL/Exception.hpp"
+#include "SEDNL/Packet.hpp"
 
 #ifdef SEDNL_WINDOWS
 #else /* SEDNL_WINDOWS */
 
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
 #include <unistd.h>
 #include <fcntl.h>
 
+#include <arpa/inet.h>
+#include <netinet/in.h>
+
+typedef uint64_t n_64;
+typedef uint32_t n_32;
+typedef uint16_t n_16;
+
 #endif /* SEDNL_WINDOWS */
+
+#include <utility>
 
 namespace SedNL
 {
@@ -50,7 +63,7 @@ inline bool set_non_blocking(int fd)
 //! See TCPServer::connect() and TCPClient::connect().
 template<typename T, typename U>
 void retrieve_addresses(std::string sa_node, int sa_port,
-                        struct addrinfo &hints,
+                        struct addrinfo& hints,
                         struct addrinfo*& addrs,
                         T& resources_keeper, U deleter)
 {
@@ -95,6 +108,51 @@ void retrieve_addresses(std::string sa_node, int sa_port,
         }
         resources_keeper.swap(inloop_keeper);
     }
+}
+
+inline
+void __push_16(ByteArray& data, UInt16 dt)
+{
+    const n_16 ndt = htons(static_cast<n_16>(dt));
+    const Byte* const bytes = reinterpret_cast<const Byte*>(&ndt);
+    data.push_back(bytes[0]);
+    data.push_back(bytes[1]);
+}
+
+inline
+void __push_32(ByteArray& data, UInt32 dt)
+{
+    const n_32 ndt = htonl(static_cast<n_32>(dt));
+    const Byte* const bytes = reinterpret_cast<const Byte*>(&ndt);
+    data.push_back(bytes[0]);
+    data.push_back(bytes[1]);
+    data.push_back(bytes[2]);
+    data.push_back(bytes[3]);
+}
+
+static inline
+bool __is_big_endian()
+{
+    const n_64 v = 1;
+
+    return (*reinterpret_cast<const char*>(&v) == 0);
+}
+
+static inline
+void __bytes_swap(UInt64& v)
+{
+    n_32 *a = reinterpret_cast<n_32*>(&v);
+    n_32 *b = a+1;
+    std::swap(*a, *b);
+}
+
+static inline
+void __push_64(ByteArray& data, UInt64 dt)
+{
+    if (!__is_big_endian())
+        __bytes_swap(dt);
+    __push_32(data, static_cast<UInt32>(dt >> 32));
+    __push_32(data, static_cast<UInt32>(dt));
 }
 
 } // namespace SedNL

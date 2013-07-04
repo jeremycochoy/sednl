@@ -47,13 +47,9 @@ void Connection::send(const Event& event)
 {
     std::lock_guard<std::mutex> lock(m_mutex);
 
-    const Packet& packet = event.get_packet();
-    const UInt16 length = packet.get_network_length();
-    const char* length_ptr = reinterpret_cast<const char *>(&length);
-    const ByteArray& data = packet.get_data();
+    ByteArray data = event.pack();
     const char* data_ptr = reinterpret_cast<const char *>(&data[0]);
     //TODO : Handle write errors with exceptions
-    write(m_fd, length_ptr, 2);
     write(m_fd, data_ptr, data.size());
 }
 
