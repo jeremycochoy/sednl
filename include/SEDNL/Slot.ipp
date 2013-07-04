@@ -19,6 +19,8 @@
 //     3. This notice may not be removed or altered from any source
 //        distribution.
 
+#include <utility>
+
 #ifndef SLOT_IPP_
 #define SLOT_IPP_
 
@@ -26,55 +28,48 @@ namespace SedNL
 {
 
 template <typename... Arguments>
-void Slot<Arguments...>::call(Arguments... args)
+void Slot<Arguments...>::operator()(Arguments... args)
 {
     if (container)
-        container->call(args...);
+        container(args...);
+}
+
+template <typename... Arguments>
+template <class T>
+void Slot<Arguments...>::set_function(T f)
+{
+    container = std::function<void(Arguments...)>(f);
+}
+
+template <typename... Arguments>
+template <class T>
+void Slot<Arguments...>::set_function(T& inst, MemberCallback<T> f)
+{
+    container = std::bind(f, inst,
+                          std::placeholders::_1,
+                          std::placeholders::_2);
+}
+
+template <typename... Arguments>
+template <class T>
+void Slot<Arguments...>::set_function(T* inst, MemberCallback<T> f)
+{
+    container = std::bind(f, inst,
+                          std::placeholders::_1,
+                          std::placeholders::_2);
 }
 
 template <typename... Arguments>
 void Slot<Arguments...>::reset() noexcept
 {
-    container.swap(std::shared_ptr< CallbackContainer<Arguments...> >(nullptr));
+    container = std::function<void(Arguments...)>();
 }
 
 template <typename... Arguments>
-SimpleFunctionCallback<Arguments...>::SimpleFunctionCallback(typename Slot<Arguments...>::Callback callback)
-    :m_callback(callback)
-{}
-
-
-template <typename... Arguments>
-void SimpleFunctionCallback<Arguments...>::call(Arguments... args)
+Slot<Arguments...>::operator bool() const noexcept
 {
-    m_callback(args...);
+    return (bool)container;
 }
-
-template <typename T, typename... Arguments>
-MemberFunctionCallback<T, Arguments...>
-::MemberFunctionCallback(T* instance,
-                         typename MemberFunctionCallback<T, Arguments...>
-                         ::CallbackType callback)
-    :m_instance(instance), m_callback(callback)
-{}
-
-template <typename T, typename... Arguments>
-void MemberFunctionCallback<T, Arguments...>::call(Arguments... args)
-{
-    m_instance->*m_callback(args...);
-}
-
-template <typename T, typename... Arguments>
-void LambdaCallback<T, Arguments...>::call(Arguments... args)
-{
-    m_lambda(args...);
-}
-
-template <typename T, typename... Arguments>
-LambdaCallback<T, Arguments...>
-::LambdaCallback(T callback)
-    :m_lambda(callback)
-{}
 
 } // namespace SedNL
 

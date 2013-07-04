@@ -28,21 +28,6 @@
 namespace SedNL
 {
 
-//! \brief Interface of a callback container
-template <typename... Arguments>
-class CallbackContainer
-{
-public:
-    //\brief Call the contained callback
-    virtual void call(Arguments...);
-};
-
-template <typename... Arguments>
-class SimpleFunctionCallback;
-
-template <typename T, typename... Arguments>
-class MemberFunctionCallback;
-
 template <typename... Arguments>
 class Slot
 {
@@ -59,92 +44,41 @@ public:
     void reset() noexcept;
 
     //! \brief Call the current callback, or do nothing
-    void call(Arguments... args);
+    void operator()(Arguments... args);
+
+    //! \brief Check if the slot is empty
+    explicit operator bool() const noexcept;
 
     //! \brief Set the callback
     //!
+    //! Set the callback from a function pointer, a lambda
+    //! or a functor. Actualy, it just wrap T to the internal
+    //! std::function, so you can also give a std::function,
+    //! for example from std::bind.
+    //!
     //! \argument callback The callback
-    void set_function(Callback callback);
+    template<typename T>
+    void set_function(T function);
 
     //! \brief Set the callback from an object
     //!
     //! Set a member function as a callback. The instance
     //! gien shouldn't die before the callback was removed
-    //! with reset(), or the estructor ~Slot() called.
+    //! with reset(), or the destructor ~Slot() called.
     //!
     //! \argument instance The instance that will be stored
-    //! \argument callback The membr function
+    //! \argument callback The member function
     template<typename T>
-    void set_function(T instance, Callback callback);
+    void set_function(T& instance, MemberCallback<T> callback);
 
-    //! \brief Set the callback to be a functor or a lambda
+    //! \brief Set the callback from a pointer to an object
+    //!
+    //! See set_function()
     template<typename T>
-    void set_function(T lambda);
+    void set_function(T* instance, MemberCallback<T> callback);
 
 private:
-    std::shared_ptr< CallbackContainer<Arguments...> > container;
-};
-
-//! \brief A hash map to retrieve quickly slots
-template <typename... Arguments>
-using SlotMap = std::unordered_map< std::string, Slot<Arguments...> >;
-
-//! \brief A container of a simple function
-template <typename... Arguments>
-class SimpleFunctionCallback : CallbackContainer<Arguments...>
-{
-public:
-    //! \brief Store a callback in a new container
-    inline
-    SimpleFunctionCallback(typename Slot<Arguments...>::Callback callback);
-
-    //! \brief Call the callback
-    virtual void call(Arguments...);
-
-private:
-    //! The callback to call
-    typename Slot<Arguments...>::Callback m_callback;
-};
-
-//! \brief A container for a lambda or a functor
-template <typename T, typename... Arguments>
-class LambdaCallback : CallbackContainer<Arguments...>
-{
-public:
-    //! \brief Store a lambda in a new container
-    inline
-    LambdaCallback(T lambda);
-
-    //! \brief Call the lambda/functor
-    virtual void call(Arguments...);
-
-private:
-    //! The lambda/functor
-    T m_lambda;
-};
-
-//! \brief A container of a member function
-template <typename T, typename... Arguments>
-class MemberFunctionCallback : CallbackContainer<Arguments...>
-{
-private:
-    //! \brief Alias the type
-    typedef
-    typename Slot<T, Arguments...>::MemberCallback CallbackType;
-
-public:
-    //! \brief Store a member callback in a new container
-    inline MemberFunctionCallback(T* instance, CallbackType callback);
-
-    //! \brief Call the callback
-    virtual void call(Arguments...);
-
-private:
-    //! \brief the instance
-    T* m_instance;
-
-    //! \brief The memeber callback to call
-    CallbackType m_callback;
+    std::function<void(Arguments...)> container;
 };
 
 } // namespace SedNL
