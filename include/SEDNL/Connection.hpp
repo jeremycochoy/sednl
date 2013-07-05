@@ -35,6 +35,7 @@ namespace SedNL
     class Connection;
     template<typename... Arguments>
     class Slot;
+    class EventListener;
 
 ///////////////////////////////////////////////////////////////
 //! \brief Define the the Connection type wich
@@ -164,6 +165,11 @@ private:
     //! \brief Mutex used for synchronisation while sending events,
     //!        closing the connection, or changing the user data.
     std::mutex m_mutex;
+
+    //! \brief the current listener
+    EventListener *m_listener;
+
+    friend class EventListener;
 };
 
 

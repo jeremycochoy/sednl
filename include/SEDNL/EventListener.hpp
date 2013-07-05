@@ -23,11 +23,14 @@
 #define EVENT_LISTENER_HPP_
 
 #include "SEDNL/Export.hpp"
+#include "SEDNL/Exception.hpp"
 
 #include <queue>
+#include <list>
 #include <vector>
 #include <condition_variable>
 #include <mutex>
+#include <memory>
 
 namespace SedNL
 {
@@ -35,6 +38,7 @@ namespace SedNL
 class Connection;
 class TCPServer;
 class EventConsumer;
+class Event;
 
 class SEDNL_API EventListener
 {
@@ -95,14 +99,14 @@ public:
     //! Same behavior as attach() on a Connection object.
     //!
     //! \argument[in] server The server to attach
-    void attach(TCPServer &server);
+    void attach(TCPServer &server) throw(std::bad_alloc, EventException);
 
     //! \brief Remove a server from the managed list
     //!
     //! Same behavior as detach() on a Connection object.
     //!
     //! \argument[in] server The server to detach
-    void detach(TCPServer &server);
+    void detach(TCPServer &server) throw(std::bad_alloc, EventException);
 
 
     //! \brief Add a connection into the managed list
@@ -111,6 +115,9 @@ public:
     //! shouldn't be destructed before the EventLister.
     //! If you want to destruct it, you need to remove it from
     //! the "managed list" by calling detach().
+    //!
+    //! A connection cannot be attached to two listener.
+    //! Try to do it will result in an AlreadyListenned exception.
     //!
     //! You can't call attach while the listener is runing.
     //! If you do so, it will through a EventListenerRunning
@@ -125,6 +132,9 @@ public:
     //!
     //! Calling detach with an unmanaged connection won't
     //! do anything.
+    //!
+    //! Detaching from the wrong listener will result in an
+    //! WrongParentListener exception.
     //!
     //! You can't call detach while the listener is runing.
     //! If you do so, it will through a EventListenerRunning
@@ -155,6 +165,7 @@ public:
     //! When join() is called, The EventListener close all the connections.
     //! Then, it join each consumer.
     //! When all consumer are stoped, the join function return.
+    //! It means that each disconnected event will be processed.
     void join();
 
 private:
@@ -163,6 +174,29 @@ private:
 
     //! \brief List of consumers attached
     ConsumerList m_consumers;
+
+    //! \brief Internal implementation of attach
+    template<class L, class T> inline
+    void __attach(L& list, T *elm);
+
+    //! \brief Internal implementation of detach
+    template<class L, class T> inline
+    void __detach(L& list, T *elm);
+
+    typedef std::vector<TCPServer*> ServerList;
+    typedef std::vector<Connection*> ConnectionList;
+    typedef std::list<std::shared_ptr<Connection>> InternalList;
+
+    //
+    // We assert that each list contain only one
+    // time the same object.
+    //
+    // It SHOULD always be true.
+    //
+
+    ServerList m_servers;
+    ConnectionList m_connections;
+    InternalList m_internal_connections;
 };
 
 } // namespace SedNL

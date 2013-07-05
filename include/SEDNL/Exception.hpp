@@ -64,6 +64,8 @@ namespace SedNL
     enum class SEDNL_API EventExceptionT
     {
         EventListenerRunning,
+        AlreadyListened,
+        WrongParentListener,
     };
 
     //////////////////////////////////////////////

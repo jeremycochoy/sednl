@@ -46,4 +46,10 @@ const char* TemplateException<TypeExceptionT>::what() const noexcept
     return "TODO";
 }
 
+template<>
+const char* TemplateException<EventExceptionT>::what() const noexcept
+{
+    return "TODO";
+}
+
 }

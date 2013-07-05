@@ -39,6 +39,7 @@ namespace SedNL
 {
 
 class SocketAddress;
+class EventListener;
 
 class SEDNL_API TCPServer : SocketInterface
 {
@@ -62,6 +63,11 @@ public:
     //! \argument[in] socket_address Describe the port on wich the server will listen.
     void connect(const SocketAddress &socket_address);
 
+private:
+    //! \brief the current listener
+    EventListener *m_listener;
+
+    friend class EventListener;
 };
 
 } // namespace SedNL
