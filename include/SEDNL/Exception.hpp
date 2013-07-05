@@ -59,6 +59,14 @@ namespace SedNL
     };
 
     //////////////////////////////////////////////
+    //! \brief Different kind of NetowrkException.
+    //////////////////////////////////////////////
+    enum class SEDNL_API EventExceptionT
+    {
+        EventListenerRunning,
+    };
+
+    //////////////////////////////////////////////
     //! \brief Different kind of PacketException.
     //////////////////////////////////////////////
     enum class SEDNL_API PacketExceptionT
@@ -110,9 +118,15 @@ namespace SedNL
 
     ///////////////////////////////////////////////////
     //! \brief Exception throw by the low level network
-    //! part of the library.
+    //!        part of the library.
     ///////////////////////////////////////////////////
     typedef TemplateException<NetworkExceptionT> NetworkException;
+
+    ///////////////////////////////////////////////////
+    //! \brief Exception throw by the event
+    //!        part of the library.
+    ///////////////////////////////////////////////////
+    typedef TemplateException<EventExceptionT> EventException;
 
     ////////////////////////////////////////////////////
     //! \brief Exception throw when packet are read with
