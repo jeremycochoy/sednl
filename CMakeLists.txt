@@ -1,5 +1,10 @@
 cmake_minimum_required (VERSION 2.6)
 
+#Create options
+option(BUILD_STATIC "Tell if the static library should be compiled" ON)
+option(BUILD_DYNAMIC "Tell if the dynamic library should be compiled" ON)
+option(BUILD_DOC "Tell if the dynamic library should be compiled" ON)
+
 # Project name
 project(SEDNL)
 
@@ -21,4 +26,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 add_subdirectory(src/SEDNL)
 add_subdirectory(examples)
-add_subdirectory(doc)
+if(BUILD_DOC)
+  add_subdirectory(doc)
+endif(BUILD_DOC)
+

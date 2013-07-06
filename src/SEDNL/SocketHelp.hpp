@@ -106,7 +106,7 @@ void retrieve_addresses(std::string sa_node, int sa_port,
                                        gai_strerror(errcode));
             }
         }
-        resources_keeper.swap(inloop_keeper);
+        std::swap(resources_keeper, inloop_keeper);
     }
 }
 

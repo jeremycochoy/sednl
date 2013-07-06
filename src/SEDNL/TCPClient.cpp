@@ -54,10 +54,10 @@ void TCPClient::connect(const SocketAddress& socket_address, int timeout)
 
     //Create a lambda deleter
     auto deleter = [](struct addrinfo* ptr)
-        {if (ptr != nullptr) {freeaddrinfo(ptr);} };
+        { if (ptr != nullptr) freeaddrinfo(ptr); };
 
     //Will store addresses to allow RAII.
-    std::unique_ptr<struct addrinfo, decltype(deleter)>
+    std::unique_ptr<struct addrinfo, void(*)(struct addrinfo*)>
         resources_keeper(nullptr, deleter);
 
     retrieve_addresses(socket_address.m_name, socket_address.m_port,
