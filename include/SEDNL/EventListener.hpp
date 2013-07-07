@@ -26,7 +26,7 @@
 # define EPOLL_SIZE 10000
 #endif /* !EPOLL_SIZE */
 #ifndef MAX_EVENTS
-# define MAX_EVENTS 64
+# define MAX_EVENTS 256
 #endif /* !MAX_EVENTS */
 
 #ifdef SEDNL_WINDOWS
@@ -39,6 +39,7 @@
 #include "SEDNL/Export.hpp"
 #include "SEDNL/Exception.hpp"
 #include "SEDNL/ThreadHelp.hpp"
+#include "SEDNL/Types.hpp"
 
 #include <queue>
 #include <list>
@@ -223,10 +224,22 @@ private:
     ConnectionList m_connections;
     InternalList m_internal_connections;
 
-    //! Initialise a lot of stuff before launching the thread
+    //! brief Initialise a lot of stuff before launching the thread
     void run_init();
 
-    int m_epoll;
+    //! \brief Tell if a FileDescriptor is a server
+    bool is_server(FileDescriptor fd);
+
+    //! \brief Close a server and create the server_closed event
+    void close_server(FileDescriptor fd);
+
+    //! \brief Close a connection, and delete it if it's an internal one
+    void close_connection(FileDescriptor fd);
+
+    //! \brief Return the TCPServer associated, or nullptr
+    TCPServer* get_server(FileDescriptor fd);
+
+    FileDescriptor m_epoll;
     std::unique_ptr<struct epoll_event[]> m_events;
 };
 

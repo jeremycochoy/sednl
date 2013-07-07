@@ -25,6 +25,7 @@
 
 #include <algorithm>
 #include <cstring>
+#include <iostream>
 
 namespace SedNL
 {
@@ -125,8 +126,8 @@ void EventListener::run_init()
         (new struct epoll_event[MAX_EVENTS]);
 
     //Create epoll
-    m_epoll = epoll_create(EPOLL_SIZE);
-    if (m_epoll < 0)
+    FileDescriptor epoll = epoll_create(EPOLL_SIZE);
+    if (epoll < 0)
         throw EventException(EventExceptionT::EpollCreateFailed);
 
     //If __epoll_add_fd fail, it close the epoll file descriptor and
@@ -134,14 +135,38 @@ void EventListener::run_init()
 
     //Register servers
     for (auto server : m_servers)
-        __epoll_add_fd(m_epoll, server->m_fd);
+        __epoll_add_fd(epoll, server->m_fd);
 
     //Register clients
     for (auto connection : m_connections)
-        __epoll_add_fd(m_epoll, connection->m_fd);
+        __epoll_add_fd(epoll, connection->m_fd);
 
     //Keep the event pool
     std::swap(m_events, events);
+    m_epoll = epoll;
+}
+
+bool EventListener::is_server(FileDescriptor fd)
+{
+    //TODO
+    return false;
+}
+
+TCPServer *EventListener::get_server(FileDescriptor fd)
+{
+    //TODO
+    return nullptr;
+}
+
+void EventListener::close_server(FileDescriptor fd)
+{
+    //TODO
+    // Remember we should create a server_closed event
+}
+
+void EventListener::close_connection(FileDescriptor fd)
+{
+    //TODO
 }
 
 void EventListener::run_imp()
@@ -151,9 +176,40 @@ void EventListener::run_imp()
     //////////////////////////
 
     //Since we can't assume reading m_running is atomic, we use a mutex
-    while (m_running)
+    while (m_running) //event loop
     {
+        //Wait ~100ms, and check events (this allow to EventListener::join
+        // even if nothing happens)
+        int n = epoll_wait(m_epoll, m_events.get(), MAX_EVENTS, 100);
+        for (int i = 0; i < n; i++)
+        {
+            //An error occured or the connection was closed
+            if (m_events[i].events & EPOLLERR || m_events[i].events & EPOLLHUP)
+            {
+                if (is_server(m_events[i].data.fd))
+                    close_server(m_events[i].data.fd);
+                else
+                    close_connection(m_events[i].data.fd);
+                continue;
+            }
+
+            //SHOULDN't HAPPEN! If it happens, we ignore it
+            if (!(m_events[i].events & EPOLLIN))
+            {
+#ifndef SEDNL_NOWARN
+                std::cerr << "Warning: "
+                          << "epoll_wait() returned a non EPOLLIN event."
+                          << std::endl;
+#endif /* !SEDNL_NOWARN */
+                continue;
+            }
+        }
     }
+
+    //Release resources
+    close(m_epoll);
+    m_epoll = -1;
+    m_events.release();
 }
 
 void EventListener::run() throw(EventException)
