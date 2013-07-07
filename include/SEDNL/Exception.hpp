@@ -67,6 +67,7 @@ namespace SedNL
         AlreadyListened,
         WrongParentListener,
         EpollCreateFailed,
+        EpollCtlFailed,
     };
 
     //////////////////////////////////////////////

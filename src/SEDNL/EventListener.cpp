@@ -98,6 +98,7 @@ void EventListener::detach(Connection &connection) throw(std::bad_alloc, EventEx
     __detach(m_connections, &connection);
 }
 
+//Close fd befor throwing, to prevent resource licking
 static inline
 void __epoll_add_fd(int epoll, int fd)
 {
@@ -105,7 +106,42 @@ void __epoll_add_fd(int epoll, int fd)
     bzero(&event, sizeof(event));
     event.data.fd = fd;
     event.events = EPOLLIN | EPOLLET;
-    epoll_ctl(epoll, EPOLL_CTL_ADD, fd, &event);
+    int err = epoll_ctl(epoll, EPOLL_CTL_ADD, fd, &event);
+    if (err < 0)
+    {
+        close(fd);
+        throw EventException(EventExceptionT::EpollCtlFailed);
+    }
+}
+
+void EventListener::run_init()
+{
+    //////////////////////////
+    // LINUX IMPLEMENTATION //
+    //////////////////////////
+
+    //Here, we can throw a std::bad_alloc
+    auto events = std::unique_ptr<struct epoll_event[]>
+        (new struct epoll_event[MAX_EVENTS]);
+
+    //Create epoll
+    m_epoll = epoll_create(EPOLL_SIZE);
+    if (m_epoll < 0)
+        throw EventException(EventExceptionT::EpollCreateFailed);
+
+    //If __epoll_add_fd fail, it close the epoll file descriptor and
+    // throw an exception.
+
+    //Register servers
+    for (auto server : m_servers)
+        __epoll_add_fd(m_epoll, server->m_fd);
+
+    //Register clients
+    for (auto connection : m_connections)
+        __epoll_add_fd(m_epoll, connection->m_fd);
+
+    //Keep the event pool
+    std::swap(m_events, events);
 }
 
 void EventListener::run_imp()
@@ -118,32 +154,6 @@ void EventListener::run_imp()
     while (m_running)
     {
     }
-
-}
-
-void EventListener::run_init()
-{
-    //////////////////////////
-    // LINUX IMPLEMENTATION //
-    //////////////////////////
-
-    //Here, we can throw a std::bad_alloc
-    //TODO : use shared_ptr
-    auto events = std::unique_ptr<struct epoll_event[]>
-        (new struct epoll_event[MAX_EVENTS]);
-
-    //Create epoll
-    m_epoll = epoll_create(EPOLL_SIZE);
-    if (m_epoll < 0)
-        throw EventException(EventExceptionT::EpollCreateFailed);
-
-    //Register servers
-    for (auto server : m_servers)
-        __epoll_add_fd(m_epoll, server->m_fd);
-
-    //Register clients
-    for (auto connection : m_connections)
-        __epoll_add_fd(m_epoll, connection->m_fd);
 }
 
 void EventListener::run() throw(EventException)
