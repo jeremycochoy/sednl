@@ -22,12 +22,28 @@
 #ifndef EVENT_LISTENER_HPP_
 #define EVENT_LISTENER_HPP_
 
+#ifndef EPOLL_SIZE
+# define EPOLL_SIZE 10000
+#endif /* !EPOLL_SIZE */
+#ifndef MAX_EVENTS
+# define MAX_EVENTS 64
+#endif /* !MAX_EVENTS */
+
+#ifdef SEDNL_WINDOWS
+#else /* SEDNL_WINDOWS */
+
+#include <sys/epoll.h>
+
+#endif /* SEDNL_WINDOWS */
+
 #include "SEDNL/Export.hpp"
 #include "SEDNL/Exception.hpp"
+#include "SEDNL/ThreadHelp.hpp"
 
 #include <queue>
 #include <list>
 #include <vector>
+#include <thread>
 #include <condition_variable>
 #include <mutex>
 #include <memory>
@@ -137,7 +153,7 @@ public:
     //! WrongParentListener exception.
     //!
     //! You can't call detach while the listener is runing.
-    //! If you do so, it will through a EventListenerRunning
+    //! If you do so, it will throw a EventListenerRunning
     //! exception.
     //!
     //! \argument[in] connection The connection to attach
@@ -155,7 +171,7 @@ public:
     //! connections.
     //!
     //! To stop the listener, call join().
-    void run();
+    void run() throw(EventException);
 
     //! \brief Join the EventListener thread
     //!
@@ -169,11 +185,20 @@ public:
     void join();
 
 private:
+    //! \brief The EventListener thread's main function.
+    void run_imp();
+
     //! \brief Maximal size of a queue.
     unsigned int m_max_queue_size;
 
     //! \brief List of consumers attached
     ConsumerList m_consumers;
+
+    //! \brief The EventListener thread
+    std::thread m_thread;
+
+    //! \brief The running state
+    SafeType<bool> m_running;
 
     //! \brief Internal implementation of attach
     template<class L, class T> inline
@@ -197,6 +222,12 @@ private:
     ServerList m_servers;
     ConnectionList m_connections;
     InternalList m_internal_connections;
+
+    //! Initialise a lot of stuff before launching the thread
+    void run_init();
+
+    int m_epoll;
+    std::unique_ptr<struct epoll_event[]> m_events;
 };
 
 } // namespace SedNL

@@ -31,9 +31,11 @@ namespace SedNL
 {
 
 TCPServer::TCPServer() noexcept
+    :m_listener(nullptr)
 {}
 
 TCPServer::TCPServer(const SocketAddress& socket_address)
+    :m_listener(nullptr)
 {
     connect(socket_address);
 }
@@ -84,6 +86,9 @@ void TCPServer::connect(const SocketAddress& socket_address)
 
     if (addr == nullptr)
         throw NetworkException(NetworkExceptionT::BindFailed);
+
+    m_connected = true;
+    m_fd = fd;
 }
 
 } //namespace SedNL

@@ -45,18 +45,14 @@ template <typename... Arguments>
 template <class T>
 void Slot<Arguments...>::set_function(T& inst, MemberCallback<T> f)
 {
-    container = std::bind(f, inst,
-                          std::placeholders::_1,
-                          std::placeholders::_2);
+    container = [=](Arguments... args) mutable {(inst.*f)(args...);};
 }
 
 template <typename... Arguments>
 template <class T>
 void Slot<Arguments...>::set_function(T* inst, MemberCallback<T> f)
 {
-    container = std::bind(f, inst,
-                          std::placeholders::_1,
-                          std::placeholders::_2);
+    container = [=](Arguments... args){(inst->*f)(args...);};
 }
 
 template <typename... Arguments>

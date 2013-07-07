@@ -34,7 +34,7 @@ TCPClient::TCPClient() noexcept
 {
 }
 
-    TCPClient::TCPClient(const SocketAddress& socket_address, int timeout)
+TCPClient::TCPClient(const SocketAddress& socket_address, int timeout)
     :Connection()
 {
     connect(socket_address, timeout);

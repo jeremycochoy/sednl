@@ -24,23 +24,24 @@
 #include "SEDNL/TCPServer.hpp"
 
 #include <algorithm>
+#include <cstring>
 
 namespace SedNL
 {
 
 EventListener::EventListener(unsigned int max_queue_size)
-    :m_max_queue_size(max_queue_size)
+    :m_max_queue_size(max_queue_size), m_running(false)
 {
 }
 
 EventListener::EventListener(Connection &connection, unsigned int max_queue_size)
-    :m_max_queue_size(max_queue_size)
+    :m_max_queue_size(max_queue_size), m_running(false)
 {
     attach(connection);
 }
 
 EventListener::EventListener(TCPServer &server, unsigned int max_queue_size)
-    :m_max_queue_size(max_queue_size)
+    :m_max_queue_size(max_queue_size), m_running(false)
 {
     attach(server);
 }
@@ -57,7 +58,7 @@ void EventListener::__attach(L& list, T *elm)
     auto res = std::find(list.begin(), list.end(), elm);
     if (res == list.end())
     {
-        if (elm->m_listener != this)
+        if (elm->m_listener != nullptr && elm->m_listener != this)
             throw EventException(EventExceptionT::AlreadyListened);
         elm->m_listener = this;
         list.push_back(elm);
@@ -95,6 +96,79 @@ void EventListener::detach(TCPServer &server) throw(std::bad_alloc, EventExcepti
 void EventListener::detach(Connection &connection) throw(std::bad_alloc, EventException)
 {
     __detach(m_connections, &connection);
+}
+
+static inline
+void __epoll_add_fd(int epoll, int fd)
+{
+    struct epoll_event event;
+    bzero(&event, sizeof(event));
+    event.data.fd = fd;
+    event.events = EPOLLIN | EPOLLET;
+    epoll_ctl(epoll, EPOLL_CTL_ADD, fd, &event);
+}
+
+void EventListener::run_imp()
+{
+    //////////////////////////
+    // LINUX IMPLEMENTATION //
+    //////////////////////////
+
+    //Since we can't assume reading m_running is atomic, we use a mutex
+    while (m_running)
+    {
+    }
+
+}
+
+void EventListener::run_init()
+{
+    //////////////////////////
+    // LINUX IMPLEMENTATION //
+    //////////////////////////
+
+    //Here, we can throw a std::bad_alloc
+    //TODO : use shared_ptr
+    auto events = std::unique_ptr<struct epoll_event[]>
+        (new struct epoll_event[MAX_EVENTS]);
+
+    //Create epoll
+    m_epoll = epoll_create(EPOLL_SIZE);
+    if (m_epoll < 0)
+        throw EventException(EventExceptionT::EpollCreateFailed);
+
+    //Register servers
+    for (auto server : m_servers)
+        __epoll_add_fd(m_epoll, server->m_fd);
+
+    //Register clients
+    for (auto connection : m_connections)
+        __epoll_add_fd(m_epoll, connection->m_fd);
+}
+
+void EventListener::run() throw(EventException)
+{
+    //Create the thread if it's not already running
+    if (!m_running)
+    {
+        run_init();
+
+        //Once everything is right, we launch the thread
+        m_running = true;
+        m_thread = std::thread(std::bind(&EventListener::run_imp, this));
+    }
+    else
+        throw EventException(EventExceptionT::EventListenerRunning);
+}
+
+void EventListener::join()
+{
+    if (m_running)
+    {
+        m_running = false;
+        if (m_thread.joinable() == true)
+            m_thread.join();
+    }
 }
 
 } // namespace SedNL

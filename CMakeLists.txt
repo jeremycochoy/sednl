@@ -10,10 +10,10 @@ option(BUILD_EXAMPLES "Tell if we should also compile the examples" ON)
 project(SEDNL)
 
 # C++ 2011 flags
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -ggdb -W -Wall")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -ggdb -W -Wall -fvisibility=hidden")
 
 #C 99 flag
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99 -ggdb -W -Wall")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99 -ggdb -W -Wall -fvisibility=hidden")
 
 # Set version numbers
 set(SEDNL_VERSION_MAJOR 0)

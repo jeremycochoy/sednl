@@ -19,23 +19,29 @@
 //     3. This notice may not be removed or altered from any source
 //        distribution.
 
-#ifndef CONNECTION_IPP_
-#define CONNECTION_IPP_
+#ifndef THREAD_HELP_HPP
+#define THREAD_HELP_HPP
 
-#include "Export.hpp"
+#include <mutex>
 
 namespace SedNL
 {
 
-Connection::Connection()
-    :m_data_type(UserDataType::None), m_data_double(0), m_listener(nullptr)
-{}
-
-Connection::~Connection() noexcept
+// Allow to protect a type T with a mutex
+template<class T>
+class SafeType
 {
-    disconnect();
-}
+public:
+    inline SafeType(T v) noexcept;
+    inline operator T ();
+    inline SafeType<T>& operator=(T v);
+private:
+    T m_value;
+    std::mutex m_mutex;
+};
 
-} // namespace Sednl
+} // namespace SedNL
 
-#endif /* !CONNECTION_IPP_ */
+#include "ThreadHelp.ipp"
+
+#endif /* !THREAD_HELP_HPP */

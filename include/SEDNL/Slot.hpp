@@ -66,12 +66,16 @@ public:
     //! gien shouldn't die before the callback was removed
     //! with reset(), or the destructor ~Slot() called.
     //!
+    //! This set_function() version store a copy of the instance.
+    //!
     //! \argument instance The instance that will be stored
     //! \argument callback The member function
     template<typename T>
     void set_function(T& instance, MemberCallback<T> callback);
 
     //! \brief Set the callback from a pointer to an object
+    //!
+    //! This set_function() version store the pointer of the instance.
     //!
     //! See set_function()
     template<typename T>
