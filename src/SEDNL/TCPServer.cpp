@@ -23,6 +23,7 @@
 #include "SEDNL/SocketHelp.hpp"
 #include "SEDNL/Exception.hpp"
 #include "SEDNL/SocketAddress.hpp"
+#include "SEDNL/EventListener.hpp"
 
 #include <cstring>
 #include <memory>
@@ -31,11 +32,9 @@ namespace SedNL
 {
 
 TCPServer::TCPServer() noexcept
-    :m_listener(nullptr)
 {}
 
 TCPServer::TCPServer(const SocketAddress& socket_address)
-    :m_listener(nullptr)
 {
     connect(socket_address);
 }
@@ -89,6 +88,19 @@ void TCPServer::connect(const SocketAddress& socket_address)
 
     m_connected = true;
     m_fd = fd;
+}
+
+void TCPServer::disconnect() noexcept
+{
+    std::lock_guard<std::mutex> lock(m_mutex);
+
+    //Tell the listener that the connection will be closed
+    if (m_listener)
+        m_listener->tell_disconnected(this);
+
+    if (m_connected)
+        close(m_fd);
+    m_connected = false;
 }
 
 } //namespace SedNL

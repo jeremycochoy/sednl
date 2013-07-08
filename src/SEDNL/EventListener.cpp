@@ -22,6 +22,7 @@
 #include "SEDNL/EventListener.hpp"
 #include "SEDNL/Connection.hpp"
 #include "SEDNL/TCPServer.hpp"
+#include "SEDNL/TCPClient.hpp"
 
 #include <algorithm>
 #include <cstring>
@@ -152,21 +153,54 @@ bool EventListener::is_server(FileDescriptor fd)
     return false;
 }
 
+//Assume fd is  server
 TCPServer *EventListener::get_server(FileDescriptor fd)
 {
     //TODO
     return nullptr;
 }
 
+//Assume fd is a server
 void EventListener::close_server(FileDescriptor fd)
 {
     //TODO
     // Remember we should create a server_closed event
 }
 
+//Assume fd is a connection
 void EventListener::close_connection(FileDescriptor fd)
 {
     //TODO
+}
+
+//Assume fd is a server
+void EventListener::accept_connections(FileDescriptor fd)
+{
+    TCPServer* server = get_server(fd);
+
+    while (true)
+    {
+        struct sockaddr in_addr;
+        socklen_t in_len;
+        FileDescriptor cfd = accept(fd, &in_addr, &in_len);
+        if (cfd < 0)
+        {
+#ifndef SEDNL_NOWARN
+            std::cerr << "Warning: "
+                      << "Can't accept on server socket "
+                      << cfd
+                      << std::endl;
+            std::cerr << strerror(errno) << std::endl;
+            return;
+#endif /* SEDNL_NOWARN */
+        }
+            }
+}
+
+//Assume fd is a server
+void EventListener::read_connection(FileDescriptor fd)
+{
+    TCPServer* server = get_server(fd);
 }
 
 void EventListener::run_imp()
@@ -183,13 +217,14 @@ void EventListener::run_imp()
         int n = epoll_wait(m_epoll, m_events.get(), MAX_EVENTS, 100);
         for (int i = 0; i < n; i++)
         {
+            FileDescriptor event_fd = m_events[i].data.fd;
             //An error occured or the connection was closed
             if (m_events[i].events & EPOLLERR || m_events[i].events & EPOLLHUP)
             {
-                if (is_server(m_events[i].data.fd))
-                    close_server(m_events[i].data.fd);
+                if (is_server(event_fd))
+                    close_server(event_fd);
                 else
-                    close_connection(m_events[i].data.fd);
+                    close_connection(event_fd);
                 continue;
             }
 
@@ -201,6 +236,21 @@ void EventListener::run_imp()
                           << "epoll_wait() returned a non EPOLLIN event."
                           << std::endl;
 #endif /* !SEDNL_NOWARN */
+                continue;
+            }
+
+            //So, it's a read avent.
+
+            //Incoming connection
+            if (is_server(event_fd))
+            {
+                accept_connections(event_fd);
+                continue;
+            }
+            //It's a read on a connection
+            else
+            {
+                read_connection(event_fd);
                 continue;
             }
         }

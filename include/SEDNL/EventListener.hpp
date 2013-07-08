@@ -224,10 +224,16 @@ private:
     ConnectionList m_connections;
     InternalList m_internal_connections;
 
+    //
+    // Implementation of the event listener loop
+    //
+
     //! brief Initialise a lot of stuff before launching the thread
     void run_init();
 
     //! \brief Tell if a FileDescriptor is a server
+    //!
+    //! If it's false, it means it's a client.
     bool is_server(FileDescriptor fd);
 
     //! \brief Close a server and create the server_closed event
@@ -236,11 +242,26 @@ private:
     //! \brief Close a connection, and delete it if it's an internal one
     void close_connection(FileDescriptor fd);
 
+    //! \brief Accept incoming connection on the server fd
+    void accept_connections(FileDescriptor fd);
+
+    //! \brief Read data (or close) from the connection fd
+    void read_connection(FileDescriptor fd);
+
     //! \brief Return the TCPServer associated, or nullptr
     TCPServer* get_server(FileDescriptor fd);
 
     FileDescriptor m_epoll;
     std::unique_ptr<struct epoll_event[]> m_events;
+
+    //! \brief Called by a client when disconnected by disconnect()
+    void tell_disconnected(Connection *cn);
+
+    //! \brief Called by a client when disconnected by disconnect()
+    void tell_disconnected(TCPServer *cn);
+
+    friend class Connection;
+    friend class TCPServer;
 };
 
 } // namespace SedNL

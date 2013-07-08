@@ -25,6 +25,8 @@
 #include "SEDNL/Export.hpp"
 #include "SEDNL/SocketInterface.hpp"
 
+#include <mutex>
+
 #ifdef SEDNL_WINDOWS
 #else /* SEDNL_WINDOWS */
 
@@ -63,9 +65,15 @@ public:
     //! \argument[in] socket_address Describe the port on wich the server will listen.
     void connect(const SocketAddress &socket_address);
 
+    //! \brief Cut the connection
+    virtual void disconnect() noexcept;
+
 private:
     //! \brief the current listener
     EventListener *m_listener;
+
+    //! \brief Mutex used for synchronisation while closing.
+    std::mutex m_mutex;
 
     friend class EventListener;
 };

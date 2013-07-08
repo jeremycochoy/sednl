@@ -21,6 +21,7 @@
 
 #include "SEDNL/Connection.hpp"
 #include "SEDNL/Event.hpp"
+#include "SEDNL/EventListener.hpp"
 
 #ifdef SEDNL_WINDOWS
 #else /* SEDNL_WINDOWS */
@@ -36,8 +37,10 @@ void Connection::disconnect() noexcept
 {
     std::lock_guard<std::mutex> lock(m_mutex);
 
-    //The call to close may fail, for example if the last write failed.
-    //But what can we do to that? So we silently ignore the return value.
+    //Tell the listener that the connection will be closed
+    if (m_listener)
+        m_listener->tell_disconnected(this);
+
     if (m_connected)
         close(m_fd);
     m_connected = false;
