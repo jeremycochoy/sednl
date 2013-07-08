@@ -191,10 +191,33 @@ void EventListener::accept_connections(FileDescriptor fd)
                       << cfd
                       << std::endl;
             std::cerr << strerror(errno) << std::endl;
+#endif /* SEDNL_NOWARN */
             return;
+        }
+
+        if (set_non_blocking(cfd) < 0)
+        {
+#ifndef SEDNL_NOWARN
+            std::cerr << "Warning: "
+                      << "Can't set accepted socket non-blocking "
+                      << cfd
+                      << std::endl;
+            std::cerr << strerror(errno) << std::endl;
+#endif /* SEDNL_NOWARN */
+            return;
+        }
+
+        if (__epoll_add_fd(m_epoll, cfd) < 0)
+        {
+#ifndef SEDNL_NOWARN
+            std::cerr << "Warning: "
+                      << "Can't accepted socket to epoll "
+                      << cfd
+                      << std::endl;
+            std::cerr << strerror(errno) << std::endl;
 #endif /* SEDNL_NOWARN */
         }
-            }
+    }
 }
 
 //Assume fd is a server
