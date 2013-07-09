@@ -35,28 +35,56 @@ namespace SedNL
 
 void Connection::disconnect() noexcept
 {
-    std::lock_guard<std::mutex> lock(m_mutex);
+    try
+    {
+        std::lock_guard<std::mutex> lock(m_mutex);
 
-    //Tell the listener that the connection will be closed
-    if (m_listener)
-        m_listener->tell_disconnected(this);
+        //Tell the listener that the connection will be closed
+        if (m_listener)
+            m_listener->tell_disconnected(this);
 
-    if (m_connected)
+        if (m_connected)
+            close(m_fd);
+        m_connected = false;
+    }
+    catch(std::exception &e)
+    {
+#ifndef SEDNL_NOWARN
+        std::cerr << "Error: "
+                  << "std::mutex::lock failed in SedNL::Connection::disconnect"
+                  << std::endl;
+        std::cerr << e.what() << std::endl;
+#endif /* SEDNL_NOWARN */
+        //We are more or less in hell, so let's try without lock
         close(m_fd);
-    m_connected = false;
+        m_connected = false;
+    }
 }
 
 void Connection::send(const Event& event)
 {
-    std::lock_guard<std::mutex> lock(m_mutex);
+    try
+    {
+        std::lock_guard<std::mutex> lock(m_mutex);
 
-    ByteArray data = event.pack();
-    const char* data_ptr = reinterpret_cast<const char *>(&data[0]);
-    //TODO : Handle write errors with exceptions
-    write(m_fd, data_ptr, data.size());
+        ByteArray data = event.pack();
+        const char* data_ptr = reinterpret_cast<const char *>(&data[0]);
+        //TODO : Handle write errors with exceptions
+        write(m_fd, data_ptr, data.size());
+    }
+    catch(std::exception &e)
+    {
+#ifndef SEDNL_NOWARN
+            std::cerr << "Error: "
+                      << "std::mutex::lock failed in SedNL::Connection::send"
+                      << std::endl;
+        std::cerr << e.what() << std::endl;
+#endif /* SEDNL_NOWARN */
+    }
 }
 
-void Connection::set_user_data(const char* data) throw(TypeException)
+void Connection::set_user_data(const char* data)
+    throw(TypeException, std::system_error)
 {
     std::lock_guard<std::mutex> lock(m_mutex);
 
@@ -68,7 +96,8 @@ void Connection::set_user_data(const char* data) throw(TypeException)
     m_data_type = UserDataType::String;
 }
 
-void Connection::set_user_data(int data) throw(TypeException)
+void Connection::set_user_data(int data)
+    throw(TypeException, std::system_error)
 {
     std::lock_guard<std::mutex> lock(m_mutex);
 
@@ -80,7 +109,8 @@ void Connection::set_user_data(int data) throw(TypeException)
     m_data_type = UserDataType::Int;
 }
 
-void Connection::set_user_data(char data) throw(TypeException)
+void Connection::set_user_data(char data)
+    throw(TypeException, std::system_error)
 {
     std::lock_guard<std::mutex> lock(m_mutex);
 
@@ -92,7 +122,8 @@ void Connection::set_user_data(char data) throw(TypeException)
     m_data_type = UserDataType::Char;
 }
 
-void Connection::set_user_data(float data) throw(TypeException)
+void Connection::set_user_data(float data)
+    throw(TypeException, std::system_error)
 {
     std::lock_guard<std::mutex> lock(m_mutex);
 
@@ -104,7 +135,8 @@ void Connection::set_user_data(float data) throw(TypeException)
     m_data_type = UserDataType::Float;
 }
 
-void Connection::set_user_data(void* data) throw(TypeException)
+void Connection::set_user_data(void* data)
+    throw(TypeException, std::system_error)
 {
     std::lock_guard<std::mutex> lock(m_mutex);
 
@@ -116,7 +148,8 @@ void Connection::set_user_data(void* data) throw(TypeException)
     m_data_type = UserDataType::Ptr;
 }
 
-void Connection::set_user_data(double data) throw(TypeException)
+void Connection::set_user_data(double data)
+    throw(TypeException, std::system_error)
 {
     std::lock_guard<std::mutex> lock(m_mutex);
 
@@ -128,7 +161,7 @@ void Connection::set_user_data(double data) throw(TypeException)
     m_data_type = UserDataType::Double;
 }
 
-void Connection::release_user_data()
+void Connection::release_user_data() throw(std::system_error)
 {
     std::lock_guard<std::mutex> lock(m_mutex);
 
@@ -137,7 +170,8 @@ void Connection::release_user_data()
 }
 
 template<>
-int Connection::get_user_data<int>() throw(TypeException)
+int Connection::get_user_data<int>()
+    throw(TypeException, std::system_error)
 {
     std::lock_guard<std::mutex> lock(m_mutex);
 
@@ -148,7 +182,8 @@ int Connection::get_user_data<int>() throw(TypeException)
 }
 
 template<>
-void* Connection::get_user_data<void*>() throw(TypeException)
+void* Connection::get_user_data<void*>()
+    throw(TypeException, std::system_error)
 {
     std::lock_guard<std::mutex> lock(m_mutex);
 
@@ -159,7 +194,8 @@ void* Connection::get_user_data<void*>() throw(TypeException)
 }
 
 template<>
-char Connection::get_user_data<char>() throw(TypeException)
+char Connection::get_user_data<char>()
+    throw(TypeException, std::system_error)
 {
     std::lock_guard<std::mutex> lock(m_mutex);
 
@@ -170,7 +206,8 @@ char Connection::get_user_data<char>() throw(TypeException)
 }
 
 template<>
-float Connection::get_user_data<float>() throw(TypeException)
+float Connection::get_user_data<float>()
+    throw(TypeException, std::system_error)
 {
     std::lock_guard<std::mutex> lock(m_mutex);
 
@@ -181,7 +218,8 @@ float Connection::get_user_data<float>() throw(TypeException)
 }
 
 template<>
-double Connection::get_user_data<double>() throw(TypeException)
+double Connection::get_user_data<double>()
+    throw(TypeException, std::system_error)
 {
     std::lock_guard<std::mutex> lock(m_mutex);
 
@@ -192,7 +230,8 @@ double Connection::get_user_data<double>() throw(TypeException)
 }
 
 template<>
-const char* Connection::get_user_data<const char*>() throw(TypeException)
+const char* Connection::get_user_data<const char*>()
+    throw(TypeException, std::system_error)
 {
     std::lock_guard<std::mutex> lock(m_mutex);
 

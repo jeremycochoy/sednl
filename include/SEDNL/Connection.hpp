@@ -66,7 +66,8 @@ public:
     //! \param[in] data Value to store. If the string was allocated,
     //!                 you shouldn't free it before the connection was
     //!                 destroyed, or released.
-    void set_user_data(const char* data) throw(TypeException);
+    void set_user_data(const char* data)
+        throw(TypeException, std::system_error);
 
     //! \brief Store a value specific to this connection
     //!
@@ -74,7 +75,8 @@ public:
     //! datatype, until you released it with Connection::release_user_data().
     //!
     //! \param[in] data Value to store.
-    void set_user_data(int data) throw(TypeException);
+    void set_user_data(int data)
+        throw(TypeException, std::system_error);
 
     //! \brief Store a value specifit to this connection
     //!
@@ -82,7 +84,8 @@ public:
     //! datatype, until you released it with Connection::release_user_data().
     //!
     //! \param[in] data Value to store.
-    void set_user_data(char data) throw(TypeException);
+    void set_user_data(char data)
+        throw(TypeException, std::system_error);
 
     //! \brief Store a value specifit to this connection
     //!
@@ -90,7 +93,8 @@ public:
     //! datatype, until you released it with Connection::release_user_data().
     //!
     //! \param[in] data Value to store.
-    void set_user_data(float data) throw(TypeException);
+    void set_user_data(float data)
+        throw(TypeException, std::system_error);
 
     //! \brief Store a value specifit to this connection
     //!
@@ -98,7 +102,8 @@ public:
     //! datatype, until you released it with Connection::release_user_data().
     //!
     //! \param[in] data Value to store.
-    void set_user_data(double data) throw(TypeException);
+    void set_user_data(double data)
+        throw(TypeException, std::system_error);
 
     //! \brief Store a value specifit to this connection
     //!
@@ -114,7 +119,8 @@ public:
     //! to retrive your data. See the integer version of Connection::set_user_data.
     //!
     //! \param[in] data Value to store.
-    void set_user_data(void* data) throw(TypeException);
+    void set_user_data(void* data)
+        throw(TypeException, std::system_error);
 
     //! \brief Retrieve previously stored data.
     //!
@@ -128,13 +134,14 @@ public:
     //!
     //! \return The value previously stored by set_user_data().
     template<class T>
-    T get_user_data() throw(TypeException);
+    T get_user_data()
+        throw(TypeException, std::system_error);
 
     //! \brief Release a data stored via Connection::set_user_data.
     //!
     //! Warning, if you stored an object as a void* pointer, you should
     //! retrieve the pointer before calling release_user_data().
-    void release_user_data();
+    void release_user_data() throw(std::system_error);
 
 private:
     //! \brief List of types that can be stored
@@ -188,5 +195,9 @@ private:
 //! TCPServer aren't connection, because it's meaningless to
 //! 'send an event' throught a server. You should select one (or more)
 //! users, which are represented as connections.
+//!
+//! std::system_error exceptions come from std::mutex::lock that can
+//! fail. You can handle them or just think that if the system refuse
+//! to lock a mutex, your application won't work anymore.
 //!
 ////////////////////////////////////////////////////////////
