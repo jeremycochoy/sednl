@@ -45,6 +45,7 @@ public:
     //! \brief Tell if the client/server/connection is connected.
     inline bool is_connected() const noexcept;
 
+    //! \brief Call is_connected()
     inline operator bool() const noexcept;
 
 protected:

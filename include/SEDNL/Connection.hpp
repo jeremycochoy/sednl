@@ -63,9 +63,9 @@ public:
     //! This class assume that you will allways use the same
     //! datatype, until you released it with Connection::release_user_data().
     //!
-    //! \argument[in] data Value to store. If the string was allocated,
-    //!                    you shouldn't free it before the connection was
-    //!                    destroyed, or released.
+    //! \param[in] data Value to store. If the string was allocated,
+    //!                 you shouldn't free it before the connection was
+    //!                 destroyed, or released.
     void set_user_data(const char* data) throw(TypeException);
 
     //! \brief Store a value specific to this connection
@@ -73,7 +73,7 @@ public:
     //! This class assume that you will allways use the same
     //! datatype, until you released it with Connection::release_user_data().
     //!
-    //! \argument[in] data Value to store.
+    //! \param[in] data Value to store.
     void set_user_data(int data) throw(TypeException);
 
     //! \brief Store a value specifit to this connection
@@ -81,7 +81,7 @@ public:
     //! This class assume that you will allways use the same
     //! datatype, until you released it with Connection::release_user_data().
     //!
-    //! \argument[in] data Value to store.
+    //! \param[in] data Value to store.
     void set_user_data(char data) throw(TypeException);
 
     //! \brief Store a value specifit to this connection
@@ -89,7 +89,7 @@ public:
     //! This class assume that you will allways use the same
     //! datatype, until you released it with Connection::release_user_data().
     //!
-    //! \argument[in] data Value to store.
+    //! \param[in] data Value to store.
     void set_user_data(float data) throw(TypeException);
 
     //! \brief Store a value specifit to this connection
@@ -97,7 +97,7 @@ public:
     //! This class assume that you will allways use the same
     //! datatype, until you released it with Connection::release_user_data().
     //!
-    //! \argument[in] data Value to store.
+    //! \param[in] data Value to store.
     void set_user_data(double data) throw(TypeException);
 
     //! \brief Store a value specifit to this connection
@@ -113,7 +113,7 @@ public:
     //! An other solution is to use a connection id, and then use this id
     //! to retrive your data. See the integer version of Connection::set_user_data.
     //!
-    //! \argument[in] data Value to store.
+    //! \param[in] data Value to store.
     void set_user_data(void* data) throw(TypeException);
 
     //! \brief Retrieve previously stored data.

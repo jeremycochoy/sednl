@@ -47,8 +47,8 @@ public:
     //! \brief Construct a consumer consuming events
     //!        from \a producer.
     //!
-    //! \argument producer The event listener from which events will
-    //!                    be consumed.
+    //! \param[in] producer The event listener from which events will
+    //!                     be consumed.
     EventConsumer(EventListener producer);
 
     //! \brief Set the producer
@@ -66,7 +66,7 @@ public:
     //! \brief Bind the disconnect event
     Slot<Connection&> on_disconnect();
 
-    //! \bief Bind all unbinded events
+    //! \brief Bind all unbinded events
     //!
     //! It will be called for events that aren't consumed
     //! by any consumer.
@@ -79,8 +79,8 @@ public:
 
     //! \brief Bind a new event
     //!
-    //! \argument event_name Name of the event that will be associated with
-    //!                      this callback.
+    //! \param[in] event_name Name of the event that will be associated with
+    //!                       this callback.
     Slot<Connection&, const Event&> bind(std::string event_name);
 
 private:

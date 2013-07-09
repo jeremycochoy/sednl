@@ -56,7 +56,7 @@ public:
     //! std::function, so you can also give a std::function,
     //! for example from std::bind.
     //!
-    //! \argument callback The callback
+    //! \param[in] function The callback
     template<typename T>
     void set_function(T function);
 
@@ -68,8 +68,8 @@ public:
     //!
     //! This set_function() version store a copy of the instance.
     //!
-    //! \argument instance The instance that will be stored
-    //! \argument callback The member function
+    //! \param[in] instance The instance that will be stored
+    //! \param[in] callback The member function
     template<typename T>
     void set_function(T& instance, MemberCallback<T> callback);
 

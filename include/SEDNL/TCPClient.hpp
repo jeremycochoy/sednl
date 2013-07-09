@@ -58,9 +58,9 @@ public:
     //! Calling this constructor is the same as creating an
     //! empty TCPClient and then calling TCPClient::connect().
     //!
-    //! \argument[in] socket_address Server and port to connect to
-    //! \argument[in] timeout Socket timeout in miliseconds.
-    //!                       See TCPClient::connect.
+    //! \param[in] socket_address Server and port to connect to
+    //! \param[in] timeout Socket timeout in miliseconds.
+    //!                    See TCPClient::connect.
     TCPClient(const SocketAddress& socket_address, int timeout = 1000);
 
     //! \brief Connect to a SocketAddress
@@ -82,8 +82,8 @@ public:
     //! google.fr have 4 ips, it will try at least 4
     //! times.
     //!
-    //! \argument[in] socket_address Server and port to connect to
-    //! \argument[in] timeout The socket timeout in miliseconds.
+    //! \param[in] socket_address Server and port to connect to
+    //! \param[in] timeout The socket timeout in miliseconds.
     void connect(const SocketAddress& socket_address, int timeout = 1000);
 
 private:
@@ -92,17 +92,17 @@ private:
     //!
     //! If the function success, fd is now a blocking socket.
     //!
-    //! \argument[in] fd The socket file descriptor
-    //! \argument[in] addr The addrinfo description of the server
+    //! \param[in] fd The socket file descriptor
+    //! \param[in] addr The addrinfo description of the server
     bool blocking_connect(FileDescriptor fd, struct addrinfo *addr);
 
     //! \brief Try to connect with connect, select, and non blocking socket.
     //!
     //! If the function success, fd is now a nonblocking socket.
     //!
-    //! \argument[in] fd The socket file descriptor
-    //! \argument[in] addr The addrinfo description of the server
-    //! \argument[in] timeout Select's timeout in ms
+    //! \param[in] fd The socket file descriptor
+    //! \param[in] addr The addrinfo description of the server
+    //! \param[in] timeout Select's timeout in ms
     bool non_blocking_connect(FileDescriptor fd, struct addrinfo *addr, int timeout);
 };
 

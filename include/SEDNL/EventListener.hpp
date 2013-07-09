@@ -83,9 +83,9 @@ public:
     //! Does exactly the same thing as constructing an empty
     //! listener, and then calling attach(server).
     //!
-    //! \argument[in] server The server to listen
-    //! \argument[in] max_queue_size Upper bound of the size of an
-    //!                              event queue.
+    //! \param[in] server The server to listen
+    //! \param[in] max_queue_size Upper bound of the size of an
+    //!                           event queue.
     EventListener(TCPServer &server, unsigned int max_queue_size = 100);
 
     //! \brief Construct an event listener from a Connection
@@ -96,9 +96,9 @@ public:
     //! Does exactly the same thing as constructing an empty
     //! listener, and then calling attach(connection).
     //!
-    //! \argument[in] connection The connection to listen
-    //! \argument[in] max_queue_size Upper bound of the size of an
-    //!                              event queue.
+    //! \param[in] connection The connection to listen
+    //! \param[in] max_queue_size Upper bound of the size of an
+    //!                           event queue.
     EventListener(Connection &connection, unsigned int max_queue_size = 100);
 
     //! \brief Construct an empty listener.
@@ -107,22 +107,22 @@ public:
     //! an other value. You can suppress the upper bound by setting
     //! max_queue_size to 0, but it's not recommended.
     //!
-    //! \argument[in] max_queue_size Upper bound of the size of an
-    //!                              event queue.
+    //! \param[in] max_queue_size Upper bound of the size of an
+    //!                           event queue.
     EventListener(unsigned int max_queue_size = 100);
 
     //! \brief Add a server into the managed list
     //!
     //! Same behavior as attach() on a Connection object.
     //!
-    //! \argument[in] server The server to attach
+    //! \param[in] server The server to attach
     void attach(TCPServer &server) throw(std::bad_alloc, EventException);
 
     //! \brief Remove a server from the managed list
     //!
     //! Same behavior as detach() on a Connection object.
     //!
-    //! \argument[in] server The server to detach
+    //! \param[in] server The server to detach
     void detach(TCPServer &server) throw(std::bad_alloc, EventException);
 
 
@@ -142,7 +142,7 @@ public:
     //!
     //! Calling attach on a managed connection won't do anything.
     //!
-    //! \argument[in] connection The connection to attach
+    //! \param[in] connection The connection to attach
     void attach(Connection &connection) throw(std::bad_alloc, EventException);
 
     //! \brief Remove a connection from the managed list
@@ -157,7 +157,7 @@ public:
     //! If you do so, it will throw a EventListenerRunning
     //! exception.
     //!
-    //! \argument[in] connection The connection to attach
+    //! \param[in] connection The connection to attach
     void detach(Connection &connection) throw(std::bad_alloc, EventException);
 
     //! \brief Launch the EventListener thread

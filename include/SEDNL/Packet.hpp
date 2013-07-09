@@ -36,6 +36,7 @@ class SEDNL_API Packet
 {
 public:
 
+    //! \brief Low level binary representation of types
     enum class Type
     {
         //! Reserved type
@@ -70,7 +71,7 @@ public:
     //! conterpart. You don't have to worry for most of the systems where
     //! this library would actualy works.
     //!
-    //! \argument[in] dt Data
+    //! \param[in] dt Data
     template<typename T>
     Packet& operator<<(T dt);
 

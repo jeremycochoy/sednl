@@ -54,7 +54,8 @@ public:
     //! Calling this constructor is the same as creating an
     //! empty TCPServer, then calling TCPServer::connect().
     //!
-    //! \argument[in] socket_address Describe the port on wich the server will listen.
+    //! \param[in] socket_address Describe the port on wich the server
+    //!                           will listen.
     TCPServer(const SocketAddress &socket_address);
 
     //! \brief Create a server connection on the SocketAddress
@@ -62,7 +63,8 @@ public:
     //! Calling this constructor is the same as creating an
     //! empty TCPServer, then calling TCPServer::connect().
     //!
-    //! \argument[in] socket_address Describe the port on wich the server will listen.
+    //! \param[in] socket_address Describe the port on wich the server
+    //!                           will listen.
     void connect(const SocketAddress &socket_address);
 
     //! \brief Cut the connection

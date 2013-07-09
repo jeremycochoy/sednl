@@ -37,13 +37,13 @@ class SEDNL_API Event
 public:
     //! \brief Construct an empty event
     //!
-    //! \argument[in] name Name of the event
+    //! \param[in] name Name of the event
     inline Event(std::string name);
 
     //! \brief Construct an event from a packet
     //!
-    //! \argument[in] name Name of the event
-    //! \argument[in] packet The data attached
+    //! \param[in] name Name of the event
+    //! \param[in] packet The data attached
     inline Event(std::string name, const Packet& packet);
 
     //! \brief Return a reference to the packet
