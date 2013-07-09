@@ -92,15 +92,31 @@ void TCPServer::connect(const SocketAddress& socket_address)
 
 void TCPServer::disconnect() noexcept
 {
-    std::lock_guard<std::mutex> lock(m_mutex);
+    try
+    {
+        std::lock_guard<std::mutex> lock(m_mutex);
 
-    //Tell the listener that the connection will be closed
-    if (m_listener)
-        m_listener->tell_disconnected(this);
+        //Tell the listener that the connection will be closed
+        if (m_listener)
+            m_listener->tell_disconnected(this);
 
-    if (m_connected)
+        if (m_connected)
+            close(m_fd);
+        m_connected = false;
+    }
+    catch(std::exception &e)
+    {
+#ifndef SEDNL_NOWARN
+        std::cerr << "Error: "
+                  << "std::mutex::lock failed in SedNL::TCPServer::disconnect"
+                  << std::endl;
+        std::cerr << e.what() << std::endl;
+#endif /* SEDNL_NOWARN */
+        //Let's try without thread safety :/
         close(m_fd);
-    m_connected = false;
+        m_connected = false;
+    }
+
 }
 
 } //namespace SedNL
