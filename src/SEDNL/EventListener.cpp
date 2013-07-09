@@ -23,6 +23,7 @@
 #include "SEDNL/Connection.hpp"
 #include "SEDNL/TCPServer.hpp"
 #include "SEDNL/TCPClient.hpp"
+#include "SEDNL/SocketHelp.hpp"
 
 #include <algorithm>
 #include <cstring>
@@ -102,7 +103,7 @@ void EventListener::detach(Connection &connection) throw(std::bad_alloc, EventEx
 
 //Close fd befor throwing, to prevent resource licking
 static inline
-void __epoll_add_fd(int epoll, int fd)
+bool __epoll_add_fd(int epoll, int fd)
 {
     struct epoll_event event;
     bzero(&event, sizeof(event));
@@ -112,8 +113,9 @@ void __epoll_add_fd(int epoll, int fd)
     if (err < 0)
     {
         close(fd);
-        throw EventException(EventExceptionT::EpollCtlFailed);
+        return false;
     }
+    return true;
 }
 
 void EventListener::run_init()
@@ -136,11 +138,13 @@ void EventListener::run_init()
 
     //Register servers
     for (auto server : m_servers)
-        __epoll_add_fd(epoll, server->m_fd);
+        if(!__epoll_add_fd(epoll, server->m_fd))
+            throw EventException(EventExceptionT::EpollCtlFailed);
 
     //Register clients
     for (auto connection : m_connections)
-        __epoll_add_fd(epoll, connection->m_fd);
+        if(!__epoll_add_fd(epoll, connection->m_fd))
+            throw EventException(EventExceptionT::EpollCtlFailed);
 
     //Keep the event pool
     std::swap(m_events, events);
@@ -204,6 +208,7 @@ void EventListener::accept_connections(FileDescriptor fd)
                       << std::endl;
             std::cerr << strerror(errno) << std::endl;
 #endif /* SEDNL_NOWARN */
+            close(cfd);
             return;
         }
 
@@ -216,6 +221,52 @@ void EventListener::accept_connections(FileDescriptor fd)
                       << std::endl;
             std::cerr << strerror(errno) << std::endl;
 #endif /* SEDNL_NOWARN */
+            close(cfd);
+            return;
+        }
+
+        //Create the connection
+        InternalList::iterator it;
+        try
+        {
+            //Add connection
+            auto cn = std::shared_ptr<Connection>(new Connection);
+            cn->m_connected = true;
+            cn->m_fd = cfd;
+            m_internal_connections.emplace(cfd, cn);
+        }
+        //Catch std::bad_alloc and others
+        catch(std::exception &e)
+        {
+#ifndef SEDNL_NOWARN
+            std::cerr << "Warning: "
+                      << "Can't create/store connection "
+                      << cfd
+                      << std::endl;
+            std::cerr << e.what() << std::endl;
+#endif /* SEDNL_NOWARN */
+            close(cfd);
+            return;
+        }
+
+        //Create the event
+        try
+        {
+            //TODO Add the event into the connected queue.
+        }
+        //Catch std::bad_alloc and others
+        catch(std::exception &e)
+        {
+#ifndef SEDNL_NOWARN
+            std::cerr << "Warning: "
+                      << "Can't create 'connected' event "
+                      << cfd
+                      << std::endl;
+            std::cerr << e.what() << std::endl;
+#endif /* SEDNL_NOWARN */
+            m_internal_connections.erase(it);
+            close(cfd);
+            return;
         }
     }
 }

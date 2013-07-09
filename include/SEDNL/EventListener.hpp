@@ -42,7 +42,7 @@
 #include "SEDNL/Types.hpp"
 
 #include <queue>
-#include <list>
+#include <map>
 #include <vector>
 #include <thread>
 #include <condition_variable>
@@ -211,7 +211,7 @@ private:
 
     typedef std::vector<TCPServer*> ServerList;
     typedef std::vector<Connection*> ConnectionList;
-    typedef std::list<std::shared_ptr<Connection>> InternalList;
+    typedef std::map<FileDescriptor, std::shared_ptr<Connection>> InternalList;
 
     //
     // We assert that each list contain only one
