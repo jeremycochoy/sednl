@@ -28,6 +28,7 @@
 #include <algorithm>
 #include <cstring>
 #include <iostream>
+#include <cassert>
 
 namespace SedNL
 {
@@ -147,7 +148,7 @@ void EventListener::run_init()
             throw EventException(EventExceptionT::EpollCtlFailed);
 
     //Keep the event pool
-    std::swap(m_events, events);
+    std::swap(m_epoll_events, events);
     m_epoll = epoll;
 }
 
@@ -233,7 +234,11 @@ void EventListener::accept_connections(FileDescriptor fd)
             auto cn = std::shared_ptr<Connection>(new Connection);
             cn->m_connected = true;
             cn->m_fd = cfd;
-            m_internal_connections.emplace(cfd, cn);
+            auto p = m_internal_connections.emplace(cfd, cn);
+            //We assert the insertion can't fail
+            //There shouldn't be an old cfd file descriptor
+            assert(p.second == true);
+            it = p.first;
         }
         //Catch std::bad_alloc and others
         catch(std::exception &e)
@@ -250,24 +255,20 @@ void EventListener::accept_connections(FileDescriptor fd)
         }
 
         //Create the event
-        try
-        {
-            //TODO Add the event into the connected queue.
-        }
-        //Catch std::bad_alloc and others
-        catch(std::exception &e)
+        if (!m_connected_queue.push(it->second))
         {
 #ifndef SEDNL_NOWARN
             std::cerr << "Warning: "
                       << "Can't create 'connected' event "
                       << cfd
                       << std::endl;
-            std::cerr << e.what() << std::endl;
 #endif /* SEDNL_NOWARN */
             m_internal_connections.erase(it);
             close(cfd);
             return;
         }
+
+        //We did it!
     }
 }
 
@@ -288,12 +289,13 @@ void EventListener::run_imp()
     {
         //Wait ~100ms, and check events (this allow to EventListener::join
         // even if nothing happens)
-        int n = epoll_wait(m_epoll, m_events.get(), MAX_EVENTS, 100);
+        int n = epoll_wait(m_epoll, m_epoll_events.get(), MAX_EVENTS, 100);
         for (int i = 0; i < n; i++)
         {
-            FileDescriptor event_fd = m_events[i].data.fd;
+            FileDescriptor event_fd = m_epoll_events[i].data.fd;
             //An error occured or the connection was closed
-            if (m_events[i].events & EPOLLERR || m_events[i].events & EPOLLHUP)
+            if (m_epoll_events[i].events & EPOLLERR
+                || m_epoll_events[i].events & EPOLLHUP)
             {
                 if (is_server(event_fd))
                     close_server(event_fd);
@@ -303,7 +305,7 @@ void EventListener::run_imp()
             }
 
             //SHOULDN't HAPPEN! If it happens, we ignore it
-            if (!(m_events[i].events & EPOLLIN))
+            if (!(m_epoll_events[i].events & EPOLLIN))
             {
 #ifndef SEDNL_NOWARN
                 std::cerr << "Warning: "
@@ -333,7 +335,7 @@ void EventListener::run_imp()
     //Release resources
     close(m_epoll);
     m_epoll = -1;
-    m_events.release();
+    m_epoll_events.release();
 }
 
 void EventListener::run() throw(EventException)

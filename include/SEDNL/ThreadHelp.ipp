@@ -22,6 +22,8 @@
 #ifndef THREAD_HELP_IPP
 #define THREAD_HELP_IPP
 
+#include <iostream>
+
 namespace SedNL
 {
 
@@ -44,6 +46,80 @@ SafeType<T>& SafeType<T>::operator=(T v)
     std::lock_guard<std::mutex> lock(m_mutex);
     m_value = v;
     return *this;
+}
+
+template<class T, class C>
+bool SafeQueue<T, C>::empty() const noexcept
+{
+    try
+    {
+        std::lock_guard<std::mutex> lock(m_mutex);
+        return m_queue.empty();
+    }
+    catch(std::exception &e)
+    {
+#ifndef SEDNL_NOWARN
+            std::cerr << "Error: std::mutex::lock failed."
+                      << std::endl;
+            std::cerr << e.what() << std::endl;
+#endif /* SEDNL_NOWARN */
+
+    }
+    return false;
+}
+
+template<class T, class C>
+bool SafeQueue<T, C>::pop(T& value) noexcept
+{
+    try
+    {
+        std::lock_guard<std::mutex> lock(m_mutex);
+        if (m_queue.empty())
+            return false;
+        value = m_queue.front();
+        m_queue.pop_front();
+        return true;
+    }
+    catch(std::exception &e)
+    {
+#ifndef SEDNL_NOWARN
+            std::cerr << "Error: std::mutex::lock failed."
+                      << std::endl;
+            std::cerr << e.what() << std::endl;
+#endif /* SEDNL_NOWARN */
+
+    }
+    return false;
+}
+
+template<class T, class C>
+bool SafeQueue<T, C>::push(const T& value) noexcept
+{
+    try
+    {
+        std::lock_guard<std::mutex> lock(m_mutex);
+        m_queue.push_back(value);
+        return true;
+    }
+    catch(std::bad_alloc &e)
+    {
+#ifndef SEDNL_NOWARN
+            std::cerr << "Arning: can't allocate while pushing in queue."
+                      << std::endl;
+            std::cerr << e.what() << std::endl;
+#endif /* SEDNL_NOWARN */
+
+    }
+    catch(std::exception &e)
+    {
+#ifndef SEDNL_NOWARN
+            std::cerr << "Error: std::mutex::lock failed."
+                      << std::endl;
+            std::cerr << e.what() << std::endl;
+#endif /* SEDNL_NOWARN */
+
+    }
+    return false;
 }
 
 } // namespace SedNL

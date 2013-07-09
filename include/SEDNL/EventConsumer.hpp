@@ -25,6 +25,7 @@
 #include "SEDNL/Export.hpp"
 #include "SEDNL/Types.hpp"
 #include "SEDNL/Slot.hpp"
+#include "SEDNL/ThreadHelp.hpp"
 
 namespace SedNL
 {
@@ -32,7 +33,6 @@ namespace SedNL
     class EventListener;
     class Connection;
     class Event;
-    class SafeQueue;
 
 ////////////////////////////////////////////////////////////////////
 //! \brief A consumer object. It consume certain kind of events from

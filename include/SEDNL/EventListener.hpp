@@ -40,6 +40,7 @@
 #include "SEDNL/Exception.hpp"
 #include "SEDNL/ThreadHelp.hpp"
 #include "SEDNL/Types.hpp"
+#include "SEDNL/Event.hpp"
 
 #include <queue>
 #include <map>
@@ -213,6 +214,22 @@ private:
     typedef std::vector<Connection*> ConnectionList;
     typedef std::map<FileDescriptor, std::shared_ptr<Connection>> InternalList;
 
+    typedef std::pair<std::shared_ptr<Connection>, Event> CnEvent;
+    typedef SafeQueue<CnEvent> EventQueue;
+    typedef SafeQueue<std::shared_ptr<Connection>> ConnectionQueue;
+    typedef SafeQueue<TCPServer *> ServerQueue;
+    typedef std::map<std::string, EventQueue> EventMap;
+
+    //! \brief The 'connected' event queue
+    ConnectionQueue m_connected_queue;
+    //! \brief The 'disconnected' event queue
+    ConnectionQueue m_disconnected_queue;
+    //! \brief The 'server disconnected' queue
+    ServerQueue m_server_disconnected_queue;
+
+    //! \brief The map of all event queue
+    EventMap m_events;
+
     //
     // We assert that each list contain only one
     // time the same object.
@@ -252,7 +269,7 @@ private:
     TCPServer* get_server(FileDescriptor fd);
 
     FileDescriptor m_epoll;
-    std::unique_ptr<struct epoll_event[]> m_events;
+    std::unique_ptr<struct epoll_event[]> m_epoll_events;
 
     //! \brief Called by a client when disconnected by disconnect()
     void tell_disconnected(Connection *cn);

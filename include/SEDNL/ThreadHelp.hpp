@@ -23,11 +23,12 @@
 #define THREAD_HELP_HPP
 
 #include <mutex>
+#include <queue>
 
 namespace SedNL
 {
 
-// Allow to protect a type T with a mutex
+//! \brief Allow to protect a type T with a mutex
 template<class T>
 class SafeType
 {
@@ -38,6 +39,30 @@ public:
 private:
     T m_value;
     std::mutex m_mutex;
+};
+
+//! \brief A std::queue protected with a mutex
+template<class T, class Container = std::deque<T>>
+class SafeQueue
+{
+public:
+    //! \brief Checks whether the underlying container is empty
+    inline bool empty() const noexcept;
+
+    //! \brief Inserts element at the end
+    inline bool push(const T& value) noexcept;
+
+    //! \brief Remove the first element and store it into \a value
+    //!
+    //! If the queue is empty, return false and do not modify \a value.
+    //!
+    //! \param[in] value Where to store the data
+    inline bool pop(T& value) noexcept;
+
+private:
+    std::mutex m_mutex;
+    typedef Container QType;
+    QType m_queue;
 };
 
 } // namespace SedNL
