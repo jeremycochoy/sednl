@@ -271,6 +271,9 @@ private:
     //! \brief Return the TCPServer associated, or nullptr
     TCPServer* get_server(FileDescriptor fd) noexcept;
 
+    //! \brief Return the Connection associated, or an empty shared_ptr.
+    std::shared_ptr<Connection> get_connection(FileDescriptor fd) noexcept;
+
     FileDescriptor m_epoll;
     std::unique_ptr<struct epoll_event[]> m_epoll_events;
 

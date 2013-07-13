@@ -345,12 +345,30 @@ void EventListener::accept_connections(FileDescriptor fd)
 }
 
 
-//Assume fd is a server
+//Assume fd is a connection
 void EventListener::read_connection(FileDescriptor fd)
 {
-    TCPServer* server = get_server(fd);
+    auto cn = get_connection(fd);
     std::cout << "read" << std::endl; //DEBUG
     //TODO
+}
+
+std::shared_ptr<Connection>
+EventListener::get_connection(FileDescriptor fd) noexcept
+{
+    if (!m_connections.empty())
+    {
+        for (auto connection : m_connections)
+            if (connection->get_fd() == fd)
+                return std::shared_ptr<Connection>
+                    (connection, [](Connection*){});
+    }
+
+    auto it = m_internal_connections.find(fd);
+    if (it != m_internal_connections.end())
+        return it->second;
+
+    return std::shared_ptr<Connection>();
 }
 
 //We are called with the m_fd lock
