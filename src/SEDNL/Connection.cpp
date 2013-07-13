@@ -38,14 +38,26 @@ void Connection::disconnect() noexcept
     try
     {
         std::lock_guard<std::mutex> lock(m_mutex);
-
-        //Tell the listener that the connection will be closed
-        if (m_listener)
-            m_listener->tell_disconnected(this);
-
         if (m_connected)
+        {
+            //Tell the listener that the connection will be closed
+            if (m_listener)
+            {
+                m_listener->tell_disconnected(this);
+                try {
+                    m_listener->m_fd_lock.lock();
+                } catch(...) {}
+            }
+
             close(m_fd);
-        m_connected = false;
+            m_fd = -1;
+            if (m_listener)
+                try {
+                    m_listener->m_fd_lock.unlock();
+                } catch(...) {}
+
+            m_connected = false;
+        }
     }
     catch(std::exception &e)
     {
@@ -57,6 +69,7 @@ void Connection::disconnect() noexcept
 #endif /* SEDNL_NOWARN */
         //We are more or less in hell, so let's try without lock
         close(m_fd);
+        m_fd = -1;
         m_connected = false;
     }
 }

@@ -54,6 +54,7 @@ namespace SedNL
         CantRetrieveHost,
         ConnectFailed,
         BindFailed,
+        ListenFailed,
         CantSetNonblocking,
         TimedOut,
     };

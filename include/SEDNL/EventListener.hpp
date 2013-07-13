@@ -22,8 +22,10 @@
 #ifndef EVENT_LISTENER_HPP_
 #define EVENT_LISTENER_HPP_
 
+#include "SEDNL/SocketHelp.hpp"
+
 #ifndef EPOLL_SIZE
-# define EPOLL_SIZE 10000
+# define EPOLL_SIZE MAX_CONNECTIONS
 #endif /* !EPOLL_SIZE */
 #ifndef MAX_EVENTS
 # define MAX_EVENTS 256
@@ -180,7 +182,8 @@ public:
     //! When you call join, you ask the EventListener to stop
     //! processing events.
     //!
-    //! When join() is called, The EventListener close all the connections.
+    //! When join() is called, The EventListener close all the
+    //! internal connections.
     //! Then, it join each consumer.
     //! When all consumer are stoped, the join function return.
     //! It means that each disconnected event will be processed.
@@ -251,7 +254,7 @@ private:
     //! \brief Tell if a FileDescriptor is a server
     //!
     //! If it's false, it means it's a client.
-    bool is_server(FileDescriptor fd);
+    bool is_server(FileDescriptor fd) const noexcept;
 
     //! \brief Close a server and create the server_closed event
     void close_server(FileDescriptor fd);
@@ -266,19 +269,23 @@ private:
     void read_connection(FileDescriptor fd);
 
     //! \brief Return the TCPServer associated, or nullptr
-    TCPServer* get_server(FileDescriptor fd);
+    TCPServer* get_server(FileDescriptor fd) noexcept;
 
     FileDescriptor m_epoll;
     std::unique_ptr<struct epoll_event[]> m_epoll_events;
 
     //! \brief Called by a client when disconnected by disconnect()
-    void tell_disconnected(Connection *cn);
+    void tell_disconnected(Connection *cn) noexcept;
 
     //! \brief Called by a client when disconnected by disconnect()
-    void tell_disconnected(TCPServer *cn);
+    void tell_disconnected(TCPServer *cn) noexcept;
 
     friend class Connection;
     friend class TCPServer;
+
+    //! \brief The 'global' fd lock. Should be locked while
+    //!        reading/writing on m_fd fields.
+    std::mutex m_fd_lock;
 };
 
 } // namespace SedNL

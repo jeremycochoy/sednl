@@ -22,6 +22,10 @@
 #ifndef SOCKET_HELP_HPP_
 #define SOCKET_HELP_HPP_
 
+#ifndef MAX_CONNECTIONS
+# define MAX_CONNECTIONS 10000
+#endif /* !MAX_CONNECTIONS */
+
 #include "SEDNL/Exception.hpp"
 #include "SEDNL/Packet.hpp"
 

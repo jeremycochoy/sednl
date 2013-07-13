@@ -38,13 +38,13 @@ EventListener::EventListener(unsigned int max_queue_size)
 {
 }
 
-EventListener::EventListener(Connection &connection, unsigned int max_queue_size)
+EventListener::EventListener(Connection& connection, unsigned int max_queue_size)
     :m_max_queue_size(max_queue_size), m_running(false)
 {
     attach(connection);
 }
 
-EventListener::EventListener(TCPServer &server, unsigned int max_queue_size)
+EventListener::EventListener(TCPServer& server, unsigned int max_queue_size)
     :m_max_queue_size(max_queue_size), m_running(false)
 {
     attach(server);
@@ -57,7 +57,7 @@ EventListener::EventListener(TCPServer &server, unsigned int max_queue_size)
 //
 
 template<class L, class T> inline
-void EventListener::__attach(L& list, T *elm)
+void EventListener::__attach(L& list, T* elm)
 {
     auto res = std::find(list.begin(), list.end(), elm);
     if (res == list.end())
@@ -70,7 +70,7 @@ void EventListener::__attach(L& list, T *elm)
 }
 
 template<class L, class T> inline
-void EventListener::__detach(L& list, T *elm)
+void EventListener::__detach(L& list, T* elm)
 {
     auto res = std::find(list.begin(), list.end(), elm);
     if (res != list.end())
@@ -139,12 +139,12 @@ void EventListener::run_init()
 
     //Register servers
     for (auto server : m_servers)
-        if(!__epoll_add_fd(epoll, server->m_fd))
+        if(server->is_connected() && !__epoll_add_fd(epoll, server->m_fd))
             throw EventException(EventExceptionT::EpollCtlFailed);
 
     //Register clients
     for (auto connection : m_connections)
-        if(!__epoll_add_fd(epoll, connection->m_fd))
+        if(connection->is_connected() && !__epoll_add_fd(epoll, connection->m_fd))
             throw EventException(EventExceptionT::EpollCtlFailed);
 
     //Keep the event pool
@@ -152,37 +152,78 @@ void EventListener::run_init()
     m_epoll = epoll;
 }
 
-bool EventListener::is_server(FileDescriptor fd)
+bool EventListener::is_server(FileDescriptor fd) const noexcept
 {
-    //TODO
+    for (auto s : m_servers)
+    {
+        if (s->m_fd == fd)
+            return true;
+    }
     return false;
 }
 
 //Assume fd is  server
-TCPServer *EventListener::get_server(FileDescriptor fd)
+TCPServer *EventListener::get_server(FileDescriptor fd) noexcept
 {
-    //TODO
+    for (auto s : m_servers)
+    {
+        if (s->m_fd == fd)
+            return s;
+    }
     return nullptr;
 }
 
 //Assume fd is a server
 void EventListener::close_server(FileDescriptor fd)
 {
-    //TODO
-    // Remember we should create a server_closed event
+    std::cout << "Asked to close server " << fd << std::endl;//DEBUG
+    for (auto s : m_servers)
+    {
+        if (s->m_fd == fd)
+        {
+            //Create event
+            tell_disconnected(s);
+            //Close the server
+            close(s->m_fd);
+            return;
+        }
+    }
 }
 
 //Assume fd is a connection
 void EventListener::close_connection(FileDescriptor fd)
 {
-    //TODO
+    std::shared_ptr<Connection> cn;
+
+    //Look on the "external list"
+    if (!m_connections.empty()) //rely on branch prediction on empty list
+    {
+        for (auto connection : m_connections)
+            //We create a 'false' shared_ptr (i.e. without destructor)
+            if (connection->m_fd == fd)
+            {
+                cn = decltype(cn)(connection, [](Connection*){});
+                break;
+            }
+    }
+
+    //Look on the "internal list"
+    if (!cn) //branch prediction ...
+    {
+        auto it = m_internal_connections.find(fd);
+        if (it != m_internal_connections.end())
+            cn = it->second;
+    }
+
+    //TODO close the connection
+    std::cout << "Asked to close " << fd << std::endl;//DEBUG
 }
 
 //Assume fd is a server
 void EventListener::accept_connections(FileDescriptor fd)
 {
     TCPServer* server = get_server(fd);
-
+    std::cout << "accept" << std::endl;//DEBUG
     while (true)
     {
         struct sockaddr in_addr;
@@ -190,12 +231,15 @@ void EventListener::accept_connections(FileDescriptor fd)
         FileDescriptor cfd = accept(fd, &in_addr, &in_len);
         if (cfd < 0)
         {
+            //No more fd
+            if (errno == EAGAIN || errno == EWOULDBLOCK)
+                break;
 #ifndef SEDNL_NOWARN
             std::cerr << "Warning: "
                       << "Can't accept on server socket "
-                      << cfd
+                      << fd
                       << std::endl;
-            std::cerr << strerror(errno) << std::endl;
+            std::cerr << "    " << strerror(errno) << std::endl;
 #endif /* SEDNL_NOWARN */
             return;
         }
@@ -207,7 +251,7 @@ void EventListener::accept_connections(FileDescriptor fd)
                       << "Can't set accepted socket non-blocking "
                       << cfd
                       << std::endl;
-            std::cerr << strerror(errno) << std::endl;
+            std::cerr << "    " << strerror(errno) << std::endl;
 #endif /* SEDNL_NOWARN */
             close(cfd);
             return;
@@ -220,7 +264,7 @@ void EventListener::accept_connections(FileDescriptor fd)
                       << "Can't accepted socket to epoll "
                       << cfd
                       << std::endl;
-            std::cerr << strerror(errno) << std::endl;
+            std::cerr << "    " << strerror(errno) << std::endl;
 #endif /* SEDNL_NOWARN */
             close(cfd);
             return;
@@ -248,7 +292,7 @@ void EventListener::accept_connections(FileDescriptor fd)
                       << "Can't create/store connection "
                       << cfd
                       << std::endl;
-            std::cerr << e.what() << std::endl;
+            std::cerr << "    " << e.what() << std::endl;
 #endif /* SEDNL_NOWARN */
             close(cfd);
             return;
@@ -269,14 +313,50 @@ void EventListener::accept_connections(FileDescriptor fd)
         }
 
         //We did it!
+
+        //DEBUG
+        std::cout << "Connection " << cfd << " accepted!" << std::endl;
     }
 }
+
 
 //Assume fd is a server
 void EventListener::read_connection(FileDescriptor fd)
 {
     TCPServer* server = get_server(fd);
+    std::cout << "read" << std::endl; //DEBUG
+    //TODO
 }
+
+void EventListener::tell_disconnected(Connection *cn) noexcept
+{
+    //TODO
+    //Should remove cn from internal connection if needed
+}
+
+void EventListener::tell_disconnected(TCPServer *s) noexcept
+{
+    //Create the server disconnected event
+    if (!m_server_disconnected_queue.push(s))
+    {
+#ifndef SEDNL_NOWARN
+        std::cerr << "Error: "
+                  << "Lost a server disconnected event for server "
+                  << s->m_fd
+                  << std::endl;
+#endif /* SEDNL_NOWARN */
+    }
+}
+
+
+// Notice for developpers :
+//
+// We are the only ones allowed to read and write in m_fd, so we are the only
+// thread doing that EXCEPTED when a connection is closed.
+// Closing a connection will modify m_fd, but will only occure after we already write
+// the m_fd field. So, the only issue is concurent read.
+// Thats why we have the 'global' m_fd_lock in the listener.
+//
 
 void EventListener::run_imp()
 {
@@ -290,45 +370,60 @@ void EventListener::run_imp()
         //Wait ~100ms, and check events (this allow to EventListener::join
         // even if nothing happens)
         int n = epoll_wait(m_epoll, m_epoll_events.get(), MAX_EVENTS, 100);
-        for (int i = 0; i < n; i++)
+
+        //Get the 'global' FD lock
+        try
         {
-            FileDescriptor event_fd = m_epoll_events[i].data.fd;
-            //An error occured or the connection was closed
-            if (m_epoll_events[i].events & EPOLLERR
-                || m_epoll_events[i].events & EPOLLHUP)
-            {
-                if (is_server(event_fd))
-                    close_server(event_fd);
-                else
-                    close_connection(event_fd);
-                continue;
-            }
+            std::lock_guard<std::mutex> lock(m_fd_lock);
 
-            //SHOULDN't HAPPEN! If it happens, we ignore it
-            if (!(m_epoll_events[i].events & EPOLLIN))
+            for (int i = 0; i < n; i++)
             {
+                FileDescriptor event_fd = m_epoll_events[i].data.fd;
+                //An error occured or the connection was closed
+                if (m_epoll_events[i].events & EPOLLERR
+                    || m_epoll_events[i].events & EPOLLHUP)
+                {
+                    if (is_server(event_fd))
+                        close_server(event_fd);
+                    else
+                        close_connection(event_fd);
+                    continue;
+                }
+
+                //SHOULDN't HAPPEN! If it happens, we ignore it
+                if (!(m_epoll_events[i].events & EPOLLIN))
+                {
 #ifndef SEDNL_NOWARN
-                std::cerr << "Warning: "
-                          << "epoll_wait() returned a non EPOLLIN event."
-                          << std::endl;
+                    std::cerr << "Warning: "
+                              << "epoll_wait() returned a non EPOLLIN event."
+                              << std::endl;
 #endif /* !SEDNL_NOWARN */
-                continue;
-            }
+                    continue;
+                }
 
-            //So, it's a read avent.
+                //So, it's a read avent.
 
-            //Incoming connection
-            if (is_server(event_fd))
-            {
-                accept_connections(event_fd);
-                continue;
+                //Incoming connection
+                if (is_server(event_fd))
+                {
+                    accept_connections(event_fd);
+                    continue;
+                }
+                //It's a read on a connection
+                else
+                {
+                    read_connection(event_fd);
+                    continue;
+                }
             }
-            //It's a read on a connection
-            else
-            {
-                read_connection(event_fd);
-                continue;
-            }
+        }
+        catch(std::exception &e)
+        {
+#ifndef SEDNL_NOWARN
+                    std::cerr << "Warning: "
+                              << "Failed to acquire the listener fd_lock."
+                              << std::endl;
+#endif /* !SEDNL_NOWARN */
         }
     }
 

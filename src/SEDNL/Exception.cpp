@@ -35,6 +35,14 @@ const char* TemplateException<NetworkExceptionT>::what() const noexcept
         return "Can't retrieve host ip from the host name.";
     case NetworkExceptionT::ConnectFailed:
         return "Can't connect to the server.";
+    case NetworkExceptionT::BindFailed:
+        return "Can't bind the server socket.";
+    case NetworkExceptionT::ListenFailed:
+        return "Can't listen on the server socket.";
+    case NetworkExceptionT::CantSetNonblocking:
+        return "Can't set socket mode to nonblocking.";
+    case NetworkExceptionT::TimedOut:
+        return "Connection timed out.";
     default:
         return "Unknown exception.";
     }
@@ -49,7 +57,23 @@ const char* TemplateException<TypeExceptionT>::what() const noexcept
 template<>
 const char* TemplateException<EventExceptionT>::what() const noexcept
 {
-    return "TODO";
+    switch(m_type)
+    {
+    case EventExceptionT::EventListenerRunning:
+        return "An event lister was already running when run() was called.";
+    case EventExceptionT::AlreadyListened:
+        return "Tried to attach() an element to a listener that was"
+            " already attached.";
+    case EventExceptionT::WrongParentListener:
+        return "The element on wich detach() was called wasn't attached"
+            " to this listener.";
+    case EventExceptionT::EpollCreateFailed:
+        return "Failed to create the EPoll.";
+    case EventExceptionT::EpollCtlFailed:
+        return "Failed to register filedescriptors into epoll.";
+    default:
+        return "Unknown exception.";
+    }
 }
 
 }

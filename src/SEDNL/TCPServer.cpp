@@ -32,9 +32,11 @@ namespace SedNL
 {
 
 TCPServer::TCPServer() noexcept
+    :m_listener(nullptr)
 {}
 
 TCPServer::TCPServer(const SocketAddress& socket_address)
+    :m_listener(nullptr)
 {
     connect(socket_address);
 }
@@ -86,6 +88,12 @@ void TCPServer::connect(const SocketAddress& socket_address)
     if (addr == nullptr)
         throw NetworkException(NetworkExceptionT::BindFailed);
 
+    if (!set_non_blocking(fd))
+        throw NetworkException(NetworkExceptionT::CantSetNonblocking);
+
+    if (listen(fd, MAX_CONNECTIONS) < 0)
+        throw NetworkException(NetworkExceptionT::ListenFailed);
+
     m_connected = true;
     m_fd = fd;
 }
@@ -96,13 +104,26 @@ void TCPServer::disconnect() noexcept
     {
         std::lock_guard<std::mutex> lock(m_mutex);
 
-        //Tell the listener that the connection will be closed
-        if (m_listener)
-            m_listener->tell_disconnected(this);
-
         if (m_connected)
+        {
+            //Tell the listener that the connection will be closed
+            if (m_listener)
+            {
+                m_listener->tell_disconnected(this);
+                try {
+                    m_listener->m_fd_lock.lock();
+                } catch(...) {}
+            }
+
             close(m_fd);
-        m_connected = false;
+            m_fd = -1;
+            if (m_listener)
+                try {
+                    m_listener->m_fd_lock.unlock();
+                } catch(...) {}
+
+            m_connected = false;
+        }
     }
     catch(std::exception &e)
     {
@@ -114,9 +135,9 @@ void TCPServer::disconnect() noexcept
 #endif /* SEDNL_NOWARN */
         //Let's try without thread safety :/
         close(m_fd);
+        m_fd = -1;
         m_connected = false;
     }
-
 }
 
 } //namespace SedNL
