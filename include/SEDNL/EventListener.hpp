@@ -275,17 +275,17 @@ private:
     std::unique_ptr<struct epoll_event[]> m_epoll_events;
 
     //! \brief Called by a client when disconnected by disconnect()
+    //!
+    //! Called with cn->m_mutex locked!
     void tell_disconnected(Connection *cn) noexcept;
 
     //! \brief Called by a client when disconnected by disconnect()
+    //!
+    //! Called with cn->m_mutex locked!
     void tell_disconnected(TCPServer *cn) noexcept;
 
     friend class Connection;
     friend class TCPServer;
-
-    //! \brief The 'global' fd lock. Should be locked while
-    //!        reading/writing on m_fd fields.
-    std::mutex m_fd_lock;
 };
 
 } // namespace SedNL

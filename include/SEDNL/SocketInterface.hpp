@@ -26,6 +26,8 @@
 #include "SEDNL/NonCopyable.hpp"
 #include "SEDNL/Types.hpp"
 
+#include <mutex>
+
 namespace SedNL
 {
 
@@ -54,6 +56,12 @@ protected:
 
     //! \brief Socket file descriptor
     FileDescriptor m_fd;
+
+    //! \brief Mutex used for synchronisation while sending events,
+    //!        closing the connection, or changing the user data.
+    std::mutex m_mutex;
+
+    inline FileDescriptor get_fd() noexcept;
 };
 
 } // namespace SedNL

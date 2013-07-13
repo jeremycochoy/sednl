@@ -24,6 +24,8 @@
 
 #include "Export.hpp"
 
+#include <iostream>
+
 namespace SedNL
 {
 
@@ -39,6 +41,25 @@ bool SocketInterface::is_connected() const noexcept
 SocketInterface::operator bool() const noexcept
 {
     return is_connected();
+}
+
+inline
+FileDescriptor SocketInterface::get_fd() noexcept
+{
+    try
+    {
+        std::lock_guard<std::mutex> lock(m_mutex);
+        return m_fd;
+    }
+    catch(std::exception &e)
+    {
+#ifndef SEDNL_NOWARN
+    std::cerr << "Error: "
+              << "std::mutex::lock failed in Connection::get_fd" << std::endl;
+    std::cerr << "    " << e.what() << std::endl;
+#endif /* SEDNL_NOWARN */
+        return m_fd;
+    }
 }
 
 } // namespace Sednl

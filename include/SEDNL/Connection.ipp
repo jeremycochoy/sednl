@@ -33,7 +33,7 @@ Connection::Connection()
 
 Connection::~Connection() noexcept
 {
-    disconnect();
+    unsafe_disconnect();
 }
 
 } // namespace Sednl

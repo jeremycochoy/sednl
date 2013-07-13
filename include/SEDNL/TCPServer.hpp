@@ -25,8 +25,6 @@
 #include "SEDNL/Export.hpp"
 #include "SEDNL/SocketInterface.hpp"
 
-#include <mutex>
-
 #ifdef SEDNL_WINDOWS
 #else /* SEDNL_WINDOWS */
 
@@ -43,11 +41,14 @@ namespace SedNL
 class SocketAddress;
 class EventListener;
 
-class SEDNL_API TCPServer : SocketInterface
+class SEDNL_API TCPServer : public SocketInterface
 {
 public:
     //! \brief Create an empty server
     TCPServer() noexcept;
+
+    //! \brief Close the connection if needed
+    ~TCPServer() noexcept;
 
     //! \brief Create a server connection on the SocketAddress
     //!
@@ -74,8 +75,8 @@ private:
     //! \brief the current listener
     EventListener *m_listener;
 
-    //! \brief Mutex used for synchronisation while closing.
-    std::mutex m_mutex;
+    void unsafe_disconnect() noexcept;
+    void safe_disconnect() noexcept;
 
     friend class EventListener;
 };

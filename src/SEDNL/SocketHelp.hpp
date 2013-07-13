@@ -48,9 +48,23 @@ typedef uint16_t n_16;
 #endif /* SEDNL_WINDOWS */
 
 #include <utility>
+#include <iostream>
 
 namespace SedNL
 {
+
+//! \brief Allow to continue even if lock failed.
+//!        Only used when code should be executed anyway.
+static inline
+void warn_lock(std::exception& e, const char* name)
+{
+#ifndef SEDNL_NOWARN
+    std::cerr << "Error: "
+              << "std::mutex::lock failed in " << name
+              << std::endl;
+    std::cerr << "    " << e.what() << std::endl;
+#endif /* SEDNL_NOWARN */
+}
 
 //! \brief Set a socket file descriptor non blocking
 inline bool set_non_blocking(int fd)

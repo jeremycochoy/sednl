@@ -26,7 +26,7 @@
 #include "SEDNL/Exception.hpp"
 #include "SEDNL/SocketInterface.hpp"
 
-#include <mutex>
+#include <iostream>
 
 namespace SedNL
 {
@@ -169,12 +169,11 @@ private:
         double m_data_double;
     };
 
-    //! \brief Mutex used for synchronisation while sending events,
-    //!        closing the connection, or changing the user data.
-    std::mutex m_mutex;
-
     //! \brief the current listener
     EventListener *m_listener;
+
+    void unsafe_disconnect() noexcept;
+    void safe_disconnect() noexcept;
 
     friend class EventListener;
 };

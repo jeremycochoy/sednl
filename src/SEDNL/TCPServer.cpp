@@ -41,6 +41,11 @@ TCPServer::TCPServer(const SocketAddress& socket_address)
     connect(socket_address);
 }
 
+TCPServer::~TCPServer() noexcept
+{
+    unsafe_disconnect();
+}
+
 void TCPServer::connect(const SocketAddress& socket_address)
 {
     if (!socket_address.is_server_valid())
@@ -103,37 +108,35 @@ void TCPServer::disconnect() noexcept
     try
     {
         std::lock_guard<std::mutex> lock(m_mutex);
-
-        if (m_connected)
-        {
-            //Tell the listener that the connection will be closed
-            if (m_listener)
-            {
-                m_listener->tell_disconnected(this);
-                try {
-                    m_listener->m_fd_lock.lock();
-                } catch(...) {}
-            }
-
-            close(m_fd);
-            m_fd = -1;
-            if (m_listener)
-                try {
-                    m_listener->m_fd_lock.unlock();
-                } catch(...) {}
-
-            m_connected = false;
-        }
+        if (m_listener)
+            m_listener->tell_disconnected(this);
+        unsafe_disconnect();
     }
     catch(std::exception &e)
     {
-#ifndef SEDNL_NOWARN
-        std::cerr << "Error: "
-                  << "std::mutex::lock failed in SedNL::TCPServer::disconnect"
-                  << std::endl;
-        std::cerr << e.what() << std::endl;
-#endif /* SEDNL_NOWARN */
-        //Let's try without thread safety :/
+        warn_lock(e, "TCPServer::disconnect()");
+        unsafe_disconnect();
+    }
+}
+
+void TCPServer::safe_disconnect() noexcept
+{
+    try
+    {
+        std::lock_guard<std::mutex> lock(m_mutex);
+        unsafe_disconnect();
+    }
+    catch(std::exception &e)
+    {
+        warn_lock(e, "TCPServer::safe_disconnect()");
+        unsafe_disconnect();
+    }
+}
+
+void TCPServer::unsafe_disconnect() noexcept
+{
+    if (m_connected)
+    {
         close(m_fd);
         m_fd = -1;
         m_connected = false;
