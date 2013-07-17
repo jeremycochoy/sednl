@@ -32,6 +32,8 @@ namespace SedNL
 
 typedef std::vector<Byte> ByteArray;
 
+class RingBuf;
+
 class SEDNL_API Packet
 {
 public:
@@ -96,6 +98,8 @@ public:
 
 private:
     ByteArray data;
+
+    friend RingBuf;
 };
 
 template<>

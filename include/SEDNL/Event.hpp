@@ -31,6 +31,7 @@ namespace SedNL
 {
 
 class Packet;
+class RingBuf;
 
 class SEDNL_API Event
 {
@@ -69,6 +70,9 @@ public:
 private:
     std::string m_name;
     Packet m_packet;
+
+    //! Allowed to create an event from data
+    friend RingBuf;
 };
 
 } // namespace SedNL

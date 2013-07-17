@@ -77,6 +77,17 @@ inline bool set_non_blocking(int fd)
     return true;
 }
 
+//! \brief Set a socket file descriptor blocking
+inline bool set_blocking(int fd)
+{
+    int flags = 0;
+    if ((flags = fcntl(fd, F_GETFL)) < 0)
+        return false;
+    if (fcntl(fd, F_SETFL, flags & ~O_NONBLOCK) != 0)
+        return false;
+    return true;
+}
+
 //! Try to obtain addresses with getaddrinfo
 //! See TCPServer::connect() and TCPClient::connect().
 template<typename T, typename U>

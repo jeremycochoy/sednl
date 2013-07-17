@@ -25,6 +25,7 @@
 #include "SEDNL/Export.hpp"
 #include "SEDNL/Exception.hpp"
 #include "SEDNL/SocketInterface.hpp"
+#include "SEDNL/RingBuf.hpp"
 
 #include <iostream>
 
@@ -174,6 +175,9 @@ private:
 
     void unsafe_disconnect() noexcept;
     void safe_disconnect() noexcept;
+
+//    //! \brief Buffer where data are stored
+//    RingBuf buffer;
 
     friend class EventListener;
 };

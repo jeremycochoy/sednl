@@ -38,6 +38,18 @@ class Event;
 class RingBuf
 {
 public:
+
+    //! \brief An iterator
+    class Iterator
+    {
+    public:
+        Iterator(RingBuf &buf);
+        UInt8 operator* ();
+        Iterator& operator++ ();
+    private:
+        unsigned int pos;
+    };
+
     //! \brief Build a ring buffer of fixed size \a size
     RingBuf(unsigned int size) throw (std::bad_alloc);
 
@@ -69,12 +81,15 @@ public:
     //! If it fails, it do not modify event.
     //!
     //! \return True if new event stored in \a event, False otherwise.
-    bool pickEvent(Event& event) noexcept;
+    bool pick_event(Event& event) noexcept;
+
 private:
     std::unique_ptr<UInt8[]> m_dt;
     unsigned int m_size;
     unsigned int m_start;
     unsigned int m_end;
+
+    friend Iterator;
 };
 
 } // namespace SedNL

@@ -20,6 +20,11 @@
 //        distribution.
 
 #include "SEDNL/RingBuf.hpp"
+#include "SEDNL/SocketHelp.hpp"
+#include "SEDNL/Event.hpp"
+
+#define ROUND(pos) ((pos) % (m_size + 1))
+#define AT(pos)    m_dt[(pos)]
 
 namespace SedNL
 {
@@ -45,6 +50,76 @@ bool RingBuf::put(const char* string, unsigned int length) noexcept
     }
 
     return true;
+}
+
+// TODO : Test this function and correct bugs :)
+bool RingBuf::pick_event(Event& event) noexcept
+{
+    try
+    {
+        std::cout << "pickEvent" << std::endl; //DEBUG
+        //Event header start by an UInt16 wich is the packet length.
+        // So, we need at least the packet size
+        if (length() < sizeof(UInt16))
+            return false;
+
+        UInt16 packet_length;
+        UInt8* ptr = reinterpret_cast<UInt8*>(&packet_length);
+        ptr[0] = AT(m_start);
+        ptr[1] = AT(m_start + 1);
+        packet_length = ntohs(packet_length);
+
+        //We want : UInt16 + '\0' terminated string, so at least
+        // sizeof(UInt16) + sizeof(UInt8)
+        if (sizeof(UInt16) + sizeof(UInt8) < length())
+            return false;
+        //We also want the whole packed
+        if (length() < packet_length)
+            return false;
+
+        //Begining of the event name
+        unsigned int dt_idx = ROUND(m_start + sizeof(UInt16));
+        unsigned int remaining = packet_length - sizeof(UInt16);
+        std::string name;
+
+        while (remaining && AT(dt_idx) != '\0')
+        {
+            name.push_back(AT(dt_idx));
+            remaining--;
+            dt_idx++;
+        }
+        if (AT(dt_idx) != '\0')
+        {
+            //It's a corrupted packet.
+            //Log it and drop it
+#ifndef SEDNL_NOWARN
+            std::cerr << "Warning: Corrupted packet. Droped." << std::endl;
+#endif
+            m_start = ROUND(m_start + packet_length);
+            return false;
+        }
+        std::cout << "pickEvent::name : " << name << std::endl; // DEBUG
+        Packet packet;
+
+        while (remaining)
+        {
+            packet.data.push_back(AT(dt_idx));
+            remaining--;
+        }
+
+        //TODO : Check packet integrity
+        //if (!packet.is_valid())
+        //    return false;
+        std::swap(event.m_name, name);
+        std::swap(event.m_packet, packet);
+
+        std::cout << "pickEvent::Done" << std::endl; // DEBUG
+        return true;
+
+    }
+    catch(std::bad_alloc&)
+    {}
+    return false;
 }
 
 } // namespace SedNL

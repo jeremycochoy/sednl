@@ -113,7 +113,7 @@ bool __epoll_add_fd(int epoll, int fd)
     struct epoll_event event;
     bzero(&event, sizeof(event));
     event.data.fd = fd;
-    event.events = EPOLLIN | EPOLLET;
+    event.events = EPOLLIN | EPOLLRDHUP | EPOLLET;
     int err = epoll_ctl(epoll, EPOLL_CTL_ADD, fd, &event);
     if (err < 0)
     {
@@ -213,7 +213,7 @@ void disconnected_event(T &queue, U cn, FileDescriptor fd, const char* type)
 void EventListener::close_connection(FileDescriptor fd)
 {
     std::shared_ptr<Connection> cn;
-
+    std::cout << "Close Connection" << std::endl;
     //Look on the "external list"
     if (!m_connections.empty()) //rely on branch prediction on empty list
     {
@@ -431,8 +431,15 @@ void EventListener::run_imp()
             FileDescriptor event_fd = m_epoll_events[i].data.fd;
             //An error occured or the connection was closed
             if (m_epoll_events[i].events & EPOLLERR
-                || m_epoll_events[i].events & EPOLLHUP)
+                || m_epoll_events[i].events & EPOLLHUP
+                || m_epoll_events[i].events & EPOLLRDHUP)
             {
+                if (m_epoll_events[i].events & EPOLLERR)
+                    std::cout << "----EPOLLERR" << std::endl;
+                else if (m_epoll_events[i].events & EPOLLRDHUP)
+                    std::cout << "----EPOLLRDHUP" << std::endl;
+                else
+                    std::cout << "----EPOLLHUP" << std::endl;
                 if (is_server(event_fd))
                     close_server(event_fd);
                 else

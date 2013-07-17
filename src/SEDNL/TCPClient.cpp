@@ -81,7 +81,8 @@ void TCPClient::connect(const SocketAddress& socket_address, int timeout)
             //Success
             if (blocking_connect(fd, addr))
             {
-                set_non_blocking(fd);
+                std::cout << "ici";
+                //set_non_blocking(fd);
                 break;
             }
         }
