@@ -4,6 +4,7 @@ cmake_minimum_required (VERSION 2.6)
 option(BUILD_STATIC "Tell if the static library should be compiled" ON)
 option(BUILD_DYNAMIC "Tell if the dynamic library should be compiled" ON)
 option(BUILD_DOC "Tell if the dynamic library should be compiled" ON)
+option(BUILD_TEST "Compile the test applications and allow to run them with 'make test'" ON)
 option(BUILD_EXAMPLES "Tell if we should also compile the examples" ON)
 
 # Project name
@@ -32,4 +33,8 @@ endif(BUILD_EXAMPLES)
 if(BUILD_DOC)
   add_subdirectory(doc)
 endif(BUILD_DOC)
+if(BUILD_TEST)
+enable_testing()
+add_subdirectory(test)
+endif(BUILD_TEST)
 

@@ -71,11 +71,26 @@ public:
     //! the library assume that the system have 32, 64
     //! bits types. Otherwise, they will be casted to their UIntN
     //! conterpart. You don't have to worry for most of the systems where
-    //! this library would actualy works.
+    //! this library would actualy compile.
     //!
     //! \param[in] dt Data
     template<typename T>
     Packet& operator<<(T dt);
+
+    //! \brief Read \a dt from the packet
+    //!
+    //! If you call >> on types like [unsigned] char, [unsigned] short,
+    //! [unsigned] long, the matching [U]IntN operator will be called.
+    //!
+    //! In case of type = float, double
+    //! the library assume that the system have 32, 64
+    //! bits types. Otherwise, they will be casted to their UIntN
+    //! conterpart. You don't have to worry for most of the systems where
+    //! this library would actualy compile.
+    //!
+    //! \param[out] dt Data
+    template<typename T>
+    Packet& operator>>(T &dt);
 
     //! \brief Return the computed data
     //!
@@ -97,11 +112,12 @@ public:
     UInt16 get_network_length() const;
 
 private:
-    ByteArray data;
+    ByteArray m_data;
 
     friend RingBuf;
 };
 
+//IN
 template<>
 Packet& Packet::operator<< <Int8>(Int8 dt);
 template<>
@@ -123,6 +139,10 @@ template<>
 Packet& Packet::operator<< <std::string>(std::string dt);
 template<>
 Packet& Packet::operator<< <const char*>(const char* dt);
+
+//OUT
+template<>
+Packet& Packet::operator>> <Int8>(Int8& dt);
 
 
 } // namespace SedNL

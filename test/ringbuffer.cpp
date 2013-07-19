@@ -22,6 +22,8 @@
 // Test cases, to check that ring buffer behave correctly
 
 #include "SEDNL/RingBuf.hpp"
+#include "SEDNL/Event.hpp"
+#include "SEDNL/Packet.hpp"
 
 #include <iostream>
 
@@ -73,7 +75,36 @@ int main()
 
         ASSERT(buf.put("abcdefghijklmnopqrstuvwxyz", 26) == false, "Buffer overflow");
 
-
-        return EXIT_SUCCESS;
     }
+
+    //This time we check pick_event
+    for (int i = 0; i < 3; i++)
+        //Do it 3 times, because we want to make some turns inside buf
+    {
+        Event e;
+        RingBuf buf(15);
+
+        //8 bytes packet, abc name, then a char (1=Int8) with value 5.
+        //Notice the bigendian (network order) for the header size.
+        ASSERT(buf.put("\0\010abc\0\1\5", 8) == true, "Can't put data");
+
+        ASSERT(buf.pick_event(e) == true, "Can't pick event!");
+        ASSERT(e.get_name() == "abc", "Wrong name");
+
+        Int8 c;
+        Packet p = e.get_packet();
+        //May throw a badtype exception
+        try
+        {
+            p >> c;
+        }
+        catch(...)
+        {
+            ASSERT(false, "Reading data as Int8 failed");
+        }
+        ASSERT(c == 5, "Wrong value read");
+    }
+
+    //HUGE SUCCESS :)
+    return EXIT_SUCCESS;
 }

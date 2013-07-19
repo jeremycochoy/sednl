@@ -39,7 +39,7 @@ public:
     //! \brief Construct an empty event
     //!
     //! \param[in] name Name of the event
-    inline Event(std::string name);
+    inline Event(std::string name = "");
 
     //! \brief Construct an event from a packet
     //!
@@ -50,7 +50,16 @@ public:
     //! \brief Return a reference to the packet
     //!
     //! \return The currently handled packet
-    inline const Packet& get_packet() const;
+    inline const Packet& get_packet() const noexcept;
+
+    //! \brief Return the event name
+    //!
+    //! Notice it's actualy a const reference to
+    //! the handler. Make a copy if you expect
+    //! the event to die before the string.
+    //!
+    //! \return A handler to the event name
+    inline const std::string& get_name() const noexcept;
 
     //! \brief Compute the binary header of an event
     //!

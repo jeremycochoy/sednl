@@ -21,100 +21,104 @@
 
 #include "SEDNL/Packet.hpp"
 #include "SEDNL/SocketHelp.hpp"
-
+#include <iostream>//DEBUG
 namespace SedNL
 {
 
 Packet::Packet()
 {}
 
+///////////
+// INPUT //
+///////////
+
 template<>
 Packet& Packet::operator<< <Int8> (Int8 dt)
 {
-    data.push_back(static_cast<Byte>(Type::Int8));
-    data.push_back(dt);
+    m_data.push_back(static_cast<Byte>(Type::Int8));
+    m_data.push_back(dt);
     return *this;
 }
 
 template<>
 Packet& Packet::operator<< <UInt8> (UInt8 dt)
 {
-    data.push_back(static_cast<Byte>(Type::UInt8));
-    data.push_back(dt);
+    m_data.push_back(static_cast<Byte>(Type::UInt8));
+    m_data.push_back(dt);
     return *this;
 }
 
 template<>
 Packet& Packet::operator<< <Int16>(Int16 dt)
 {
-    data.push_back(static_cast<Byte>(Type::Int16));
-    __push_16(data, dt);
+    m_data.push_back(static_cast<Byte>(Type::Int16));
+    __push_16(m_data, dt);
     return *this;
 }
 
 template<>
 Packet& Packet::operator<< <UInt16>(UInt16 dt)
 {
-    data.push_back(static_cast<Byte>(Type::UInt16));
-    __push_16(data, dt);
+    m_data.push_back(static_cast<Byte>(Type::UInt16));
+    __push_16(m_data, dt);
     return *this;
 }
 
 template<>
 Packet& Packet::operator<< <Int32>(Int32 dt)
 {
-    data.push_back(static_cast<Byte>(Type::Int32));
-    __push_32(data, dt);
+    m_data.push_back(static_cast<Byte>(Type::Int32));
+    __push_32(m_data, dt);
     return *this;
 }
 
 template<>
 Packet& Packet::operator<< <UInt32>(UInt32 dt)
 {
-    data.push_back(static_cast<Byte>(Type::UInt32));
-    __push_32(data, dt);
+    m_data.push_back(static_cast<Byte>(Type::UInt32));
+    __push_32(m_data, dt);
     return *this;
 }
 
 template<>
 Packet& Packet::operator<< <Int64>(Int64 dt)
 {
-    data.push_back(static_cast<Byte>(Type::Int64));
-    __push_64(data, dt);
+    m_data.push_back(static_cast<Byte>(Type::Int64));
+    __push_64(m_data, dt);
     return *this;
 }
 
 template<>
 Packet& Packet::operator<< <UInt64>(UInt64 dt)
 {
-    data.push_back(static_cast<Byte>(Type::UInt64));
-    __push_64(data, dt);
+    m_data.push_back(static_cast<Byte>(Type::UInt64));
+    __push_64(m_data, dt);
     return *this;
 }
 
 template<>
 Packet& Packet::operator<< <float>(float dt)
 {
-    data.push_back(static_cast<Byte>(Type::Float));
-    __push_32(data, static_cast<UInt32>(dt));
+    m_data.push_back(static_cast<Byte>(Type::Float));
+    __push_32(m_data, static_cast<UInt32>(dt));
     return *this;
 }
 
 template<>
 Packet& Packet::operator<< <double>(double dt)
 {
-    data.push_back(static_cast<Byte>(Type::Double));
-    __push_64(data, static_cast<UInt64>(dt));
+    m_data.push_back(static_cast<Byte>(Type::Double));
+    __push_64(m_data, static_cast<UInt64>(dt));
     return *this;
 }
 
 template<>
 Packet& Packet::operator<< <const char*>(const char* dt)
 {
-    data.push_back(static_cast<Byte>(Type::String));
+    m_data.push_back(static_cast<Byte>(Type::String));
     while (*dt != 0)
-        data.push_back(*dt++);
-    data.push_back('\0');
+        m_data.push_back(*dt++);
+    m_data.push_back('\0');
     return *this;
 }
 
@@ -124,9 +128,32 @@ Packet& Packet::operator<< <std::string>(std::string dt)
     return (*this) << dt.c_str();
 }
 
+////////////
+// OUTPUT //
+////////////
+
+//TODO : Implement all get operator
+//     : Use a deque or an internal counter
+//       instead of removing elements of the vector
+//       (the cost is hight and should be avoided).
+
+template<>
+Packet& Packet::operator>> <Int8> (Int8& dt)
+{
+    auto type = static_cast<Type>(m_data.front());
+    if (type != Type::Int8)
+        throw TypeException(TypeExceptionT::WrongPacketType);
+
+    m_data.erase(m_data.begin());
+    dt = static_cast<Int8>(m_data.front());
+    m_data.erase(m_data.begin());
+    return *this;
+}
+
+
 const ByteArray& Packet::get_data() const
 {
-    return data;
+    return m_data;
 }
 
 } // namespace SedNL

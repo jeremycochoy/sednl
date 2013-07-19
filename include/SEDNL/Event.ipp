@@ -33,8 +33,12 @@ Event::Event(std::string name, const Packet& packet)
     :m_name(name), m_packet(packet)
 {}
 
+const std::string& Event::get_name() const noexcept
+{
+    return m_name;
+}
 
-const Packet& Event::get_packet() const
+const Packet& Event::get_packet() const noexcept
 {
     return m_packet;
 }

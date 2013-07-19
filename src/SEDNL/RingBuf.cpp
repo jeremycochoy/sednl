@@ -52,12 +52,10 @@ bool RingBuf::put(const char* string, unsigned int length) noexcept
     return true;
 }
 
-// TODO : Test this function and correct bugs :)
 bool RingBuf::pick_event(Event& event) noexcept
 {
     try
     {
-        std::cout << "pickEvent" << std::endl; //DEBUG
         //Event header start by an UInt16 wich is the packet length.
         // So, we need at least the packet size
         if (length() < sizeof(UInt16))
@@ -71,8 +69,9 @@ bool RingBuf::pick_event(Event& event) noexcept
 
         //We want : UInt16 + '\0' terminated string, so at least
         // sizeof(UInt16) + sizeof(UInt8)
-        if (sizeof(UInt16) + sizeof(UInt8) < length())
-            return false;
+        if (packet_length < sizeof(UInt16) + sizeof(UInt8))
+            packet_length = sizeof(UInt16) + sizeof(UInt8);
+
         //We also want the whole packed
         if (length() < packet_length)
             return false;
@@ -82,11 +81,12 @@ bool RingBuf::pick_event(Event& event) noexcept
         unsigned int remaining = packet_length - sizeof(UInt16);
         std::string name;
 
+#define NEXT_BYTE() {remaining--;dt_idx++;}
+
         while (remaining && AT(dt_idx) != '\0')
         {
             name.push_back(AT(dt_idx));
-            remaining--;
-            dt_idx++;
+            NEXT_BYTE();
         }
         if (AT(dt_idx) != '\0')
         {
@@ -98,13 +98,15 @@ bool RingBuf::pick_event(Event& event) noexcept
             m_start = ROUND(m_start + packet_length);
             return false;
         }
-        std::cout << "pickEvent::name : " << name << std::endl; // DEBUG
         Packet packet;
 
+        //Jump over the '\0'
+        NEXT_BYTE();
+        //Read packet content
         while (remaining)
         {
-            packet.data.push_back(AT(dt_idx));
-            remaining--;
+            packet.m_data.push_back(AT(dt_idx));
+            NEXT_BYTE();
         }
 
         //TODO : Check packet integrity
@@ -113,7 +115,6 @@ bool RingBuf::pick_event(Event& event) noexcept
         std::swap(event.m_name, name);
         std::swap(event.m_packet, packet);
 
-        std::cout << "pickEvent::Done" << std::endl; // DEBUG
         return true;
 
     }

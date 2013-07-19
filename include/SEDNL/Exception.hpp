@@ -43,6 +43,7 @@ namespace SedNL
         Unknown,
         UserDataWrongTypeAsked,
         UserDataWrongTypeGiven,
+        WrongPacketType,
     };
 
     //////////////////////////////////////////////
