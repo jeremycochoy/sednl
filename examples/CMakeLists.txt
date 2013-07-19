@@ -1,4 +1,4 @@
-# Set include directories (include/ and src/)
+# Set include directories (include/ and src/) and link directories
 include_directories (${PROJECT_SOURCE_DIR}/include/ ${PROJECT_SOURCE_DIR}/src/)
 link_directories(${PROJECT_BINARY_DIR}/src/SEDNL/)
 
