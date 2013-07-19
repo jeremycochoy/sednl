@@ -36,12 +36,13 @@
 namespace SedNL
 {
 
-    class EventListener;
-    class Connection;
-    class Event;
+class EventListener;
+class Connection;
+class Event;
+class TCPServer;
 
-    template<typename... Args>
-    using SlotMap = std::unordered_map<std::string, Slot<Args...>>;
+template<typename... Args>
+using SlotMap = std::unordered_map<std::string, Slot<Args...>>;
 
 ////////////////////////////////////////////////////////////////////
 //! \brief A consumer object. It consume certain kind of events from
@@ -86,10 +87,13 @@ public:
     void join();
 
     //! \brief Bind the connect event
-    Slot<Connection&> on_connect();
+    Slot<Connection&>& on_connect();
 
     //! \brief Bind the disconnect event
-    Slot<Connection&> on_disconnect();
+    Slot<Connection&>& on_disconnect();
+
+    //! \brief Bind the server disconnect event
+    Slot<TCPServer&>& on_server_disconnect();
 
     //! \brief Bind all unbinded events
     //!
@@ -100,13 +104,13 @@ public:
     //! EventConsumer::bind(). You can use use others consumer with the
     //! same EventListener producer, but there should be only one
     //! providing a on_event() slot.
-    Slot<Connection&, const Event&> on_event();
+    Slot<Connection&, const Event&>& on_event();
 
     //! \brief Bind a new event
     //!
     //! \param[in] event_name Name of the event that will be associated with
     //!                       this callback.
-    Slot<Connection&, const Event&> bind(std::string event_name);
+    Slot<Connection&, const Event&>& bind(std::string event_name);
 
 private:
 
@@ -121,13 +125,18 @@ private:
     EventListener* m_producer;
     Slot<Connection&> m_on_connect_slot;
     Slot<Connection&> m_on_disconnect_slot;
+    Slot<TCPServer&> m_on_server_disconnect_slot;
     Slot<Connection&, const Event&> m_on_event_slot;
     SlotMap<Connection&, const Event&> m_slots;
+
+    std::thread m_thread;
 
     SafeType<bool> m_running;
 };
 
 } // namespace SedNL
+
+#include "SEDNL/EventConsumer.ipp"
 
 #endif /* !EVENT_CONSUMER_HPP_ */
 
