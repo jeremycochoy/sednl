@@ -246,7 +246,6 @@ void EventListener::close_connection(FileDescriptor fd)
 //Assume fd is a server
 void EventListener::accept_connections(FileDescriptor fd)
 {
-    TCPServer* server = get_server(fd);
     std::cout << "accept" << std::endl;//DEBUG
     while (true)
     {
@@ -514,6 +513,25 @@ void EventListener::join()
         if (m_thread.joinable() == true)
             m_thread.join();
     }
+}
+
+void EventListener::remove_consumer(EventConsumer* c) noexcept
+{
+    auto it = std::find(m_consumers.begin(),
+                        m_consumers.end(),
+                        c);
+    if(it == m_consumers.end())
+        return;
+    m_consumers.erase(it);
+}
+
+void EventListener::add_consumer(EventConsumer* c) noexcept
+{
+    auto it = std::find(m_consumers.begin(),
+                        m_consumers.end(),
+                        c);
+    if (it != m_consumers.end())
+        m_consumers.push_back(c);
 }
 
 } // namespace SedNL

@@ -23,9 +23,15 @@
 #define EVENT_CONSUMER_HPP_
 
 #include "SEDNL/Export.hpp"
+#include "SEDNL/Exception.hpp"
 #include "SEDNL/Types.hpp"
 #include "SEDNL/Slot.hpp"
 #include "SEDNL/ThreadHelp.hpp"
+
+#include <unordered_map>
+#include <condition_variable>
+#include <thread>
+#include <mutex>
 
 namespace SedNL
 {
@@ -33,6 +39,9 @@ namespace SedNL
     class EventListener;
     class Connection;
     class Event;
+
+    template<typename... Args>
+    using SlotMap = std::unordered_map<std::string, Slot<Args...>>;
 
 ////////////////////////////////////////////////////////////////////
 //! \brief A consumer object. It consume certain kind of events from
@@ -47,12 +56,28 @@ public:
     //! \brief Construct a consumer consuming events
     //!        from \a producer.
     //!
+    //! Same effet as calling the empty constructor and then calling
+    //! set_producer().
+    //!
     //! \param[in] producer The event listener from which events will
     //!                     be consumed.
-    EventConsumer(EventListener producer);
+    EventConsumer(EventListener &producer);
 
     //! \brief Set the producer
-    void set_producer(EventListener& producer) noexcept;
+    //!
+    //! The \a producer shoulde live until the EventConsumer die.
+    //! (or, at least, until the EventConsumer stop to use producer,
+    //!  which means that once the producer is destroyed,
+    //!  you shouldn't call run, and the consumer shouldn't be running.)
+    //!
+    //! \param[in] producer The event listener from which events will
+    //!                     be consumed.
+    void set_producer(EventListener& producer) throw(EventException);
+
+    //! \brief Remove the previous producer
+    //!
+    //! See set_producer(EventListener&) documentation.
+    void remove_producer() noexcept;
 
     //! \brief Start the consumer thread
     void run();
@@ -74,7 +99,7 @@ public:
     //! You can bind this event to consume all events not binded by
     //! EventConsumer::bind(). You can use use others consumer with the
     //! same EventListener producer, but there should be only one
-    //! "default consumer".
+    //! providing a on_event() slot.
     Slot<Connection&, const Event&> on_event();
 
     //! \brief Bind a new event
@@ -84,12 +109,22 @@ public:
     Slot<Connection&, const Event&> bind(std::string event_name);
 
 private:
+
+    //! \brief Contain a consumer mutex/cv
+    struct ConsumerDescriptor
+    {
+        std::mutex mutex;
+        std::condition_variable cv;
+    } m_descriptor;
+
     // Member data
     EventListener* m_producer;
     Slot<Connection&> m_on_connect_slot;
     Slot<Connection&> m_on_disconnect_slot;
     Slot<Connection&, const Event&> m_on_event_slot;
     SlotMap<Connection&, const Event&> m_slots;
+
+    SafeType<bool> m_running;
 };
 
 } // namespace SedNL

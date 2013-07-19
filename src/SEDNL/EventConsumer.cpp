@@ -19,23 +19,45 @@
 //     3. This notice may not be removed or altered from any source
 //        distribution.
 
-#ifndef CONNECTION_IPP_
-#define CONNECTION_IPP_
-
-#include "Export.hpp"
+#include "SEDNL/EventConsumer.hpp"
+#include "SEDNL/EventListener.hpp"
+#include "SEDNL/Exception.hpp"
 
 namespace SedNL
 {
 
-Connection::Connection()
-    :m_data_type(UserDataType::None), m_data_double(0), m_listener(nullptr)
+EventConsumer::EventConsumer()
+    :m_producer(nullptr), m_running(false)
 {}
 
-Connection::~Connection() noexcept
+EventConsumer::EventConsumer(EventListener &producer)
+    :EventConsumer()
 {
-    unsafe_disconnect();
+    set_producer(producer);
 }
 
-} // namespace Sednl
+void EventConsumer::remove_producer() noexcept
+{
+    if (m_running)
+        throw EventException(EventExceptionT::EventConsumerRunning);
 
-#endif /* !CONNECTION_IPP_ */
+    if (m_producer)
+    {
+        m_producer->remove_consumer(this);
+        m_producer = nullptr;
+    }
+}
+
+void EventConsumer::set_producer(EventListener &producer) throw(EventException)
+{
+    if (m_running)
+        throw EventException(EventExceptionT::EventConsumerRunning);
+
+    if (m_producer)
+        m_producer->remove_consumer(this);
+    m_producer = &producer;
+    m_producer->add_consumer(this);
+}
+
+} //namespace SedNL
+

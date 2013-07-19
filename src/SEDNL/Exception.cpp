@@ -60,7 +60,9 @@ const char* TemplateException<EventExceptionT>::what() const noexcept
     switch(m_type)
     {
     case EventExceptionT::EventListenerRunning:
-        return "An event lister was already running when run() was called.";
+        return "An event lister was already running when you tried to change it's internal state. (calling set attach, detach, etc.)";
+    case EventExceptionT::EventConsumerRunning:
+        return "An event consumer was already running when your tried to change it's internal state. (calling set_producer, trying to change events bindings, etc.)";
     case EventExceptionT::AlreadyListened:
         return "Tried to attach() an element to a listener that was"
             " already attached.";

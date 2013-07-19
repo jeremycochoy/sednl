@@ -22,7 +22,6 @@
 #ifndef SLOT_HPP_
 #define SLOT_HPP_
 
-#include <unordered_map>
 #include <memory>
 
 namespace SedNL

@@ -48,7 +48,6 @@
 #include <map>
 #include <vector>
 #include <thread>
-#include <condition_variable>
 #include <mutex>
 #include <memory>
 
@@ -63,22 +62,7 @@ class Event;
 class SEDNL_API EventListener
 {
 private:
-    //! \brief Contain a consumer (and relatex mutex/cv)
-    struct ConsumerDescriptor
-    {
-        std::mutex mutex;
-        std::condition_variable cv;
-        EventConsumer *consumer;
-    };
-
-    //! \brief Contain an event queue and the consumer associated
-    struct EventDescriptor
-    {
-        std::queue<Event> queue;
-        ConsumerDescriptor *desc;
-    };
-
-    typedef std::vector<ConsumerDescriptor> ConsumerList;
+    typedef std::vector<EventConsumer*> ConsumerList;
 
 public:
     //! \brief Construct an event listener from a TCPServer
@@ -196,9 +180,6 @@ private:
     //! \brief Maximal size of a queue.
     unsigned int m_max_queue_size;
 
-    //! \brief List of consumers attached
-    ConsumerList m_consumers;
-
     //! \brief The EventListener thread
     std::thread m_thread;
 
@@ -244,9 +225,11 @@ private:
     ConnectionList m_connections;
     InternalList m_internal_connections;
 
+    // --------------------------------------------------
     //
     // Implementation of the event listener loop
     //
+    // --------------------------------------------------
 
     //! brief Initialise a lot of stuff before launching the thread
     void run_init();
@@ -287,8 +270,24 @@ private:
     //! Called with cn->m_mutex locked!
     void tell_disconnected(TCPServer *cn) noexcept;
 
+    // ----------------------------------------
+    //
+    // Implementation of consumers management
+    //
+    // ----------------------------------------
+
+    //! \brief List of consumers attached
+    ConsumerList m_consumers;
+
+    //! \brief Called by EventConsumer's set_producer/remove_producer
+    void remove_consumer(EventConsumer*) noexcept;
+
+    //! \brief Called by EventConsumer's set_producer
+    void add_consumer(EventConsumer*) noexcept;
+
     friend class Connection;
     friend class TCPServer;
+    friend class EventConsumer;
 };
 
 } // namespace SedNL
