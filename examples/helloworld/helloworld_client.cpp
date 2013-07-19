@@ -19,12 +19,17 @@
 //     3. This notice may not be removed or altered from any source
 //        distribution.
 
-#include <SEDNL/Connection.h>
-#include <SEDNL/TCPClient.h>
-#include <SEDNL/Event.h>
+#include <SEDNL/Connection.hpp>
+#include <SEDNL/SocketAddress.hpp>
+#include <SEDNL/TCPClient.hpp>
+#include <SEDNL/Event.hpp>
+#include <SEDNL/EventListener.hpp>
 
 #include <iostream>
 #include <cstdlib>
+
+#include <chrono>
+#include <thread>
 
 using namespace SedNL;
 
@@ -36,7 +41,7 @@ void on_event(Connection& connection, const Event& e)
               << std::endl;
 
     //Display the whole packet
-    std::cout << e.get_packet() << std::endl;
+//    std::cout << e.get_packet() << std::endl;
 }
 
 int main(int argc, char* argv[])
@@ -60,15 +65,15 @@ int main(int argc, char* argv[])
         EventListener listener(client);
 
         //Create an event consumer
-        EventConsumer consumer(listener);
-        consumer.on_event().set_function(on_event);
+        //EventConsumer consumer(listener);
+        //consumer.on_event().set_function(on_event);
 
         //Wait 1000ms
-        Time::sleep(1000);
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
         //Join the listener and consumer threads
         listener.join();
-        consumer.join();
+        //consumer.join();
 
         //Close connection (it's facultative, since the destructor of
         //client call disconnect).
@@ -76,8 +81,8 @@ int main(int argc, char* argv[])
     }
     catch (Exception& e)
     {
-        std::cout << "An exception occured :" << e.what() << std::endl;
-        return EXIT_FAILED;
+        std::cout << "An exception occured: " << e.what() << std::endl;
+        return EXIT_FAILURE;
     }
 
     return EXIT_SUCCESS;

@@ -19,80 +19,81 @@
 //     3. This notice may not be removed or altered from any source
 //        distribution.
 
-#include <SEDNL/Connection.h>
-#include <SEDNL/TCPServer.h>
-#include <SEDNL/Event.h>
-#include <SEDNL/EventListener.h>
+#include <SEDNL/Connection.hpp>
+#include <SEDNL/TCPServer.hpp>
+#include <SEDNL/Event.hpp>
+#include <SEDNL/EventListener.hpp>
+#include <SEDNL/SocketAddress.hpp>
 
 #include <iostream>
 #include <cstdlib>
+
+#include <chrono>
+#include <thread>
 
 using namespace SedNL;
 
 int client_id = 0;
 
-void on_disconnect(Connection &e)
+void on_disconnect(Connection &c)
 {
     //Display client
-    std::cout << "Client " << e.get_data<int>()
+    std::cout << "Client " << c.get_user_data<int>()
               << " disconnected." << std::endl;
 }
 
-void on_connect(Connection &e)
+void on_connect(Connection &c)
 {
     //Set the client id
-    e.set_data(client_id++);
+    c.set_user_data(client_id++);
 
     //Display client
-    std::cout << "New client " << e.get_data<int>() << std::endl;
+    std::cout << "New client " << c.get_user_data<int>() << std::endl;
 
     //Send a hello message
-    e.send(Event("hello_client", Packet("Hello, client!")));
+//    c.send(Event("hello_client", Packet("Hello, client!")));
 }
 
-void on_event(Connection &e, const Event &e)
+void on_event(Connection &c, const Event &e)
 {
     //Display the client id
-    std::cout << "Event from " << e.get_data<int>() << " : " << std::endl;
+    std::cout << "Event from " << c.get_user_data<int>() << " : " << std::endl;
 
     //Display the whole event
-    std::cout << e;
+//    std::cout << e;
 }
 
 int main(int argc, char* argv[])
 {
     try
     {
-        //Create a server
-        TCPServer server;
-
-        //Listen on port 1337
-        server.open(1337);
+        //Create a server ready to listen on port 1337
+        TCPServer server(SocketAddress(1337));
 
         //Create a event listener
         EventListener listener(server);
 
         //Create a event consumer
-        EventConsumer consumer(listener);
-        listener.on_connect().set_function(on_connect);
-        listener.on_disconnect().set_function(on_disconnect);
-        listener.on_event().set_function(on_event);
+//        EventConsumer consumer(listener);
+//        consumer.on_connect().set_function(on_connect);
+//        consumer.on_disconnect().set_function(on_disconnect);
+//        consumer.on_event().set_function(on_event);
 
         //Listen for events in a second thread
         listener.run();
         //Consume events in a third thread
-        consumer.run();
+//        consumer.run();
 
         //We are in the first (main) thread.
-        //Since we have nothing to do, we wait 100ms,
+        //Since we have nothing to do, we wait 1000ms,
         //to let the two other works.
         while (true)
-            Time::sleep(100);
+            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }
     catch (Exception &e)
     {
         std::cout << "An exception occured :" << e.what() << std::endl;
-        return EXIT_FAILED;
+        return EXIT_FAILURE;
     }
     return EXIT_SUCCESS;
 }

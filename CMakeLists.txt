@@ -27,9 +27,6 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 #Add subdirectories
 
 add_subdirectory(src/SEDNL)
-if(BUILD_EXAMPLES)
-  add_subdirectory(examples)
-endif(BUILD_EXAMPLES)
 if(BUILD_DOC)
   add_subdirectory(doc)
 endif(BUILD_DOC)
@@ -37,4 +34,7 @@ if(BUILD_TEST)
 enable_testing()
 add_subdirectory(test)
 endif(BUILD_TEST)
+if(BUILD_EXAMPLES)
+  add_subdirectory(examples)
+endif(BUILD_EXAMPLES)
 
