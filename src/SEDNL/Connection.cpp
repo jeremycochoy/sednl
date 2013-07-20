@@ -46,6 +46,8 @@ void Connection::disconnect() noexcept
     catch(std::exception &e)
     {
         warn_lock(e, "Connection::disconnect()");
+        if (m_listener)
+            m_listener->tell_disconnected(this);
         unsafe_disconnect();
     }
 }

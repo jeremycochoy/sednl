@@ -45,7 +45,7 @@ public:
     //! \brief Call the current callback, or do nothing
     void operator()(Arguments... args);
 
-    //! \brief Check if the slot is empty
+    //! \brief Check if the slot is empty(false)
     explicit operator bool() const noexcept;
 
     //! \brief Set the callback

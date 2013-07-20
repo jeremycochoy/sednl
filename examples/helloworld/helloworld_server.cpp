@@ -23,6 +23,7 @@
 #include <SEDNL/TCPServer.hpp>
 #include <SEDNL/Event.hpp>
 #include <SEDNL/EventListener.hpp>
+#include <SEDNL/EventConsumer.hpp>
 #include <SEDNL/SocketAddress.hpp>
 
 #include <iostream>
@@ -51,7 +52,7 @@ void on_connect(Connection &c)
     std::cout << "New client " << c.get_user_data<int>() << std::endl;
 
     //Send a hello message
-//    c.send(Event("hello_client", Packet("Hello, client!")));
+//    c.send(Event("hello_client", make_packet("Hello, client!")));
 }
 
 void on_event(Connection &c, const Event &e)
@@ -63,7 +64,7 @@ void on_event(Connection &c, const Event &e)
 //    std::cout << e;
 }
 
-int main(int argc, char* argv[])
+int main(int /* argc */, char* /* argv */[])
 {
     try
     {
@@ -74,15 +75,15 @@ int main(int argc, char* argv[])
         EventListener listener(server);
 
         //Create a event consumer
-//        EventConsumer consumer(listener);
-//        consumer.on_connect().set_function(on_connect);
-//        consumer.on_disconnect().set_function(on_disconnect);
-//        consumer.on_event().set_function(on_event);
+        EventConsumer consumer(listener);
+        consumer.on_connect().set_function(on_connect);
+        consumer.on_disconnect().set_function(on_disconnect);
+        consumer.on_event().set_function(on_event);
 
         //Listen for events in a second thread
         listener.run();
         //Consume events in a third thread
-//        consumer.run();
+        consumer.run();
 
         //We are in the first (main) thread.
         //Since we have nothing to do, we wait 1000ms,

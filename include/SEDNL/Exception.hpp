@@ -67,6 +67,7 @@ namespace SedNL
     {
         EventListenerRunning,
         EventConsumerRunning,
+        EventCollision,
         AlreadyListened,
         WrongParentListener,
         EpollCreateFailed,

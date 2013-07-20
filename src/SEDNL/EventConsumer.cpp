@@ -54,9 +54,125 @@ void EventConsumer::set_producer(EventListener &producer) throw(EventException)
         throw EventException(EventExceptionT::EventConsumerRunning);
 
     if (m_producer)
+    {
         m_producer->remove_consumer(this);
-    m_producer = &producer;
+        m_producer = nullptr;
+    }
     m_producer->add_consumer(this);
+    m_producer = &producer;
+}
+
+void EventConsumer::clean_slots()
+{
+    for (auto it = m_slots.begin();
+         it != m_slots.end();)
+    {
+        //If slot is empty
+        if (!it->second)
+            it = m_slots.erase(it);
+        else
+            it++;
+    }
+}
+
+void EventConsumer::run_init()
+{
+    //Remove empty slots
+    clean_slots();
+
+    //TODO
+}
+
+typedef std::pair<std::shared_ptr<Connection>, Event> CnEvent;
+typedef SafeQueue<CnEvent> EventQueue;
+typedef SafeQueue<std::shared_ptr<Connection>> ConnectionQueue;
+typedef SafeQueue<TCPServer *> ServerQueue;
+
+template<typename S>
+static inline
+void process(CnEvent& e, S& slot, EventQueue& queue)
+{
+    while(queue.pop(e))
+        slot(*e.first.get(), e.second);
+}
+
+template<typename S>
+static inline
+void process(CnEvent&, S& slot, ConnectionQueue& queue)
+{
+    std::shared_ptr<Connection> ptr;
+    while(queue.pop(ptr))
+        slot(*ptr);
+}
+
+template<typename S>
+static inline
+void process(CnEvent&, S& slot, ServerQueue& queue)
+{
+    TCPServer* ptr;
+    while(queue.pop(ptr))
+        slot(*ptr);
+}
+
+#define PROCESS_MESSAGES(slot, queue) {    \
+        if ((slot))                        \
+            process(e, (slot), (queue));}
+
+void EventConsumer::run_imp()
+{
+    //Sleep for 200ms
+    auto rel_time = std::chrono::milliseconds(200);
+    CnEvent e;
+
+    while (m_running)
+    {
+        {
+            std::unique_lock<std::mutex> lk(m_descriptor.mutex);
+            //Continue if timed out and no work to do
+            if (!m_descriptor.cv.wait_for(lk, rel_time,
+                                         [&](){return m_descriptor.wake_up;}))
+                if (!m_descriptor.wake_up)
+                    continue;
+            m_descriptor.wake_up = false;
+        }
+
+        PROCESS_MESSAGES(m_on_connect_slot, m_producer->m_connected_queue);
+        PROCESS_MESSAGES(m_on_server_disconnect_slot,
+                         m_producer->m_server_disconnected_queue);
+        PROCESS_MESSAGES(m_on_disconnect_slot, m_producer->m_disconnected_queue);
+
+        for (auto& pair : m_slots)
+            PROCESS_MESSAGES(pair.second, m_producer->m_events[pair.first]);
+
+        //TODO : Also handle m_on_event_slot
+
+    }
+
+    //TODO
+}
+
+void EventConsumer::run() throw(EventException)
+{
+    if (!m_running)
+    {
+        run_init();
+
+        m_running = true;
+        m_thread = std::thread(std::bind(&EventConsumer::run_imp, this));
+    }
+    else
+        throw EventException(EventExceptionT::EventConsumerRunning);
+}
+
+void EventConsumer::join()
+{
+    if (m_running)
+    {
+        m_running = false;
+
+        if (m_thread.joinable() == true)
+            m_thread.join();
+    }
 }
 
 } //namespace SedNL

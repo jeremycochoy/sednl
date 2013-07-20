@@ -24,6 +24,7 @@
 #include <SEDNL/TCPClient.hpp>
 #include <SEDNL/Event.hpp>
 #include <SEDNL/EventListener.hpp>
+#include <SEDNL/EventConsumer.hpp>
 
 #include <iostream>
 #include <cstdlib>
@@ -44,7 +45,7 @@ void on_event(Connection& connection, const Event& e)
 //    std::cout << e.get_packet() << std::endl;
 }
 
-int main(int argc, char* argv[])
+int main(int /* argc */, char* /* argv */[])
 {
     try
     {
@@ -65,15 +66,15 @@ int main(int argc, char* argv[])
         EventListener listener(client);
 
         //Create an event consumer
-        //EventConsumer consumer(listener);
-        //consumer.on_event().set_function(on_event);
+        EventConsumer consumer(listener);
+        consumer.on_event().set_function(on_event);
 
         //Wait 1000ms
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
         //Join the listener and consumer threads
         listener.join();
-        //consumer.join();
+        consumer.join();
 
         //Close connection (it's facultative, since the destructor of
         //client call disconnect).

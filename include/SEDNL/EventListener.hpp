@@ -158,6 +158,9 @@ public:
     //! The EventListener will take care of the memory allocated by new
     //! connections.
     //!
+    //! If more than one attached consumer bind the same event, then
+    //! it will throw a EventCollision exception.
+    //!
     //! To stop the listener, call join().
     void run() throw(EventException);
 

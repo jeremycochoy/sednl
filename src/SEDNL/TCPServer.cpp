@@ -115,6 +115,8 @@ void TCPServer::disconnect() noexcept
     catch(std::exception &e)
     {
         warn_lock(e, "TCPServer::disconnect()");
+        if (m_listener)
+            m_listener->tell_disconnected(this);
         unsafe_disconnect();
     }
 }

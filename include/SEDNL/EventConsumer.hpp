@@ -71,6 +71,10 @@ public:
     //!  which means that once the producer is destroyed,
     //!  you shouldn't call run, and the consumer shouldn't be running.)
     //!
+    //! Setting the same producer to two consumer that bind the same
+    //! event will result in a deffered throw : the call to producer's run
+    //! will throw an EventException with code EventCollision.
+    //!
     //! \param[in] producer The event listener from which events will
     //!                     be consumed.
     void set_producer(EventListener& producer) throw(EventException);
@@ -81,7 +85,7 @@ public:
     void remove_producer() noexcept;
 
     //! \brief Start the consumer thread
-    void run();
+    void run() throw(EventException);
 
     //! \brief Join the consumer thread, and stop consuming events.
     void join();
@@ -117,9 +121,15 @@ private:
     //! \brief Contain a consumer mutex/cv
     struct ConsumerDescriptor
     {
+        ConsumerDescriptor()
+            :wake_up(false)
+        {};
         std::mutex mutex;
+        bool wake_up;
         std::condition_variable cv;
-    } m_descriptor;
+    };
+
+    ConsumerDescriptor m_descriptor;
 
     // Member data
     EventListener* m_producer;
@@ -132,6 +142,16 @@ private:
     std::thread m_thread;
 
     SafeType<bool> m_running;
+
+    //
+    // Consumer implementation
+    //
+
+    void run_init();
+    void run_imp();
+
+    //! \brief Remove empty slots from the map
+    void clean_slots();
 };
 
 } // namespace SedNL

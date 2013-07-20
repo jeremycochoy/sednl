@@ -151,6 +151,10 @@ void EventListener::run_init()
         if(connection->is_connected() && !__epoll_add_fd(epoll, connection->m_fd))
             throw EventException(EventExceptionT::EpollCtlFailed);
 
+    //TODO : Associate registered consumer to their events (so that
+    //       we can wake_up the condition_variable).
+    //       throw EventCollision if failed.
+
     //Keep the event pool
     std::swap(m_epoll_events, events);
     m_epoll = epoll;
@@ -301,6 +305,8 @@ void EventListener::accept_connections(FileDescriptor fd)
             auto cn = std::shared_ptr<Connection>(new Connection);
             cn->m_listener = this;
             cn->m_connected = true;
+
+            std::cout << "Create " << cfd << " CNX" << std::endl;//DEBUG
             cn->m_fd = cfd;
             auto p = m_internal_connections.emplace(cfd, cn);
             //We assert the insertion can't fail
@@ -403,7 +409,7 @@ void EventListener::tell_disconnected(Connection *cn) noexcept
 
     disconnected_event(m_disconnected_queue, ptr, ptr->m_fd, "connection");
 
-    std::cout << "Tell disconnect for connection" << ptr->m_fd << std::endl; //DEBUG
+    std::cout << "Tell disconnect for connection " << cn->m_fd << " " << ptr->m_fd << std::endl; //DEBUG
 }
 
 //We are called with the m_fd lock
@@ -411,6 +417,8 @@ void EventListener::tell_disconnected(TCPServer *s) noexcept
 {
     disconnected_event(m_server_disconnected_queue, s, s->get_fd(), "server");
 }
+
+//TODO : Call cv::wake_up each time an event is produced.
 
 void EventListener::run_imp()
 {
@@ -517,6 +525,9 @@ void EventListener::join()
 
 void EventListener::remove_consumer(EventConsumer* c) noexcept
 {
+    if (m_running)
+        throw EventException(EventExceptionT::EventListenerRunning);
+
     auto it = std::find(m_consumers.begin(),
                         m_consumers.end(),
                         c);
@@ -527,6 +538,8 @@ void EventListener::remove_consumer(EventConsumer* c) noexcept
 
 void EventListener::add_consumer(EventConsumer* c) noexcept
 {
+    if (m_running)
+        throw EventException(EventExceptionT::EventListenerRunning);
     auto it = std::find(m_consumers.begin(),
                         m_consumers.end(),
                         c);
