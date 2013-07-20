@@ -37,17 +37,17 @@ namespace SedNL
 EventListener::EventListener(unsigned int max_queue_size)
     :m_max_queue_size(max_queue_size), m_running(false)
 {
-    clean_consumer_links();
+    clear_consumer_links();
 }
 
 EventListener::EventListener(Connection& connection, unsigned int max_queue_size)
-    :m_max_queue_size(max_queue_size), m_running(false)
+    :EventListener(max_queue_size)
 {
     attach(connection);
 }
 
 EventListener::EventListener(TCPServer& server, unsigned int max_queue_size)
-    :m_max_queue_size(max_queue_size), m_running(false)
+    :EventListener(max_queue_size)
 {
     attach(server);
 }
@@ -125,11 +125,10 @@ bool __epoll_add_fd(int epoll, int fd)
     return true;
 }
 
-void EventListener::clean_consumer_links() noexcept
+void EventListener::clear_consumer_links() noexcept
 {
     m_on_connect_link = nullptr;
     m_on_disconnect_link = nullptr;
-    m_on_server_disconnect_link = nullptr;
     m_on_server_disconnect_link = nullptr;
     m_on_event_link = nullptr;
     m_links.clear();
@@ -145,7 +144,7 @@ throw(EventException)
     {
         if (link)
         {
-            clean_consumer_links();
+            clear_consumer_links();
             throw EventException(EventExceptionT::EventCollision);
         }
         else
@@ -187,6 +186,7 @@ void EventListener::run_init()
     for (auto consumer : m_consumers)
     {
 #define link(slot, link) link_consumer(consumer, consumer->slot, link);
+
         link(m_on_connect_slot, m_on_connect_link);
         link(m_on_disconnect_slot, m_on_disconnect_link);
         link(m_on_server_disconnect_slot, m_on_server_disconnect_link);
@@ -230,7 +230,7 @@ void EventListener::close_server(FileDescriptor fd)
     {
         if (s->get_fd() == fd)
         {
-            //Create event
+            //Create event and notify thread
             tell_disconnected(s);
             //Close the server
             close(s->get_fd());
@@ -247,7 +247,7 @@ void disconnected_event(T &queue, U cn, FileDescriptor fd, const char* type)
     {
 #ifndef SEDNL_NOWARN
         std::cerr << "Error: "
-                  << "Lost a " << type << " disconnected event for server "
+                  << "Lost a " << type << " disconnected event for fd "
                   << fd
                   << std::endl;
 #endif /* SEDNL_NOWARN */
@@ -258,7 +258,7 @@ void disconnected_event(T &queue, U cn, FileDescriptor fd, const char* type)
 void EventListener::close_connection(FileDescriptor fd)
 {
     std::shared_ptr<Connection> cn;
-    std::cout << "Close Connection" << std::endl;
+
     //Look on the "external list"
     if (!m_connections.empty()) //rely on branch prediction on empty list
     {
@@ -282,20 +282,22 @@ void EventListener::close_connection(FileDescriptor fd)
         }
     }
 
-    std::cout << "Asked to close " << fd << std::endl;//DEBUG
     cn->safe_disconnect();
+
     //Create the server disconnected event
     disconnected_event(m_disconnected_queue, cn, cn->get_fd(), "connection");
+
+    //Wake up consumer
+    notify(m_on_disconnect_link);
 }
 
 //Assume fd is a server
 void EventListener::accept_connections(FileDescriptor fd)
 {
-    std::cout << "accept" << std::endl;//DEBUG
     while (true)
     {
         struct sockaddr in_addr;
-        socklen_t in_len;
+        socklen_t in_len = sizeof(in_addr);
         FileDescriptor cfd = accept(fd, &in_addr, &in_len);
         if (cfd < 0)
         {
@@ -347,7 +349,6 @@ void EventListener::accept_connections(FileDescriptor fd)
             cn->m_listener = this;
             cn->m_connected = true;
 
-            std::cout << "Create " << cfd << " CNX" << std::endl;//DEBUG
             cn->m_fd = cfd;
             auto p = m_internal_connections.emplace(cfd, cn);
             //We assert the insertion can't fail
@@ -383,10 +384,10 @@ void EventListener::accept_connections(FileDescriptor fd)
             return;
         }
 
-        //We did it!
+        //Notify the consumer
+        notify(m_on_connect_link);
 
-        //DEBUG
-        std::cout << "Connection " << cfd << " accepted!" << std::endl;
+        //We did it!
     }
 }
 
@@ -394,9 +395,68 @@ void EventListener::accept_connections(FileDescriptor fd)
 //Assume fd is a connection
 void EventListener::read_connection(FileDescriptor fd)
 {
-    auto cn = get_connection(fd);
+    char buf[512];
+    ssize_t count = 0;
+    Event e;
+
+    std::shared_ptr<Connection> cn = get_connection(fd);
+
     std::cout << "read" << std::endl; //DEBUG
-    //TODO
+
+    while (true)
+    {
+        count = read(fd, buf, sizeof(buf));
+
+        if (count == -1)
+        {
+            //End of stream
+            if (errno == EAGAIN)
+                break;
+
+            //Error
+#ifndef SEDNL_NOWARN
+            //This isn't a big error, and mayb we should
+            // use NDEBUG instead of SEDNL_NOWARN.
+            std::cerr << "warning: Reading data from connection "
+                      << fd
+                      << " failed." << std::endl;
+            std::cerr << "    " << strerror(errno) << std::endl;
+#endif /* SEDNL_NOWARN */
+            close_connection(fd);
+            return;
+        }
+        //Connection closed
+        else if (count == 0)
+        {
+            close_connection(fd);
+            return;
+        }
+
+        //Push data in buffer
+        cn->m_buffer.put(buf, static_cast<unsigned int>(count));
+
+        //Try to read an event
+        if (cn->m_buffer.pick_event(e))
+        {
+            if (!m_events[e.get_name()].push(std::make_pair(cn, e)))
+            {
+#ifndef SEDNL_NOWARN
+                std::cerr << "Error: "
+                          << "Lost a \"" << e.get_name()
+                          << "\" event for fd "
+                          << fd
+                          << std::endl;
+#endif /* SEDNL_NOWARN */
+            }
+            else
+            {
+                if (m_links.find(e.get_name()) != m_links.end())
+                    notify(m_links[e.get_name()]);
+                else
+                    notify(m_on_event_link);
+            }
+        }
+    }
 }
 
 std::shared_ptr<Connection>
@@ -449,17 +509,14 @@ void EventListener::tell_disconnected(Connection *cn) noexcept
         return;
 
     disconnected_event(m_disconnected_queue, ptr, ptr->m_fd, "connection");
-
-    std::cout << "Tell disconnect for connection " << cn->m_fd << " " << ptr->m_fd << std::endl; //DEBUG
 }
 
 //We are called with the m_fd lock
 void EventListener::tell_disconnected(TCPServer *s) noexcept
 {
     disconnected_event(m_server_disconnected_queue, s, s->get_fd(), "server");
+    notify(m_on_server_disconnect_link);
 }
-
-//TODO : Call cv::wake_up each time an event is produced.
 
 void EventListener::run_imp()
 {
@@ -482,12 +539,6 @@ void EventListener::run_imp()
                 || m_epoll_events[i].events & EPOLLHUP
                 || m_epoll_events[i].events & EPOLLRDHUP)
             {
-                if (m_epoll_events[i].events & EPOLLERR)
-                    std::cout << "----EPOLLERR" << std::endl;
-                else if (m_epoll_events[i].events & EPOLLRDHUP)
-                    std::cout << "----EPOLLRDHUP" << std::endl;
-                else
-                    std::cout << "----EPOLLHUP" << std::endl;
                 if (is_server(event_fd))
                     close_server(event_fd);
                 else
@@ -527,15 +578,16 @@ void EventListener::run_imp()
     for (auto cn : m_internal_connections)
         cn.second->disconnect();
 
-    //TODO : Join consumer threads
+    //Join consumer threads
+    for (auto consumer : m_consumers)
+        consumer->join();
 
     //Release resources
     close(m_epoll);
     m_epoll = -1;
     m_epoll_events.release();
     m_internal_connections.clear();
-
-    std::cout << "EventListener released" << std::endl;//DEBUG
+    clear_consumer_links();
 }
 
 void EventListener::run() throw(EventException)
@@ -586,6 +638,29 @@ void EventListener::add_consumer(EventConsumer* c) noexcept
                         c);
     if (it == m_consumers.end())
         m_consumers.push_back(c);
+}
+
+void EventListener::notify(ConsumerDescriptor* desc) noexcept
+{
+    if (!desc)
+        return;
+
+    try
+    {
+        std::lock_guard<std::mutex> lk(desc->mutex);
+        desc->wake_up = true;
+        desc->cv.notify_one();
+    }
+    catch(std::exception &e)
+    {
+#ifndef SEDNL_NOWARN
+        std::cerr << "Error: "
+                  << "Failed to notify the thread described by "
+                  << desc
+                  << std::endl;
+        std::cerr << "    " << e.what() << std::endl;
+#endif /* SEDNL_NOWARN */
+    }
 }
 
 } // namespace SedNL

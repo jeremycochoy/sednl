@@ -22,6 +22,10 @@
 #ifndef CONNECTION_HPP_
 #define CONNECTION_HPP_
 
+#ifndef CONNECTION_BUFFER_SIZE
+# define CONNECTION_BUFFER_SIZE 4096
+#endif /* !MAX_CONNECTIONS */
+
 #include "SEDNL/Export.hpp"
 #include "SEDNL/Exception.hpp"
 #include "SEDNL/SocketInterface.hpp"
@@ -176,8 +180,8 @@ private:
     void unsafe_disconnect() noexcept;
     void safe_disconnect() noexcept;
 
-//    //! \brief Buffer where data are stored
-//    RingBuf buffer;
+    //! \brief Buffer where data are stored
+    RingBuf m_buffer;
 
     friend class EventListener;
 };

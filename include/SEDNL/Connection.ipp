@@ -27,8 +27,10 @@
 namespace SedNL
 {
 
+//If you wonder why CONNECTION_BUFFER_SIZE-1, see RingBuf implementation.
 Connection::Connection()
-    :m_data_type(UserDataType::None), m_data_double(0), m_listener(nullptr)
+    :m_data_type(UserDataType::None), m_data_double(0),
+     m_listener(nullptr), m_buffer(CONNECTION_BUFFER_SIZE-1)
 {}
 
 Connection::~Connection() noexcept

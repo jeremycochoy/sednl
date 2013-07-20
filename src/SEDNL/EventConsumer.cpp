@@ -146,6 +146,17 @@ void EventConsumer::run_imp()
             PROCESS_MESSAGES(pair.second, m_producer->m_events[pair.first]);
 
         //TODO : Also handle m_on_event_slot
+        if (m_on_event_slot)
+        {
+            //On each event
+            for (auto& pair : m_producer->m_events)
+            {
+                //If there is no consumer assigned
+                if (!m_producer->m_links[pair.first])
+                    //Process it
+                    PROCESS_MESSAGES(m_on_event_slot, pair.second);
+            }
+        }
 
     }
 

@@ -299,8 +299,14 @@ private:
     void link_consumer(EventConsumer* consumer, S& slot, ConsumerDescriptor*& link)
     throw(EventException);
 
+    //! \brief Wake up a consumer using the condition variable
+    //!
+    //! If \a desc is nullptr, nothing is done.
+    //!
+    void notify(ConsumerDescriptor* desc) noexcept;
+
     //! \brief Remove all consumer links
-    void clean_consumer_links() noexcept;
+    void clear_consumer_links() noexcept;
 
     //! \brief Called by EventConsumer's set_producer/remove_producer
     void remove_consumer(EventConsumer*) noexcept;

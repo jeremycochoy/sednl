@@ -112,6 +112,8 @@ bool RingBuf::pick_event(Event& event) noexcept
         //TODO : Check packet integrity
         //if (!packet.is_valid())
         //    return false;
+
+        //TODO Write exception safe overload of swap
         std::swap(event.m_name, name);
         std::swap(event.m_packet, packet);
 

@@ -63,8 +63,8 @@ int main()
             EventConsumer consumer1(listener);                  \
             EventConsumer consumer2(listener);                  \
                                                                 \
-            consumer1.slot.set_function(lambda);              \
-            consumer2.slot.set_function(lambda);              \
+            consumer1.slot.set_function(lambda);                \
+            consumer2.slot.set_function(lambda);                \
                                                                 \
             listener.run();                                     \
             listener.join();                                    \
