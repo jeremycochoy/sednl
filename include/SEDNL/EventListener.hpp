@@ -58,6 +58,7 @@ class Connection;
 class TCPServer;
 class EventConsumer;
 class Event;
+class ConsumerDescriptor;
 
 class SEDNL_API EventListener
 {
@@ -281,6 +282,25 @@ private:
 
     //! \brief List of consumers attached
     ConsumerList m_consumers;
+
+    // Links to consumers (by event)
+    ConsumerDescriptor* m_on_connect_link;
+    ConsumerDescriptor* m_on_disconnect_link;
+    ConsumerDescriptor* m_on_server_disconnect_link;
+    ConsumerDescriptor* m_on_event_link;
+    typedef std::map<std::string, ConsumerDescriptor*> DescriptorMap;
+    DescriptorMap m_links;
+
+    //! \brief Add links to the consumer descriptor for the right events
+    //!
+    //! Look into the consumer if it has a non empty slot \a slot, and then link
+    //! him into \a link.
+    template<typename S>
+    void link_consumer(EventConsumer* consumer, S& slot, ConsumerDescriptor*& link)
+    throw(EventException);
+
+    //! \brief Remove all consumer links
+    void clean_consumer_links() noexcept;
 
     //! \brief Called by EventConsumer's set_producer/remove_producer
     void remove_consumer(EventConsumer*) noexcept;

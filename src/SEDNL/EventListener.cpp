@@ -20,6 +20,7 @@
 //        distribution.
 
 #include "SEDNL/EventListener.hpp"
+#include "SEDNL/EventConsumer.hpp"
 #include "SEDNL/Connection.hpp"
 #include "SEDNL/TCPServer.hpp"
 #include "SEDNL/TCPClient.hpp"
@@ -36,6 +37,7 @@ namespace SedNL
 EventListener::EventListener(unsigned int max_queue_size)
     :m_max_queue_size(max_queue_size), m_running(false)
 {
+    clean_consumer_links();
 }
 
 EventListener::EventListener(Connection& connection, unsigned int max_queue_size)
@@ -123,6 +125,34 @@ bool __epoll_add_fd(int epoll, int fd)
     return true;
 }
 
+void EventListener::clean_consumer_links() noexcept
+{
+    m_on_connect_link = nullptr;
+    m_on_disconnect_link = nullptr;
+    m_on_server_disconnect_link = nullptr;
+    m_on_server_disconnect_link = nullptr;
+    m_on_event_link = nullptr;
+    m_links.clear();
+}
+
+template<typename S>
+void EventListener::link_consumer(EventConsumer* consumer,
+                                  S& slot,
+                                  ConsumerDescriptor*& link)
+throw(EventException)
+{
+    if (slot)
+    {
+        if (link)
+        {
+            clean_consumer_links();
+            throw EventException(EventExceptionT::EventCollision);
+        }
+        else
+            link = &consumer->m_descriptor;
+    }
+}
+
 void EventListener::run_init()
 {
     //////////////////////////
@@ -151,9 +181,20 @@ void EventListener::run_init()
         if(connection->is_connected() && !__epoll_add_fd(epoll, connection->m_fd))
             throw EventException(EventExceptionT::EpollCtlFailed);
 
-    //TODO : Associate registered consumer to their events (so that
-    //       we can wake_up the condition_variable).
-    //       throw EventCollision if failed.
+    // Associate registered consumer to their events (so that
+    // we can wake_up the condition_variable).
+    // It throw EventCollision if failed.
+    for (auto consumer : m_consumers)
+    {
+#define link(slot, link) link_consumer(consumer, consumer->slot, link);
+        link(m_on_connect_slot, m_on_connect_link);
+        link(m_on_disconnect_slot, m_on_disconnect_link);
+        link(m_on_server_disconnect_slot, m_on_server_disconnect_link);
+        link(m_on_event_slot, m_on_event_link);
+
+        for (auto slot_pair : consumer->m_slots)
+            link_consumer(consumer, slot_pair.second, m_links[slot_pair.first]);
+    }
 
     //Keep the event pool
     std::swap(m_epoll_events, events);
@@ -543,7 +584,7 @@ void EventListener::add_consumer(EventConsumer* c) noexcept
     auto it = std::find(m_consumers.begin(),
                         m_consumers.end(),
                         c);
-    if (it != m_consumers.end())
+    if (it == m_consumers.end())
         m_consumers.push_back(c);
 }
 

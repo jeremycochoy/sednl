@@ -22,7 +22,7 @@
 #include "SEDNL/EventConsumer.hpp"
 #include "SEDNL/EventListener.hpp"
 #include "SEDNL/Exception.hpp"
-
+#include<iostream>
 namespace SedNL
 {
 
@@ -58,7 +58,8 @@ void EventConsumer::set_producer(EventListener &producer) throw(EventException)
         m_producer->remove_consumer(this);
         m_producer = nullptr;
     }
-    m_producer->add_consumer(this);
+
+    producer.add_consumer(this);
     m_producer = &producer;
 }
 

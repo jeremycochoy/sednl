@@ -41,6 +41,18 @@ class Connection;
 class Event;
 class TCPServer;
 
+//! \brief Contain a consumer mutex/cv
+class ConsumerDescriptor
+{
+public:
+    ConsumerDescriptor()
+        :wake_up(false)
+    {};
+    std::mutex mutex;
+    bool wake_up;
+    std::condition_variable cv;
+};
+
 template<typename... Args>
 using SlotMap = std::unordered_map<std::string, Slot<Args...>>;
 
@@ -91,13 +103,13 @@ public:
     void join();
 
     //! \brief Bind the connect event
-    Slot<Connection&>& on_connect();
+    inline Slot<Connection&>& on_connect();
 
     //! \brief Bind the disconnect event
-    Slot<Connection&>& on_disconnect();
+    inline Slot<Connection&>& on_disconnect();
 
     //! \brief Bind the server disconnect event
-    Slot<TCPServer&>& on_server_disconnect();
+    inline Slot<TCPServer&>& on_server_disconnect();
 
     //! \brief Bind all unbinded events
     //!
@@ -108,27 +120,15 @@ public:
     //! EventConsumer::bind(). You can use use others consumer with the
     //! same EventListener producer, but there should be only one
     //! providing a on_event() slot.
-    Slot<Connection&, const Event&>& on_event();
+    inline Slot<Connection&, const Event&>& on_event();
 
     //! \brief Bind a new event
     //!
     //! \param[in] event_name Name of the event that will be associated with
     //!                       this callback.
-    Slot<Connection&, const Event&>& bind(std::string event_name);
+    inline Slot<Connection&, const Event&>& bind(std::string event_name);
 
 private:
-
-    //! \brief Contain a consumer mutex/cv
-    struct ConsumerDescriptor
-    {
-        ConsumerDescriptor()
-            :wake_up(false)
-        {};
-        std::mutex mutex;
-        bool wake_up;
-        std::condition_variable cv;
-    };
-
     ConsumerDescriptor m_descriptor;
 
     // Member data
@@ -152,6 +152,8 @@ private:
 
     //! \brief Remove empty slots from the map
     void clean_slots();
+
+    friend class EventListener;
 };
 
 } // namespace SedNL

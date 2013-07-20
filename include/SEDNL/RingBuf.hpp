@@ -23,6 +23,7 @@
 #define RING_BUF_HPP_
 
 #include "SEDNL/Types.hpp"
+#include "SEDNL/Export.hpp"
 
 #include <memory>
 
@@ -35,7 +36,7 @@ class Event;
 //!
 //! You probably won't have to use it, although you are modifying SEDNL's code.
 //!
-class RingBuf
+class SEDNL_API RingBuf
 {
 public:
 
