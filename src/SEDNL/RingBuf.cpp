@@ -103,10 +103,21 @@ bool RingBuf::pick_event(Event& event) noexcept
         //Jump over the '\0'
         NEXT_BYTE();
         //Read packet content
-        while (remaining)
+        try
         {
-            packet.m_data.push_back(AT(dt_idx));
-            NEXT_BYTE();
+            while (remaining)
+            {
+                packet.m_data.push_back(AT(dt_idx));
+                NEXT_BYTE();
+            }
+        }
+        catch(std::exception& e)
+        {
+#ifndef SEDNL_NOWARN
+            std::cerr << "Warning: Failed to place buffer's data into a packet."
+                      << std::endl;
+#endif /* !SEDNL_NOWARN */
+            return false;
         }
 
         if (!packet.is_valid())

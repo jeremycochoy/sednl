@@ -150,6 +150,17 @@ void __push_16(ByteArray& data, UInt16 dt)
 }
 
 inline
+UInt16 __front_16(unsigned int index, ByteArray& data)
+{
+    n_16 dt;
+    Byte* const bytes = reinterpret_cast<Byte*>(&dt);
+    bytes[0] = data[index + 0];
+    bytes[1] = data[index + 1];
+    dt = ntohs(dt);
+    return static_cast<UInt16>(dt);
+}
+
+inline
 void __push_32(ByteArray& data, UInt32 dt)
 {
     const n_32 ndt = htonl(static_cast<n_32>(dt));
