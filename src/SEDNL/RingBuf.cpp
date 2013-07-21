@@ -54,6 +54,7 @@ bool RingBuf::put(const char* string, unsigned int length) noexcept
 
 bool RingBuf::pick_event(Event& event) noexcept
 {
+    std::cout << "RINGBUFFER-- PICK" <<  m_start << " " << m_end<<std::endl;
     try
     {
         //Event header start by an UInt16 wich is the packet length.
@@ -94,7 +95,7 @@ bool RingBuf::pick_event(Event& event) noexcept
             //Log it and drop it
 #ifndef SEDNL_NOWARN
             std::cerr << "Warning: Corrupted packet. Droped." << std::endl;
-#endif
+#endif /* !SEDNL_NOWARN */
             m_start = ROUND(m_start + packet_length);
             return false;
         }
@@ -113,12 +114,13 @@ bool RingBuf::pick_event(Event& event) noexcept
         //if (!packet.is_valid())
         //    return false;
 
+        //Save the new start position
+        m_start = ROUND(dt_idx);
+
         //TODO Write exception safe overload of swap
         std::swap(event.m_name, name);
         std::swap(event.m_packet, packet);
-
         return true;
-
     }
     catch(std::bad_alloc&)
     {}

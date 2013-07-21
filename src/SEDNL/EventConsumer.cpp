@@ -80,8 +80,6 @@ void EventConsumer::run_init()
 {
     //Remove empty slots
     clean_slots();
-
-    //TODO
 }
 
 typedef std::pair<std::shared_ptr<Connection>, Event> CnEvent;
@@ -89,16 +87,53 @@ typedef SafeQueue<CnEvent> EventQueue;
 typedef SafeQueue<std::shared_ptr<Connection>> ConnectionQueue;
 typedef SafeQueue<TCPServer *> ServerQueue;
 
-template<typename S>
-static inline
-void process(CnEvent& e, S& slot, EventQueue& queue)
+template<typename S, typename... Args>
+inline
+void slot_call(S& s, Args& ...args)
 {
-    while(queue.pop(e))
-        slot(*e.first.get(), e.second);
+    try
+    {
+        s(args...);
+    }
+    catch(std::exception& e)
+    {
+#ifndef SEDNL_NOWARN
+        std::cerr << "Warning: Non handled exception caugh inside slot "
+                  << &s
+                  << std::endl;
+        std::cerr << "    "
+                  << "It means that one of your callback throw"
+                  << "the following exception:"
+                  << std::endl;
+        std::cerr << "    "
+                  << e.what();
+#endif /* !SEDNL_NOWARN */
+    }
+    catch(...)
+    {
+#ifndef SEDNL_NOWARN
+        std::cerr << "Warning: Non handled exception caugh inside slot "
+                  << &s
+                  << std::endl;
+        std::cerr << "    "
+                  << "It means that one of your callback throw an exception."
+                  << std::endl;
+#endif /* !SEDNL_NOWARN */
+    }
 }
 
 template<typename S>
-static inline
+static
+void process(CnEvent& e, S& slot, EventQueue& queue)
+{
+    std::cout << "Startwhile" << std::endl;
+    while(queue.pop(e))
+        slot(*e.first.get(), e.second);
+    std::cout << "Endwhile" << std::endl;
+}
+
+template<typename S>
+static
 void process(CnEvent&, S& slot, ConnectionQueue& queue)
 {
     std::shared_ptr<Connection> ptr;
@@ -107,7 +142,7 @@ void process(CnEvent&, S& slot, ConnectionQueue& queue)
 }
 
 template<typename S>
-static inline
+static
 void process(CnEvent&, S& slot, ServerQueue& queue)
 {
     TCPServer* ptr;
@@ -115,15 +150,44 @@ void process(CnEvent&, S& slot, ServerQueue& queue)
         slot(*ptr);
 }
 
-#define PROCESS_MESSAGES(slot, queue) {    \
+//TODO : handle exceptions
+#define PROCESS_MESSAGES(slot, queue)      \
+    {                                      \
         if ((slot))                        \
-            process(e, (slot), (queue));}
+            process(e, (slot), (queue));   \
+    }
+
+void EventConsumer::consume_events() noexcept
+{
+    CnEvent e;
+
+    PROCESS_MESSAGES(m_on_connect_slot, m_producer->m_connected_queue);
+    PROCESS_MESSAGES(m_on_server_disconnect_slot,
+                     m_producer->m_server_disconnected_queue);
+    PROCESS_MESSAGES(m_on_disconnect_slot, m_producer->m_disconnected_queue);
+
+    for (auto& pair : m_slots)
+        PROCESS_MESSAGES(pair.second, m_producer->m_events[pair.first]);
+
+
+    if (m_on_event_slot)
+    {
+        //On each event
+        for (auto& pair : m_producer->m_events)
+        {
+            //If there is no consumer assigned
+            if (!m_producer->m_links[pair.first])
+                //Process it
+                PROCESS_MESSAGES(m_on_event_slot, pair.second);
+        }
+    }
+
+}
 
 void EventConsumer::run_imp()
 {
     //Sleep for 200ms
     auto rel_time = std::chrono::milliseconds(200);
-    CnEvent e;
 
     while (m_running)
     {
@@ -137,30 +201,12 @@ void EventConsumer::run_imp()
             m_descriptor.wake_up = false;
         }
 
-        PROCESS_MESSAGES(m_on_connect_slot, m_producer->m_connected_queue);
-        PROCESS_MESSAGES(m_on_server_disconnect_slot,
-                         m_producer->m_server_disconnected_queue);
-        PROCESS_MESSAGES(m_on_disconnect_slot, m_producer->m_disconnected_queue);
-
-        for (auto& pair : m_slots)
-            PROCESS_MESSAGES(pair.second, m_producer->m_events[pair.first]);
-
-        //TODO : Also handle m_on_event_slot
-        if (m_on_event_slot)
-        {
-            //On each event
-            for (auto& pair : m_producer->m_events)
-            {
-                //If there is no consumer assigned
-                if (!m_producer->m_links[pair.first])
-                    //Process it
-                    PROCESS_MESSAGES(m_on_event_slot, pair.second);
-            }
-        }
-
+        consume_events();
     }
 
-    //TODO
+    //Make sure all events are consumed
+    consume_events();
+    //End of the thread
 }
 
 void EventConsumer::run() throw(EventException)

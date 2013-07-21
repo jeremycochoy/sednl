@@ -48,6 +48,7 @@ typedef uint16_t n_16;
 #endif /* SEDNL_WINDOWS */
 
 #include <utility>
+#include <thread>
 #include <iostream>
 
 namespace SedNL
@@ -63,7 +64,7 @@ void warn_lock(std::exception& e, const char* name)
               << "std::mutex::lock failed in " << name
               << std::endl;
     std::cerr << "    " << e.what() << std::endl;
-#endif /* SEDNL_NOWARN */
+#endif /* !SEDNL_NOWARN */
 }
 
 //! \brief Set a socket file descriptor non blocking
@@ -126,8 +127,8 @@ void retrieve_addresses(std::string sa_node, int sa_port,
             case EAI_AGAIN:
                 if (should_try_again)
                 {
-                    //TODO: Add a small 1ms sleep to let the kernel do some work and
-                    //      try again.
+                    //Sleep 100ms and try again
+                    std::this_thread::sleep_for(std::chrono::milliseconds(100));
                     break;
                 }
             default:

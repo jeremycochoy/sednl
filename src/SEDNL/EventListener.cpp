@@ -250,7 +250,7 @@ void disconnected_event(T &queue, U cn, FileDescriptor fd, const char* type)
                   << "Lost a " << type << " disconnected event for fd "
                   << fd
                   << std::endl;
-#endif /* SEDNL_NOWARN */
+#endif /* !SEDNL_NOWARN */
     }
 }
 
@@ -310,7 +310,7 @@ void EventListener::accept_connections(FileDescriptor fd)
                       << fd
                       << std::endl;
             std::cerr << "    " << strerror(errno) << std::endl;
-#endif /* SEDNL_NOWARN */
+#endif /* !SEDNL_NOWARN */
             return;
         }
 
@@ -322,7 +322,7 @@ void EventListener::accept_connections(FileDescriptor fd)
                       << cfd
                       << std::endl;
             std::cerr << "    " << strerror(errno) << std::endl;
-#endif /* SEDNL_NOWARN */
+#endif /* !SEDNL_NOWARN */
             close(cfd);
             return;
         }
@@ -335,7 +335,7 @@ void EventListener::accept_connections(FileDescriptor fd)
                       << cfd
                       << std::endl;
             std::cerr << "    " << strerror(errno) << std::endl;
-#endif /* SEDNL_NOWARN */
+#endif /* !SEDNL_NOWARN */
             close(cfd);
             return;
         }
@@ -365,7 +365,7 @@ void EventListener::accept_connections(FileDescriptor fd)
                       << cfd
                       << std::endl;
             std::cerr << "    " << e.what() << std::endl;
-#endif /* SEDNL_NOWARN */
+#endif /* !SEDNL_NOWARN */
             close(cfd);
             return;
         }
@@ -378,7 +378,7 @@ void EventListener::accept_connections(FileDescriptor fd)
                       << "Can't create 'connected' event "
                       << cfd
                       << std::endl;
-#endif /* SEDNL_NOWARN */
+#endif /* !SEDNL_NOWARN */
             m_internal_connections.erase(it);
             close(cfd);
             return;
@@ -421,7 +421,7 @@ void EventListener::read_connection(FileDescriptor fd)
                       << fd
                       << " failed." << std::endl;
             std::cerr << "    " << strerror(errno) << std::endl;
-#endif /* SEDNL_NOWARN */
+#endif /* !SEDNL_NOWARN */
             close_connection(fd);
             return;
         }
@@ -435,8 +435,8 @@ void EventListener::read_connection(FileDescriptor fd)
         //Push data in buffer
         cn->m_buffer.put(buf, static_cast<unsigned int>(count));
 
-        //Try to read an event
-        if (cn->m_buffer.pick_event(e))
+        //Try to read some events
+        while (cn->m_buffer.pick_event(e))
         {
             if (!m_events[e.get_name()].push(std::make_pair(cn, e)))
             {
@@ -446,7 +446,7 @@ void EventListener::read_connection(FileDescriptor fd)
                           << "\" event for fd "
                           << fd
                           << std::endl;
-#endif /* SEDNL_NOWARN */
+#endif /* !SEDNL_NOWARN */
             }
             else
             {
@@ -644,7 +644,7 @@ void EventListener::notify(ConsumerDescriptor* desc) noexcept
 {
     if (!desc)
         return;
-
+    std::cout << "notify" << std::endl;
     try
     {
         std::lock_guard<std::mutex> lk(desc->mutex);
@@ -659,7 +659,7 @@ void EventListener::notify(ConsumerDescriptor* desc) noexcept
                   << desc
                   << std::endl;
         std::cerr << "    " << e.what() << std::endl;
-#endif /* SEDNL_NOWARN */
+#endif /* !SEDNL_NOWARN */
     }
 }
 

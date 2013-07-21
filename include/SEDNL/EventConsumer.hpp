@@ -153,6 +153,9 @@ private:
     //! \brief Remove empty slots from the map
     void clean_slots();
 
+    //! \brief Consume events available from producer
+    void consume_events() noexcept;
+
     friend class EventListener;
 };
 

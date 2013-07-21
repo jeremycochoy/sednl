@@ -28,6 +28,7 @@
 #else /* SEDNL_WINDOWS */
 
 #include <unistd.h>
+#include <string.h>
 
 #endif /* SEDNL_WINDOWS */
 
@@ -84,8 +85,23 @@ void Connection::send(const Event& event)
 
         ByteArray data = event.pack();
         const char* data_ptr = reinterpret_cast<const char *>(&data[0]);
-        //TODO : Handle write errors with exceptions
-        write(m_fd, data_ptr, data.size());
+
+        long count = write(m_fd, data_ptr, data.size());
+        if (data.size() != static_cast<ByteArray::size_type>(count))
+        {
+            //Partial write occured
+            if (count > 0)
+            {
+                disconnect();
+                throw NetworkException(NetworkExceptionT::PartialSend);
+            }
+            if (count == 0)
+                throw NetworkException(NetworkExceptionT::EmptySend);
+
+            // if (count == -1)
+            throw NetworkException(NetworkExceptionT::SendFailed,
+                                   strerror(errno));
+        }
     }
     catch(std::exception &e)
     {
@@ -94,7 +110,7 @@ void Connection::send(const Event& event)
                       << "std::mutex::lock failed in SedNL::Connection::send"
                       << std::endl;
         std::cerr << e.what() << std::endl;
-#endif /* SEDNL_NOWARN */
+#endif /* !SEDNL_NOWARN */
     }
 }
 

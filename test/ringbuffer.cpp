@@ -103,6 +103,9 @@ int main()
             ASSERT(false, "Reading data as Int8 failed");
         }
         ASSERT(c == 5, "Wrong value read");
+
+        ASSERT(buf.pick_event(e) == false, "Pick an event, but the buffer"
+               " should be empty.");
     }
 
     //HUGE SUCCESS :)

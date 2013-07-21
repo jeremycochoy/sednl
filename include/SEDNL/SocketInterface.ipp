@@ -57,7 +57,7 @@ FileDescriptor SocketInterface::get_fd() noexcept
     std::cerr << "Error: "
               << "std::mutex::lock failed in Connection::get_fd" << std::endl;
     std::cerr << "    " << e.what() << std::endl;
-#endif /* SEDNL_NOWARN */
+#endif /* !SEDNL_NOWARN */
         return m_fd;
     }
 }
