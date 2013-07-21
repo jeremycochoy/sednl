@@ -126,10 +126,8 @@ template<typename S>
 static
 void process(CnEvent& e, S& slot, EventQueue& queue)
 {
-    std::cout << "Startwhile" << std::endl;
     while(queue.pop(e))
-        slot(*e.first.get(), e.second);
-    std::cout << "Endwhile" << std::endl;
+        slot_call(slot, *e.first.get(), e.second);
 }
 
 template<typename S>
@@ -138,7 +136,7 @@ void process(CnEvent&, S& slot, ConnectionQueue& queue)
 {
     std::shared_ptr<Connection> ptr;
     while(queue.pop(ptr))
-        slot(*ptr);
+        slot_call(slot, *ptr);
 }
 
 template<typename S>
@@ -147,7 +145,7 @@ void process(CnEvent&, S& slot, ServerQueue& queue)
 {
     TCPServer* ptr;
     while(queue.pop(ptr))
-        slot(*ptr);
+        slot_call(slot, *ptr);
 }
 
 //TODO : handle exceptions

@@ -225,7 +225,6 @@ TCPServer *EventListener::get_server(FileDescriptor fd) noexcept
 //Assume fd is a server
 void EventListener::close_server(FileDescriptor fd)
 {
-    std::cout << "Asked to close server " << fd << std::endl;//DEBUG
     for (auto s : m_servers)
     {
         if (s->get_fd() == fd)
@@ -400,8 +399,6 @@ void EventListener::read_connection(FileDescriptor fd)
     Event e;
 
     std::shared_ptr<Connection> cn = get_connection(fd);
-
-    std::cout << "read" << std::endl; //DEBUG
 
     while (true)
     {
@@ -644,7 +641,7 @@ void EventListener::notify(ConsumerDescriptor* desc) noexcept
 {
     if (!desc)
         return;
-    std::cout << "notify" << std::endl;
+
     try
     {
         std::lock_guard<std::mutex> lk(desc->mutex);

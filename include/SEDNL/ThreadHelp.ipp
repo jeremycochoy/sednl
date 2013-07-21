@@ -76,7 +76,7 @@ bool SafeQueue<T, C>::pop(T& value) noexcept
         std::lock_guard<std::mutex> lock(m_mutex);
         if (m_queue.empty())
             return false;
-        std::cout << "length " << m_queue.size() << std::endl;//DEBUG
+
         value = m_queue.front();
         m_queue.pop_front();
         return true;

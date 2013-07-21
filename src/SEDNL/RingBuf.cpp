@@ -54,7 +54,6 @@ bool RingBuf::put(const char* string, unsigned int length) noexcept
 
 bool RingBuf::pick_event(Event& event) noexcept
 {
-    std::cout << "RINGBUFFER-- PICK" <<  m_start << " " << m_end<<std::endl;
     try
     {
         //Event header start by an UInt16 wich is the packet length.
