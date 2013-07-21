@@ -28,6 +28,69 @@ namespace SedNL
 Packet::Packet()
 {}
 
+bool Packet::is_valid() noexcept
+{
+    unsigned int size = m_data.size();
+
+    unsigned int i = 0;
+    for (; i < size; i++)
+    {
+        Type t = static_cast<Type>(m_data[i]);
+
+        switch(t)
+        {
+        case Type::Int8:
+            i += sizeof(Int8);
+            break;
+        case Type::Int16:
+            i += sizeof(Int16);
+            break;
+        case Type::Int32:
+            i += sizeof(Int32);
+            break;
+        case Type::Int64:
+            i += sizeof(Int64);
+            break;
+        case Type::UInt8:
+            i += sizeof(UInt8);
+            break;
+        case Type::UInt16:
+            i += sizeof(UInt16);
+            break;
+        case Type::UInt32:
+            i += sizeof(UInt32);
+            break;
+        case Type::UInt64:
+            i += sizeof(UInt64);
+            break;
+        case Type::Float:
+            i += sizeof(UInt32);
+            break;
+        case Type::Double:
+            i += sizeof(UInt64);
+            break;
+        case Type::String:
+        {
+            i++;
+            while (m_data[i] != '\0' && i < size)
+                i++;
+            if (i == size)
+                return false;
+            break;
+        }
+        case Type::Object:
+            break;
+        default:
+            return false;
+        }
+    }
+
+    if (i != size)
+        return false;
+
+    return true;
+}
+
 ///////////
 // INPUT //
 ///////////

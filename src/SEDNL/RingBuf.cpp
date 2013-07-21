@@ -88,12 +88,12 @@ bool RingBuf::pick_event(Event& event) noexcept
             name.push_back(AT(dt_idx));
             NEXT_BYTE();
         }
-        if (AT(dt_idx) != '\0')
+        if (remaining == 0)
         {
             //It's a corrupted packet.
             //Log it and drop it
 #ifndef SEDNL_NOWARN
-            std::cerr << "Warning: Corrupted packet. Droped." << std::endl;
+            std::cerr << "Warning: Corrupted packet. Dropped." << std::endl;
 #endif /* !SEDNL_NOWARN */
             m_start = ROUND(m_start + packet_length);
             return false;
@@ -109,16 +109,26 @@ bool RingBuf::pick_event(Event& event) noexcept
             NEXT_BYTE();
         }
 
-        //TODO : Check packet integrity
-        //if (!packet.is_valid())
-        //    return false;
+        if (!packet.is_valid())
+        {
+#ifndef SEDNL_NOWARN
+            std::cerr << "Warning: Invalid packet for event \""
+                      << name
+                      << "\". Dropped." << std::endl;
+#endif /* !SEDNL_NOWARN */
+            return false;
+        }
 
         //Save the new start position
         m_start = ROUND(dt_idx);
 
-        //TODO Write exception safe overload of swap
-        std::swap(event.m_name, name);
-        std::swap(event.m_packet, packet);
+        {
+            using std::swap;
+            //basic_string's swap doesn't throw.
+            swap(event.m_name, name);
+            swap(event.m_packet, packet);
+        }
+
         return true;
     }
     catch(std::bad_alloc&)

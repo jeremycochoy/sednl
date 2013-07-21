@@ -16,6 +16,19 @@ add_executable (eventcollision "${PROJECT_SOURCE_DIR}/test/eventcollision.cpp")
 target_link_libraries(eventcollision sednl)
 target_link_libraries(eventcollision ${CMAKE_THREAD_LIBS_INIT})
 
+add_executable (packet "${PROJECT_SOURCE_DIR}/test/packet.cpp")
+target_link_libraries(packet sednl)
+target_link_libraries(packet ${CMAKE_THREAD_LIBS_INIT})
+
 #Run tests
-add_test (NAME RingBuffer WORKING_DIRECTORY "${PROJECT_BINARY_DIR}/test/" COMMAND "ringbuffer")
-add_test (NAME EventCollision WORKING_DIRECTORY "${PROJECT_BINARY_DIR}/test/" COMMAND "eventcollision")
+add_test (NAME RingBuffer
+  WORKING_DIRECTORY "${PROJECT_BINARY_DIR}/test/"
+  COMMAND "ringbuffer")
+add_test (NAME EventCollision
+  WORKING_DIRECTORY "${PROJECT_BINARY_DIR}/test/"
+  COMMAND "eventcollision")
+add_test (NAME Packet
+  WORKING_DIRECTORY "${PROJECT_BINARY_DIR}/test/"
+  COMMAND "packet")
+set_tests_properties (Packet
+  PROPERTIES PASS_REGULAR_EXPRESSION "Warning: Invalid packet for event \"a\". Dropped.")

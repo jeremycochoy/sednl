@@ -59,7 +59,18 @@ const char* TemplateException<NetworkExceptionT>::what() const noexcept
 template<>
 const char* TemplateException<TypeExceptionT>::what() const noexcept
 {
-    return "TODO";
+    switch(m_type)
+    {
+    case TypeExceptionT::UserDataWrongTypeAsked:
+        return "Tried to convert a data user to a wrong type.";
+    case TypeExceptionT::UserDataWrongTypeGiven:
+        return "Tried to write a data user from a different type"
+            " thant the previous one stored.";
+    case TypeExceptionT::WrongPacketType:
+        return "Tried to read data from a packet with the wrong type.";
+    default:
+        return "Unknown exception.";
+    }
 }
 
 template<>

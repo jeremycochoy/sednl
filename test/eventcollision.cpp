@@ -19,7 +19,7 @@
 //     3. This notice may not be removed or altered from any source
 //        distribution.
 
-// Test cases, to check that ring buffer behave correctly
+// Test cases, to check that event consumers dot not bind the same events before the producer's run
 
 #include "SEDNL/EventListener.hpp"
 #include "SEDNL/EventConsumer.hpp"

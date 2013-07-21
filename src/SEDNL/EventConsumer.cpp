@@ -148,7 +148,6 @@ void process(CnEvent&, S& slot, ServerQueue& queue)
         slot_call(slot, *ptr);
 }
 
-//TODO : handle exceptions
 #define PROCESS_MESSAGES(slot, queue)      \
     {                                      \
         if ((slot))                        \

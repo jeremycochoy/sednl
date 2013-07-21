@@ -62,6 +62,12 @@ public:
     //! Create an empty packet
     Packet();
 
+    //! Swap two packets
+    //!
+    //! \param[in,out] packet
+    inline
+    void swap(Packet& packet) noexcept;
+
     //! \brief Write \a dt into the packet
     //!
     //! If you call << on types like [unsigned] char, [unsigned] short,
@@ -111,6 +117,16 @@ public:
     //! \return Internal buffer
     UInt16 get_network_length() const;
 
+    //! \brief Tell if it contains valid data
+    //!
+    //! For implementation purpose. Do not call this function,
+    //! all the packets you'll see are valid.
+    //!
+    //! O(n) where n is the data length.
+    //!
+    //! \return True if the content is a valid packet, false otherwise.
+    bool is_valid() noexcept;
+
 private:
     ByteArray m_data;
 
@@ -144,7 +160,8 @@ Packet& Packet::operator<< <const char*>(const char* dt);
 template<>
 Packet& Packet::operator>> <Int8>(Int8& dt);
 
-
 } // namespace SedNL
+
+#include "SEDNL/Packet.ipp"
 
 #endif /* !PACKET_HPP_ */

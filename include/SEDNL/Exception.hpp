@@ -82,6 +82,7 @@ namespace SedNL
     //////////////////////////////////////////////
     enum class SEDNL_API PacketExceptionT
     {
+        //TODO : Replace WrongPacketType by this exception
     };
 
     ////////////////////////////////////////////////////
