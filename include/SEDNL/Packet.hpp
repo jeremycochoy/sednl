@@ -208,7 +208,7 @@ template<typename T>
 inline
 PacketReader& operator>> (Packet &p, T &dt);
 
-std::ostream& SEDNL_API operator<< (std::ostream& os, const Packet& p);
+SEDNL_API std::ostream& operator<< (std::ostream& os, const Packet& p);
 
 } // namespace SedNL
 

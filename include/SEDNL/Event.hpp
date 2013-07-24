@@ -84,7 +84,7 @@ private:
     friend RingBuf;
 };
 
-std::ostream& SEDNL_API operator<< (std::ostream& os, const Event& e);
+SEDNL_API std::ostream&  operator<< (std::ostream& os, const Event& e);
 
 } // namespace SedNL
 
