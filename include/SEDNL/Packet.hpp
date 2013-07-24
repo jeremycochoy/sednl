@@ -58,6 +58,7 @@ public:
         //! \brief An user defined type
         Object  = 40,
     };
+    //TODO Write an " operator char(Type) "
 
     //! Create an empty packet
     Packet();
@@ -82,21 +83,6 @@ public:
     //! \param[in] dt Data
     template<typename T>
     Packet& operator<<(T dt);
-
-    //! \brief Read \a dt from the packet
-    //!
-    //! If you call >> on types like [unsigned] char, [unsigned] short,
-    //! [unsigned] long, the matching [U]IntN operator will be called.
-    //!
-    //! In case of type = float, double
-    //! the library assume that the system have 32, 64
-    //! bits types. Otherwise, they will be casted to their UIntN
-    //! conterpart. You don't have to worry for most of the systems where
-    //! this library would actualy compile.
-    //!
-    //! \param[out] dt Data
-    template<typename T>
-    Packet& operator>>(T &dt);
 
     //! \brief Return the computed data
     //!
@@ -130,7 +116,39 @@ public:
 private:
     ByteArray m_data;
 
-    friend RingBuf;
+    friend class PacketReader;
+    friend class RingBuf;
+};
+
+class SEDNL_API PacketReader
+{
+public:
+    //! \brief Build a reader from a packet
+    inline PacketReader(const Packet& p);
+
+    //! \brief Read \a dt from the packet
+    //!
+    //! If you call >> on types like [unsigned] char, [unsigned] short,
+    //! [unsigned] long, the matching [U]IntN operator will be called.
+    //!
+    //! In case of type = float, double
+    //! the library assume that the system have 32, 64
+    //! bits types. Otherwise, they will be casted to their UIntN
+    //! conterpart. You don't have to worry for most of the systems where
+    //! this library would actualy compile.
+    //!
+    //! \param[out] dt Data
+    template<typename T>
+    PacketReader& operator>>(T &dt);
+
+    //! \brief True until the packet was completely read
+    inline operator bool() const noexcept;
+
+    //! \brief Return the type of the next element
+    inline Packet::Type next_type() const noexcept;
+private:
+    const Packet& m_p;
+    unsigned int m_idx;
 };
 
 //IN
@@ -150,6 +168,10 @@ template<>
 Packet& Packet::operator<< <UInt32>(UInt32 dt);
 template<>
 Packet& Packet::operator<< <UInt64>(UInt64 dt);
+template<>
+Packet& Packet::operator<< <float>(float dt);
+template<>
+Packet& Packet::operator<< <double>(double dt);
 
 template<>
 Packet& Packet::operator<< <std::string>(std::string dt);
@@ -158,7 +180,35 @@ Packet& Packet::operator<< <const char*>(const char* dt);
 
 //OUT
 template<>
-Packet& Packet::operator>> <Int8>(Int8& dt);
+PacketReader& PacketReader::operator>> <Int8>(Int8& dt);
+template<>
+PacketReader& PacketReader::operator>> <Int16>(Int16& dt);
+template<>
+PacketReader& PacketReader::operator>> <Int32>(Int32& dt);
+template<>
+PacketReader& PacketReader::operator>> <Int64>(Int64& dt);
+template<>
+PacketReader& PacketReader::operator>> <UInt8>(UInt8& dt);
+template<>
+PacketReader& PacketReader::operator>> <UInt16>(UInt16& dt);
+template<>
+PacketReader& PacketReader::operator>> <UInt32>(UInt32& dt);
+template<>
+PacketReader& PacketReader::operator>> <UInt64>(UInt64& dt);
+
+template<>
+PacketReader& PacketReader::operator>> <float>(float& dt);
+template<>
+PacketReader& PacketReader::operator>> <double>(double& dt);
+
+template<>
+PacketReader& PacketReader::operator>> <std::string>(std::string& dt);
+
+template<typename T>
+inline
+PacketReader& operator>> (Packet &p, T &dt);
+
+std::ostream& SEDNL_API operator<< (std::ostream& os, const Packet& p);
 
 } // namespace SedNL
 

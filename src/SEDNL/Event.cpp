@@ -50,4 +50,12 @@ ByteArray Event::pack() const
     return ev;
 }
 
+std::ostream& operator<< (std::ostream& os, const Event& e)
+{
+    return os << "name : \""
+              << e.get_name()
+              << "\", packet : "
+              << e.get_packet();
+}
+
 } // namespace SedNL

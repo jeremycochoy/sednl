@@ -61,7 +61,7 @@ void on_event(Connection &c, const Event &e)
     std::cout << "Event from " << c.get_user_data<int>() << " : " << std::endl;
 
     //Display the whole event
-//    std::cout << e;
+    std::cout << "Event: " << e << std::endl;
 }
 
 int main(int /* argc */, char* /* argv */[])

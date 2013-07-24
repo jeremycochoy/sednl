@@ -68,6 +68,8 @@ int main()
         {}
     }
 
+    //TODO Check that >> . << = id \forall Packet::Type
+
     //HUGE SUCCESS :)
     return EXIT_SUCCESS;
 }

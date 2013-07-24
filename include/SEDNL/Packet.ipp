@@ -37,6 +37,27 @@ void swap(Packet& a, Packet& b) noexcept
     a.swap(b);
 }
 
+PacketReader::PacketReader(const Packet &p)
+    :m_p(p), m_idx(0)
+{}
+
+template<typename T>
+inline
+PacketReader& operator>>(Packet &p, T &dt)
+{
+    return (PacketReader(p) >> (Int8&)dt);
+}
+
+PacketReader::operator bool() const noexcept
+{
+    return !(m_idx >= m_p.m_data.size());
+}
+
+Packet::Type PacketReader::next_type() const noexcept
+{
+    return static_cast<Packet::Type>(m_p.m_data[m_idx]);
+}
+
 } // namespace SedNL
 
 namespace std

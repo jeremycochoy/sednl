@@ -42,7 +42,7 @@ void on_event(Connection& connection, const Event& e)
               << std::endl;
 
     //Display the whole packet
-//    std::cout << e.get_packet() << std::endl;
+    std::cout << "Packet = " << e.get_packet() << std::endl;
 }
 
 int main(int /* argc */, char* /* argv */[])

@@ -149,8 +149,9 @@ void __push_16(ByteArray& data, UInt16 dt)
     data.push_back(bytes[1]);
 }
 
+// Precondition : sizeof(Uint16) = 2 bytes in data starting from index.
 inline
-UInt16 __front_16(unsigned int index, ByteArray& data)
+UInt16 __front_16(unsigned int index, const ByteArray& data) noexcept
 {
     n_16 dt;
     Byte* const bytes = reinterpret_cast<Byte*>(&dt);
@@ -171,8 +172,22 @@ void __push_32(ByteArray& data, UInt32 dt)
     data.push_back(bytes[3]);
 }
 
+// Precondition : sizeof(Uint32) = 4 bytes in data starting from index.
+inline
+UInt32 __front_32(unsigned int index, const ByteArray& data) noexcept
+{
+    n_32 dt;
+    Byte* const bytes = reinterpret_cast<Byte*>(&dt);
+    bytes[0] = data[index + 0];
+    bytes[1] = data[index + 1];
+    bytes[2] = data[index + 2];
+    bytes[3] = data[index + 3];
+    dt = ntohl(dt);
+    return static_cast<UInt32>(dt);
+}
+
 static inline
-bool __is_big_endian()
+bool __is_big_endian() noexcept
 {
     const n_64 v = 1;
 
@@ -180,7 +195,7 @@ bool __is_big_endian()
 }
 
 static inline
-void __bytes_swap(UInt64& v)
+void __bytes_swap(UInt64& v) noexcept
 {
     n_32 *a = reinterpret_cast<n_32*>(&v);
     n_32 *b = a+1;
@@ -194,6 +209,21 @@ void __push_64(ByteArray& data, UInt64 dt)
         __bytes_swap(dt);
     __push_32(data, static_cast<UInt32>(dt >> 32));
     __push_32(data, static_cast<UInt32>(dt));
+}
+
+// Precondition : sizeof(Uint64) = 8 bytes in data starting from index.
+inline
+UInt64 __front_64(unsigned int index, const ByteArray& data) noexcept
+{
+    UInt64 dt;
+    UInt32* const blocks = reinterpret_cast<UInt32*>(&dt);
+
+    blocks[0] = __front_32(index, data);
+    blocks[1] = __front_32(index + sizeof(UInt32), data);
+
+    if (!__is_big_endian())
+        __bytes_swap(dt);
+    return dt;
 }
 
 } // namespace SedNL

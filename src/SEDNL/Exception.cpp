@@ -74,6 +74,32 @@ const char* TemplateException<TypeExceptionT>::what() const noexcept
 }
 
 template<>
+const char* TemplateException<PacketExceptionT>::what() const noexcept
+{
+    switch(m_type)
+    {
+    case PacketExceptionT::UInt8Expected:
+        return "The next element of this packet is an UInt8.";
+    case PacketExceptionT::UInt16Expected:
+        return "The next element of this packet is an UInt16.";
+    case PacketExceptionT::UInt32Expected:
+        return "The next element of this packet is an UInt32.";
+    case PacketExceptionT::UInt64Expected:
+        return "The next element of this packet is an UInt64.";
+    case PacketExceptionT::Int8Expected:
+        return "The next element of this packet is an Int8.";
+    case PacketExceptionT::Int16Expected:
+        return "The next element of this packet is an Int16.";
+    case PacketExceptionT::Int32Expected:
+        return "The next element of this packet is an Int32.";
+    case PacketExceptionT::Int64Expected:
+        return "The next element of this packet is an Int64.";
+    default:
+        return "Unknown exception.";
+    }
+}
+
+template<>
 const char* TemplateException<EventExceptionT>::what() const noexcept
 {
     switch(m_type)

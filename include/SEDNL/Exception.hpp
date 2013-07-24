@@ -83,6 +83,17 @@ namespace SedNL
     enum class SEDNL_API PacketExceptionT
     {
         //TODO : Replace WrongPacketType by this exception
+        UInt8Expected,
+        UInt16Expected,
+        UInt32Expected,
+        UInt64Expected,
+        Int8Expected,
+        Int16Expected,
+        Int32Expected,
+        Int64Expected,
+        FloatExpected,
+        DoubleExpected,
+        StringExpected,
     };
 
     ////////////////////////////////////////////////////
