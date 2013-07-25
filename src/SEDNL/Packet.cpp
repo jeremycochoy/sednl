@@ -163,7 +163,7 @@ template<>
 Packet& Packet::operator<< <float>(float dt)
 {
     m_data.push_back(static_cast<Byte>(Type::Float));
-    __push_32(m_data, static_cast<UInt32>(dt));
+    __push_32(m_data, reinterpret_cast<UInt32&>(dt));
     return *this;
 }
 
@@ -171,7 +171,7 @@ template<>
 Packet& Packet::operator<< <double>(double dt)
 {
     m_data.push_back(static_cast<Byte>(Type::Double));
-    __push_64(m_data, static_cast<UInt64>(dt));
+    __push_64(m_data, reinterpret_cast<UInt64&>(dt));
     return *this;
 }
 
@@ -204,7 +204,7 @@ const ByteArray& Packet::get_data() const
 //Assert the packet isn't corrupted
 //
 
-#define __read(_fct, _type, _ptype, _errc)                              \
+#define __read(_fct, _type, _ptype)                                     \
     {                                                                   \
         if (m_p.m_data.size() <= m_idx)                                 \
             return *this;                                               \
@@ -212,14 +212,54 @@ const ByteArray& Packet::get_data() const
         auto type = static_cast<Packet::Type>(m_p.m_data[m_idx]);       \
                                                                         \
         if (type != _ptype)                                             \
-            throw PacketException(_errc);                               \
+            exception_by_type(type);                                    \
         m_idx++;                                                        \
                                                                         \
-        dt = static_cast<_type>(_fct(m_idx, m_p.m_data));               \
+        auto dt_ = _fct(m_idx, m_p.m_data);                             \
+        dt = reinterpret_cast<_type&>(dt_);                             \
         m_idx += sizeof(_type);                                         \
                                                                         \
         return *this;                                                   \
     }
+
+static
+void exception_by_type(Packet::Type type)
+{
+    switch(type)
+    {
+    case  Packet::Type::Int8:
+        throw PacketException(PacketExceptionT::Int8Expected);
+    case Packet::Type::Int16:
+        throw PacketException(PacketExceptionT::Int16Expected);
+    case Packet::Type::Int32:
+        throw PacketException(PacketExceptionT::Int32Expected);
+    case Packet::Type::Int64:
+        throw PacketException(PacketExceptionT::Int64Expected);
+
+    case  Packet::Type::UInt8:
+        throw PacketException(PacketExceptionT::UInt8Expected);
+    case Packet::Type::UInt16:
+        throw PacketException(PacketExceptionT::UInt16Expected);
+    case Packet::Type::UInt32:
+        throw PacketException(PacketExceptionT::UInt32Expected);
+    case Packet::Type::UInt64:
+        throw PacketException(PacketExceptionT::UInt64Expected);
+
+    case Packet::Type::Float:
+        throw PacketException(PacketExceptionT::FloatExpected);
+    case Packet::Type::Double:
+        throw PacketException(PacketExceptionT::DoubleExpected);
+
+    case Packet::Type::String:
+        throw PacketException(PacketExceptionT::StringExpected);
+
+    case Packet::Type::Object:
+        throw PacketException(PacketExceptionT::ObjectExpected);
+
+    default:
+        throw PacketException(PacketExceptionT::Unknown);
+    }
+}
 
 static
 inline
@@ -231,75 +271,61 @@ UInt8 __front_8(unsigned int index, const ByteArray& data)
 template<>
 PacketReader& PacketReader::operator>> <UInt8> (UInt8& dt)
 {
-    __read(__front_8, UInt8, Packet::Type::UInt8,
-           PacketExceptionT::UInt8Expected);
+    __read(__front_8, UInt8, Packet::Type::UInt8);
 }
 
 template<>
 PacketReader& PacketReader::operator>> <Int8> (Int8& dt)
 {
-    __read(__front_8, Int8, Packet::Type::Int8,
-           PacketExceptionT::Int8Expected);
+    __read(__front_8, Int8, Packet::Type::Int8);
 }
 
 template<>
 PacketReader& PacketReader::operator>> <UInt16> (UInt16& dt)
 {
-    __read(__front_16, UInt16, Packet::Type::UInt16,
-           PacketExceptionT::UInt16Expected);
+    __read(__front_16, UInt16, Packet::Type::UInt16);
 }
 
 template<>
 PacketReader& PacketReader::operator>> <Int16> (Int16& dt)
 {
-    __read(__front_16, Int16, Packet::Type::Int16,
-           PacketExceptionT::Int16Expected);
+    __read(__front_16, Int16, Packet::Type::Int16);
 }
 
 template<>
 PacketReader& PacketReader::operator>> <UInt32> (UInt32& dt)
 {
-    __read(__front_32, UInt32, Packet::Type::UInt32,
-           PacketExceptionT::UInt32Expected);
+    __read(__front_32, UInt32, Packet::Type::UInt32);
 }
 
 template<>
 PacketReader& PacketReader::operator>> <Int32> (Int32& dt)
 {
-    __read(__front_32, Int32, Packet::Type::Int32,
-           PacketExceptionT::Int32Expected);
+    __read(__front_32, Int32, Packet::Type::Int32);
 }
 
 template<>
 PacketReader& PacketReader::operator>> <UInt64> (UInt64& dt)
 {
-    __read(__front_64, UInt64, Packet::Type::UInt64,
-           PacketExceptionT::UInt64Expected);
+    __read(__front_64, UInt64, Packet::Type::UInt64);
 }
 
 template<>
 PacketReader& PacketReader::operator>> <Int64> (Int64& dt)
 {
-    __read(__front_64, Int64, Packet::Type::Int64,
-           PacketExceptionT::Int64Expected);
+    __read(__front_64, Int64, Packet::Type::Int64);
 }
 
 template<>
-PacketReader& PacketReader::operator>> <float> (float& u_dt)
+PacketReader& PacketReader::operator>> <float> (float& dt)
 {
-    UInt32 dt;
-    __read(__front_32, UInt32, Packet::Type::Float,
-           PacketExceptionT::FloatExpected);
-    u_dt = static_cast<float>(dt);
+    __read(__front_32, float, Packet::Type::Float);
 }
 
 template<>
-PacketReader& PacketReader::operator>> <double> (double& u_dt)
+PacketReader& PacketReader::operator>> <double> (double& dt)
 {
-    UInt64 dt;
-    __read(__front_64, UInt64, Packet::Type::Double,
-           PacketExceptionT::DoubleExpected);
-    u_dt = static_cast<double>(dt);
+    __read(__front_64, double, Packet::Type::Double);
 }
 
 template<>
@@ -317,6 +343,7 @@ PacketReader& PacketReader::operator>> <std::string> (std::string& dt)
     std::string out;
     while (m_p.m_data[m_idx] != '\0')
         out.push_back(m_p.m_data[m_idx++]);
+    m_idx++;
 
     using std::swap;
     swap(dt, out);
@@ -327,30 +354,90 @@ PacketReader& PacketReader::operator>> <std::string> (std::string& dt)
 std::ostream& operator<< (std::ostream& os, const Packet& p)
 {
     PacketReader r(p);
+    Packet::Type type;
+
+#define __show_data_case(type) {type v; r >> v; os << v; break;}
 
     os << "{ ";
     while (r)
     {
-        switch(r.next_type())
+        switch(type = r.next_type())
         {
-            //TODO Write it for each type
+        case Packet::Type::Int8:
+            __show_data_case(Int8);
+        case Packet::Type::Int16:
+            __show_data_case(Int16);
         case Packet::Type::Int32:
-        {
-            Int32 v;
-            r >> v;
-            os << v << " : " << "Int32, ";
-        }
+            __show_data_case(Int32);
+        case Packet::Type::Int64:
+            __show_data_case(Int64);
+
+        case Packet::Type::UInt8:
+            __show_data_case(UInt8);
+        case Packet::Type::UInt16:
+            __show_data_case(UInt16);
+        case Packet::Type::UInt32:
+            __show_data_case(UInt32);
+        case Packet::Type::UInt64:
+            __show_data_case(UInt64);
+
+        case Packet::Type::Float:
+            __show_data_case(float);
+        case Packet::Type::Double:
+            __show_data_case(double);
+
         case Packet::Type::String:
-        {
-            std::string v;
-            r >> v;
-            os << v << " : " << "String, ";
-        }
+            __show_data_case(std::string);
+
+        case Packet::Type::Object:
+            //TODO : handle the case of objects
+            return os << "OBJECT }";
+
         default:
             return os << "CORRUPTED }";
         }
+        os << " : " << type_to_string(type) << ", ";
     }
     return os << "}";
+}
+
+const char* type_to_string(Packet::Type type)
+{
+    switch(type)
+    {
+    case Packet::Type::Int8:
+        return "Int8";
+    case Packet::Type::Int16:
+        return "Int16";
+    case Packet::Type::Int32:
+        return "Int32";
+    case Packet::Type::Int64:
+        return "Int64";
+    case Packet::Type::UInt8:
+        return "UInt8";
+    case Packet::Type::UInt16:
+        return "UInt16";
+    case Packet::Type::UInt32:
+        return "UInt32";
+    case Packet::Type::UInt64:
+        return "UInt64";
+    case Packet::Type::Float:
+        return "Float";
+    case Packet::Type::Double:
+        return "Double";
+    case Packet::Type::String:
+        return "String";
+    case Packet::Type::Object:
+        return "Object";
+    case Packet::Type::Unknown:
+    default:
+        return "Unknown";
+    }
+}
+
+std::ostream& operator<< (std::ostream& os, Packet::Type type)
+{
+    return os << type_to_string(type);
 }
 
 } // namespace SedNL

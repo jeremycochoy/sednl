@@ -53,7 +53,7 @@ int main()
         ASSERT(p.is_valid(), "Valid packet with is_valid() == false!");
     }
 
-    //Test case 1 : Build a packet too long
+    //Test case 2 : Build a packet too long
     {
         RingBuf b(300);
         Event e;
@@ -68,7 +68,78 @@ int main()
         {}
     }
 
-    //TODO Check that >> . << = id \forall Packet::Type
+    //Test case 3 : Check that >> . << = id \forall Packet::Type
+    {
+        Packet p;
+
+        try
+        {
+            p << "Hello";
+            p << (Int8)42;
+            p << (Int16)2;
+            p << (Int32)3;
+            p << (Int64)4;
+            p << (UInt8)42;
+            p << (UInt16)2;
+            p << (UInt32)3;
+            p << (UInt64)4;
+            p << 42.0f;
+            p << 3.14;
+
+            PacketReader r(p);
+
+            std::string s;
+            r >> s;
+            ASSERT(s == "Hello", "The message string was corrupted");
+
+            Int8 i8;
+            r >> i8;
+            ASSERT(i8 == 42, "The message Int8 was corruped");
+
+            Int16 i16;
+            r >> i16;
+            ASSERT(i16 == 2, "The message Int16 was corruped");
+
+            Int32 i32;
+            r >> i32;
+            ASSERT(i32 == 3, "The message Int32 was corruped");
+
+            Int64 i64;
+            r >> i64;
+            ASSERT(i64 == 4, "The message Int64 was corruped");
+
+
+            UInt8 ui8;
+            r >> ui8;
+            ASSERT(ui8 == 42, "The message UInt8 was corruped");
+
+            UInt16 ui16;
+            r >> ui16;
+            ASSERT(ui16 == 2, "The message UInt16 was corruped");
+
+            UInt32 ui32;
+            r >> ui32;
+            ASSERT(ui32 == 3, "The message UInt32 was corruped");
+
+            UInt64 ui64;
+            r >> ui64;
+            ASSERT(ui64 == 4, "The message UInt64 was corruped");
+
+            float f;
+            r >> f;
+            ASSERT(f == 42.0f, "The message float was corruped");
+
+            double d;
+            r >> d;
+            ASSERT(d == 3.14, "The message double was corruped");
+        }
+
+        catch(std::exception& e)
+        {
+            ASSERT(false, "An exception occured : " << e.what());
+        }
+    }
+
 
     //HUGE SUCCESS :)
     return EXIT_SUCCESS;

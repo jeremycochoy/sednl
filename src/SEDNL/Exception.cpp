@@ -66,8 +66,6 @@ const char* TemplateException<TypeExceptionT>::what() const noexcept
     case TypeExceptionT::UserDataWrongTypeGiven:
         return "Tried to write a data user from a different type"
             " thant the previous one stored.";
-    case TypeExceptionT::WrongPacketType:
-        return "Tried to read data from a packet with the wrong type.";
     default:
         return "Unknown exception.";
     }

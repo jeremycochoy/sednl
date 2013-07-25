@@ -43,7 +43,6 @@ namespace SedNL
         Unknown,
         UserDataWrongTypeAsked,
         UserDataWrongTypeGiven,
-        WrongPacketType,
     };
 
     //////////////////////////////////////////////
@@ -94,6 +93,8 @@ namespace SedNL
         FloatExpected,
         DoubleExpected,
         StringExpected,
+        ObjectExpected,
+        Unknown,
     };
 
     ////////////////////////////////////////////////////

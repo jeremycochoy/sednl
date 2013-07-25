@@ -52,7 +52,7 @@ void on_connect(Connection &c)
     std::cout << "New client " << c.get_user_data<int>() << std::endl;
 
     //Send a hello message
-//    c.send(Event("hello_client", make_packet("Hello, client!")));
+    c.send(Event("hello_client", make_packet("Hello, client!")));
 }
 
 void on_event(Connection &c, const Event &e)

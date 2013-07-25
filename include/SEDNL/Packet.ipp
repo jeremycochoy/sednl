@@ -58,6 +58,23 @@ Packet::Type PacketReader::next_type() const noexcept
     return static_cast<Packet::Type>(m_p.m_data[m_idx]);
 }
 
+template<typename... Args>
+Packet make_packet(Args... args)
+{
+    Packet p;
+    make_packet_aux(p, args...);
+    return p;
+}
+
+template<typename T, typename... Args>
+void make_packet_aux(Packet& p, T arg, Args... args)
+{
+    make_packet_aux(p << arg, args...);
+}
+
+inline void make_packet_aux(Packet&)
+{}
+
 } // namespace SedNL
 
 namespace std

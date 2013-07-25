@@ -207,8 +207,8 @@ void __push_64(ByteArray& data, UInt64 dt)
 {
     if (!__is_big_endian())
         __bytes_swap(dt);
-    __push_32(data, static_cast<UInt32>(dt >> 32));
-    __push_32(data, static_cast<UInt32>(dt));
+    __push_32(data, reinterpret_cast<UInt32*>(&dt)[0]);
+    __push_32(data, reinterpret_cast<UInt32*>(&dt)[1]);
 }
 
 // Precondition : sizeof(Uint64) = 8 bytes in data starting from index.

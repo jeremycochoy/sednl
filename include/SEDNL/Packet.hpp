@@ -58,7 +58,6 @@ public:
         //! \brief An user defined type
         Object  = 40,
     };
-    //TODO Write an " operator char(Type) "
 
     //! Create an empty packet
     Packet();
@@ -208,7 +207,31 @@ template<typename T>
 inline
 PacketReader& operator>> (Packet &p, T &dt);
 
+//! \brief Write a short description of a packet in a JSON like fashion
+//!
+//! The output is { data1 : type1, data2 : type2, ..., datan : typen, }.
+//!
+//! \param[out] os The output stream
+//! \param[in] p The packet to describe
+//! \return The output stream
 SEDNL_API std::ostream& operator<< (std::ostream& os, const Packet& p);
+
+//! \brief Allow creating easyly packets
+//!
+//! You can create a packet with make_packet(arg1, arg2, ...)
+//!
+//! \return The newly created packet
+template<typename... Args>
+Packet make_packet(Args... args);
+
+//! \brief Convert a type to it's name as a string
+//!
+//! \param[in] type The type to convert
+//! \return The type's name as a readable string
+SEDNL_API const char* type_to_string(Packet::Type type);
+
+//! \brief Call type_to_string and output it
+SEDNL_API std::ostream& operator<< (std::ostream& os, Packet::Type type);
 
 } // namespace SedNL
 

@@ -34,15 +34,15 @@
 
 using namespace SedNL;
 
-void on_event(Connection& connection, const Event& e)
+void on_event(Connection&, const Event& e)
 {
     //Event name
-    std::cout << "Event from server :"
+    std::cout << "Event from server: "
               << e.get_name()
               << std::endl;
 
     //Display the whole packet
-    std::cout << "Packet = " << e.get_packet() << std::endl;
+    std::cout << "    Packet = " << e.get_packet() << std::endl;
 }
 
 int main(int /* argc */, char* /* argv */[])
@@ -68,6 +68,10 @@ int main(int /* argc */, char* /* argv */[])
         //Create an event consumer
         EventConsumer consumer(listener);
         consumer.on_event().set_function(on_event);
+
+        //Launch the two threads
+        listener.run();
+        consumer.run();
 
         //Wait 1000ms
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));

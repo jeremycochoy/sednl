@@ -30,5 +30,8 @@ add_test (NAME EventCollision
 add_test (NAME Packet
   WORKING_DIRECTORY "${PROJECT_BINARY_DIR}/test/"
   COMMAND "packet")
-set_tests_properties (Packet
+add_test (NAME PacketValidity
+  WORKING_DIRECTORY "${PROJECT_BINARY_DIR}/test/"
+  COMMAND "packet")
+set_tests_properties (PacketValidity
   PROPERTIES PASS_REGULAR_EXPRESSION "Warning: Invalid packet for event \"a\". Dropped.")
