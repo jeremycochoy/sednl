@@ -53,7 +53,6 @@ namespace SedNL
         InvalidSocketAddress,
         CantRetrieveHost,
         ConnectFailed,
-        PartialSend,
         EmptySend,
         SendFailed,
         BindFailed,

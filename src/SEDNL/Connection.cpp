@@ -86,19 +86,16 @@ void Connection::send(const Event& event)
         ByteArray data = event.pack();
         const char* data_ptr = reinterpret_cast<const char *>(&data[0]);
 
-        long count = write(m_fd, data_ptr, data.size());
+        long count = 0;
+        long tmp_count = 1;
+        while ((tmp_count = write(m_fd, data_ptr + count, data.size() - count)) > 0)
+            count += tmp_count;
         if (data.size() != static_cast<ByteArray::size_type>(count))
         {
-            //Partial write occured
-            if (count > 0)
-            {
-                disconnect();
-                throw NetworkException(NetworkExceptionT::PartialSend);
-            }
-            if (count == 0)
+            if (tmp_count == 0)
                 throw NetworkException(NetworkExceptionT::EmptySend);
 
-            // if (count == -1)
+            // if (tmp_count == -1)
             throw NetworkException(NetworkExceptionT::SendFailed,
                                    strerror(errno));
         }

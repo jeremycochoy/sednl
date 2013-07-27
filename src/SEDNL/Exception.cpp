@@ -35,9 +35,6 @@ const char* TemplateException<NetworkExceptionT>::what() const noexcept
         return "Can't retrieve host ip from the host name.";
     case NetworkExceptionT::ConnectFailed:
         return "Can't connect to the server.";
-    case NetworkExceptionT::PartialSend:
-        return "A write to the socket failed after some bytes was writen."
-            " The connection was closed.";
     case NetworkExceptionT::EmptySend:
         return "A write to the socket failed and the event wasn't sent."
             " The connection remain valid.";
