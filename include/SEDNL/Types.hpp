@@ -29,6 +29,7 @@
 
 #include <string>
 
+//! \brief The SedNL library namespace
 namespace SedNL
 {
     //Fixed size int

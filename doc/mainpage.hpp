@@ -60,6 +60,8 @@
 //!
 //! A simple client :
 //! \code
+//! using namespace SedNL;
+//!
 //! int main(int argc, char* argv[])
 //! {
 //!     TCPClient client(SocketAddress(4242, "localhost"));
@@ -74,6 +76,8 @@
 //!
 //! And a simple server :
 //! \code
+//! using namespace SedNL;
+//!
 //! void on_disconnect(Connection&)
 //! {
 //!    std::cout << "Client disconnected" << std::endl;
