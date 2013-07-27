@@ -62,17 +62,26 @@ template<typename... Args>
 Packet make_packet(Args... args)
 {
     Packet p;
-    make_packet_aux(p, args...);
+    write_to_packet(p, args...);
     return p;
 }
 
 template<typename T, typename... Args>
-void make_packet_aux(Packet& p, T arg, Args... args)
+void write_to_packet(Packet& p, T arg, Args... args)
 {
-    make_packet_aux(p << arg, args...);
+    write_to_packet(p << arg, args...);
 }
 
-inline void make_packet_aux(Packet&)
+inline void write_to_packet(Packet&)
+{}
+
+template<typename T, typename... Args>
+void read_from_packet(PacketReader& p, T& arg, Args&... args)
+{
+    read_from_packet(p >> arg, args...);
+}
+
+inline void read_from_packet(PacketReader&)
 {}
 
 } // namespace SedNL

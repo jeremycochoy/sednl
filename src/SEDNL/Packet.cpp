@@ -96,6 +96,14 @@ bool Packet::is_valid() noexcept
 ///////////
 
 template<>
+Packet& Packet::operator<< <char> (char dt)
+{
+    m_data.push_back(static_cast<Byte>(Type::Int8));
+    m_data.push_back(dt);
+    return *this;
+}
+
+template<>
 Packet& Packet::operator<< <Int8> (Int8 dt)
 {
     m_data.push_back(static_cast<Byte>(Type::Int8));
@@ -266,6 +274,24 @@ inline
 UInt8 __front_8(unsigned int index, const ByteArray& data)
 {
     return static_cast<UInt8>(data[index]);
+}
+
+template<>
+PacketReader& PacketReader::operator>> <char> (char& dt)
+{
+    if (m_p.m_data.size() <= m_idx)
+        return *this;
+
+    auto type = static_cast<Packet::Type>(m_p.m_data[m_idx]);
+
+    if (type != Packet::Type::Int8 && type != Packet::Type::UInt8)
+        exception_by_type(type);
+    m_idx++;
+
+    dt = static_cast<char>(__front_8(m_idx, m_p.m_data));
+    m_idx += sizeof(Int8);
+                                                                        \
+    return *this;
 }
 
 template<>

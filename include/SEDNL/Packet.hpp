@@ -152,6 +152,8 @@ private:
 
 //IN
 template<>
+Packet& Packet::operator<< <char>(char dt);
+template<>
 Packet& Packet::operator<< <Int8>(Int8 dt);
 template<>
 Packet& Packet::operator<< <Int16>(Int16 dt);
@@ -178,6 +180,8 @@ template<>
 Packet& Packet::operator<< <const char*>(const char* dt);
 
 //OUT
+template<>
+PacketReader& PacketReader::operator>> <char>(char& dt);
 template<>
 PacketReader& PacketReader::operator>> <Int8>(Int8& dt);
 template<>
@@ -216,13 +220,31 @@ PacketReader& operator>> (Packet &p, T &dt);
 //! \return The output stream
 SEDNL_API std::ostream& operator<< (std::ostream& os, const Packet& p);
 
-//! \brief Allow creating easyly packets
+//! \brief Allow creating easily packets
 //!
 //! You can create a packet with make_packet(arg1, arg2, ...)
 //!
 //! \return The newly created packet
 template<typename... Args>
 Packet make_packet(Args... args);
+
+//! \brief Allow writing easily into packets
+//!
+//! You can write into a packet with write_to_packet(packet, arg1, arg2, ...)
+//!
+//! \param[out] packet Pacet in which data are stored.
+//! \param[in] args Data to write sequencialy into the packet.
+template<typename... Args>
+void write_to_packet(Packet& packet, Args... args);
+
+//! \brief Allow reading data from a PacketReader.
+//!
+//! You can read a packet with read_from_packet(packet_reader, arg1, arg2, ...)
+//!
+//! \param[in] packet_reader Stream to read data from.
+//! \param[out] args Variable in which data are stored.
+template<typename... Args>
+void read_from_packet(PacketReader& packet_reader, Args&... args);
 
 //! \brief Convert a type to it's name as a string
 //!
