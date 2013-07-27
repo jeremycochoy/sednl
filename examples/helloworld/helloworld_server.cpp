@@ -36,14 +36,14 @@ using namespace SedNL;
 
 int client_id = 0;
 
-void on_disconnect(Connection &c)
+void on_disconnect(Connection& c)
 {
     //Display client
     std::cout << "Client " << c.get_user_data<int>()
               << " disconnected." << std::endl;
 }
 
-void on_connect(Connection &c)
+void on_connect(Connection& c)
 {
     //Set the client id
     c.set_user_data(client_id++);
@@ -55,7 +55,7 @@ void on_connect(Connection &c)
     c.send(Event("hello_client", make_packet("Hello, client!")));
 }
 
-void on_event(Connection &c, const Event &e)
+void on_event(Connection& c, const Event& e)
 {
     //Display the client id
     std::cout << "Event from " << c.get_user_data<int>() << " : " << std::endl;
