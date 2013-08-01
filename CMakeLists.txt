@@ -17,8 +17,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -ggdb -W -Wall -fvisibility=h
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99 -ggdb -W -Wall -fvisibility=hidden")
 
 # Set version numbers
-set(SEDNL_VERSION_MAJOR 0)
-set(SEDNL_VERSION_MINOR 1)
+set(SEDNL_VERSION_MAJOR 1)
+set(SEDNL_VERSION_MINOR 0)
 set(SEDNL_VERSION_MICRO 0)
 
 #Set include directories
