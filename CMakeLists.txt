@@ -21,6 +21,10 @@ set(SEDNL_VERSION_MAJOR 1)
 set(SEDNL_VERSION_MINOR 0)
 set(SEDNL_VERSION_MICRO 0)
 
+#define the dyn/static library name
+set(SEDNL_INCLUDE_DIRECTORY_NAME "sednl-${SEDNL_VERSION_MAJOR}.${SEDNL_VERSION_MINOR}")
+set(SEDNL_LIBRARY_NAME "sednl-${SEDNL_VERSION_MAJOR}.${SEDNL_VERSION_MINOR}")
+
 #Set include directories
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 

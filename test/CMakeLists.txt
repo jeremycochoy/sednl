@@ -10,14 +10,14 @@ find_package(Threads)
 #
 
 add_executable (ringbuffer "${PROJECT_SOURCE_DIR}/test/ringbuffer.cpp")
-target_link_libraries(ringbuffer sednl)
+target_link_libraries(ringbuffer ${SEDNL_LIBRARY_NAME})
 
 add_executable (eventcollision "${PROJECT_SOURCE_DIR}/test/eventcollision.cpp")
-target_link_libraries(eventcollision sednl)
+target_link_libraries(eventcollision ${SEDNL_LIBRARY_NAME})
 target_link_libraries(eventcollision ${CMAKE_THREAD_LIBS_INIT})
 
 add_executable (packet "${PROJECT_SOURCE_DIR}/test/packet.cpp")
-target_link_libraries(packet sednl)
+target_link_libraries(packet ${SEDNL_LIBRARY_NAME})
 target_link_libraries(packet ${CMAKE_THREAD_LIBS_INIT})
 
 #Run tests
