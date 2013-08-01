@@ -89,6 +89,12 @@ const char* TemplateException<PacketExceptionT>::what() const noexcept
         return "The next element of this packet is an Int32.";
     case PacketExceptionT::Int64Expected:
         return "The next element of this packet is an Int64.";
+    case PacketExceptionT::EmptyObject:
+        return "The object you tried to read/write to/from the packet"
+            "haven't any data field.";
+    case PacketExceptionT::WrongSizedObject:
+        return "The object stored in this packet doesn't mach the size"
+            " of your object.";
     default:
         return "Unknown exception.";
     }

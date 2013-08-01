@@ -23,6 +23,7 @@
 #define PACKET_HPP_
 
 #include "SEDNL/Export.hpp"
+#include "SEDNL/Exception.hpp"
 #include "SEDNL/Types.hpp"
 
 #include <vector>
@@ -112,8 +113,17 @@ public:
     //! \return True if the content is a valid packet, false otherwise.
     bool is_valid() noexcept;
 
+
+    //! \brief Write all the argument as an object of length number_of_args(args)
+    template<typename... Args>
+    friend
+    void write_as_object(Packet& packet, Args&... args);
+
 private:
     ByteArray m_data;
+
+    //Write only the header of an object (i.e. {Type::Object, length})
+    void write_object_header(unsigned short length) throw(PacketException);
 
     friend class PacketReader;
     friend class RingBuf;
@@ -145,8 +155,17 @@ public:
 
     //! \brief Return the type of the next element
     inline Packet::Type next_type() const noexcept;
+
+    //! \brief Read all the argument as an object of length number_of_args(args)
+    template<typename... Args>
+    friend
+    void read_as_object(PacketReader& packet_reader, Args&... args);
+
 private:
-    const Packet& m_p;
+    //! \brief Consume the header of an object if it's a valid one (i.e. {Type::Object, length})
+    void read_object_header(unsigned short length) throw(PacketException);
+
+    const Packet* m_p;
     unsigned int m_idx;
 };
 
@@ -254,6 +273,12 @@ SEDNL_API const char* type_to_string(Packet::Type type);
 
 //! \brief Call type_to_string and output it
 SEDNL_API std::ostream& operator<< (std::ostream& os, Packet::Type type);
+
+
+//! \brief Give the number of arguments passed to it.
+template<typename... Args>
+inline
+unsigned short number_of_args(Args... args);
 
 } // namespace SedNL
 

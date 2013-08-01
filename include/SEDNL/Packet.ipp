@@ -38,7 +38,7 @@ void swap(Packet& a, Packet& b) noexcept
 }
 
 PacketReader::PacketReader(const Packet &p)
-    :m_p(p), m_idx(0)
+    :m_p(&p), m_idx(0)
 {}
 
 template<typename T>
@@ -50,12 +50,12 @@ PacketReader& operator>>(Packet &p, T &dt)
 
 PacketReader::operator bool() const noexcept
 {
-    return !(m_idx >= m_p.m_data.size());
+    return !(m_idx >= m_p->m_data.size());
 }
 
 Packet::Type PacketReader::next_type() const noexcept
 {
-    return static_cast<Packet::Type>(m_p.m_data[m_idx]);
+    return static_cast<Packet::Type>(m_p->m_data[m_idx]);
 }
 
 template<typename... Args>
@@ -83,6 +83,49 @@ void read_from_packet(PacketReader& p, T& arg, Args&... args)
 
 inline void read_from_packet(PacketReader&)
 {}
+
+inline
+unsigned short number_of_args_aux()
+{
+    return 0;
+}
+
+template<typename T, typename... Args>
+inline
+unsigned short number_of_args_aux(T, Args... args)
+{
+    return 1 + number_of_args_aux(args...);
+}
+
+template<typename... Args>
+inline
+unsigned short number_of_args(Args... args)
+{
+    return number_of_args_aux(args...);
+}
+
+template<typename... Args>
+void write_as_object(Packet& packet, Args&... args)
+{
+    const unsigned short nb_args = number_of_args(args...);
+
+    packet.write_object_header(nb_args);
+    write_to_packet(packet, args...);
+}
+
+//! \brief Read all the argument as an object of length number_of_args(args)
+template<typename... Args>
+void read_as_object(PacketReader& packet_reader, Args&... args)
+{
+    const unsigned short nb_args = number_of_args(args...);
+
+    PacketReader tmp_reader = packet_reader;
+    tmp_reader.read_object_header(nb_args);
+    read_from_packet(tmp_reader, args...);
+    //If everything gone well, just modify the reader
+    using std::swap;
+    swap(packet_reader, tmp_reader);
+}
 
 } // namespace SedNL
 

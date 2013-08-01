@@ -44,21 +44,23 @@ namespace SedNL
 //!
 //! Then, you can call your_instance.serialize(packet)
 //! and your_instance.unserialize(packet_reader).
-#define SEDNL_SERIALIZABLE(type, ...)                                \
-        void serialize(Packet& p)                                    \
-        {                                                            \
-            SedNL::Serializer<type>::pre_serialize(*this, 0);        \
-            write_to_packet(p, __VA_ARGS__);                         \
-            SedNL::Serializer<type>::post_serialize(*this, 0);       \
-        }                                                            \
-        void unserialize(PacketReader& p)                            \
-        {                                                            \
-            SedNL::Serializer<type>::pre_unserialize(*this, 0);      \
-            read_from_packet(p, __VA_ARGS__);                        \
-            SedNL::Serializer<type>::post_unserialize(*this, 0);     \
-        }                                                            \
-        void unserialize(const Packet& p)                            \
-        { PacketReader r(p); unserialize(r); };
+#define SEDNL_SERIALIZABLE(...)                                      \
+    inline void serialize(Packet& p)                                 \
+    {                                                                \
+        serializer_serialize(p, *this, __VA_ARGS__);                 \
+    }                                                                \
+    inline void unserialize(PacketReader& p)                         \
+    {                                                                \
+        serializer_unserialize(p, *this, __VA_ARGS__);               \
+    }                                                                \
+    inline void unserialize(const Packet& p)                         \
+    { PacketReader r(p); unserialize(r); };
+
+template<typename T, typename... Args>
+void serializer_serialize(Packet& packet, T&inst, Args&... args);
+
+template<typename T, typename... Args>
+void serializer_unserialize(PacketReader& packet_reader, T&inst, Args&... args);
 
 };
 

@@ -96,7 +96,7 @@ public:
     //
     // Allow serialisation
     //
-    SEDNL_SERIALIZABLE(Foo, m_int, m_char, m_string);
+    SEDNL_SERIALIZABLE(m_int, m_char, m_string);
 };
 
 int main(int, char*[])

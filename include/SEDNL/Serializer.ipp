@@ -77,6 +77,22 @@ struct Serializer
     {};
 };
 
+template<typename T, typename... Args>
+void serializer_serialize(Packet& packet, T& inst, Args&... args)
+{
+    SedNL::Serializer<T>::pre_serialize(inst, 0);
+    write_as_object(packet, args...);
+    SedNL::Serializer<T>::post_serialize(inst, 0);
+}
+
+template<typename T, typename... Args>
+void serializer_unserialize(PacketReader& packet_reader, T& inst, Args&... args)
+{
+    SedNL::Serializer<T>::pre_unserialize(inst, 0);
+    read_as_object(packet_reader, args...);
+    SedNL::Serializer<T>::post_unserialize(inst, 0);
+}
+
 } //namespace SedNL
 
 #endif /* !SERIALIZER_IPP_ */

@@ -92,6 +92,8 @@ namespace SedNL
         DoubleExpected,
         StringExpected,
         ObjectExpected,
+        EmptyObject,
+        WrongSizedObject,
         Unknown,
     };
 

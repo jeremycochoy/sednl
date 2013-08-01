@@ -21,7 +21,9 @@
 
 #include "SEDNL/Packet.hpp"
 #include "SEDNL/SocketHelp.hpp"
-#include <iostream>//DEBUG
+
+#include <cassert>
+
 namespace SedNL
 {
 
@@ -214,16 +216,16 @@ const ByteArray& Packet::get_data() const
 
 #define __read(_fct, _type, _ptype)                                     \
     {                                                                   \
-        if (m_p.m_data.size() <= m_idx)                                 \
+        if (m_p->m_data.size() <= m_idx)                                \
             return *this;                                               \
                                                                         \
-        auto type = static_cast<Packet::Type>(m_p.m_data[m_idx]);       \
+        auto type = static_cast<Packet::Type>(m_p->m_data[m_idx]);      \
                                                                         \
         if (type != _ptype)                                             \
             exception_by_type(type);                                    \
         m_idx++;                                                        \
                                                                         \
-        auto dt_ = _fct(m_idx, m_p.m_data);                             \
+        auto dt_ = _fct(m_idx, m_p->m_data);                            \
         dt = reinterpret_cast<_type&>(dt_);                             \
         m_idx += sizeof(_type);                                         \
                                                                         \
@@ -279,16 +281,16 @@ UInt8 __front_8(unsigned int index, const ByteArray& data)
 template<>
 PacketReader& PacketReader::operator>> <char> (char& dt)
 {
-    if (m_p.m_data.size() <= m_idx)
+    if (m_p->m_data.size() <= m_idx)
         return *this;
 
-    auto type = static_cast<Packet::Type>(m_p.m_data[m_idx]);
+    auto type = static_cast<Packet::Type>(m_p->m_data[m_idx]);
 
     if (type != Packet::Type::Int8 && type != Packet::Type::UInt8)
         exception_by_type(type);
     m_idx++;
 
-    dt = static_cast<char>(__front_8(m_idx, m_p.m_data));
+    dt = static_cast<char>(__front_8(m_idx, m_p->m_data));
     m_idx += sizeof(Int8);
                                                                         \
     return *this;
@@ -357,18 +359,18 @@ PacketReader& PacketReader::operator>> <double> (double& dt)
 template<>
 PacketReader& PacketReader::operator>> <std::string> (std::string& dt)
 {
-    if (m_p.m_data.size() <= m_idx)
+    if (m_p->m_data.size() <= m_idx)
         return *this;
 
-    auto type = static_cast<Packet::Type>(m_p.m_data[m_idx]);
+    auto type = static_cast<Packet::Type>(m_p->m_data[m_idx]);
 
     if (type != Packet::Type::String)
         throw PacketException(PacketExceptionT::StringExpected);
     m_idx++;
 
     std::string out;
-    while (m_p.m_data[m_idx] != '\0')
-        out.push_back(m_p.m_data[m_idx++]);
+    while (m_p->m_data[m_idx] != '\0')
+        out.push_back(m_p->m_data[m_idx++]);
     m_idx++;
 
     using std::swap;
@@ -464,6 +466,32 @@ const char* type_to_string(Packet::Type type)
 std::ostream& operator<< (std::ostream& os, Packet::Type type)
 {
     return os << type_to_string(type);
+}
+
+void PacketReader::read_object_header(unsigned short length)
+    throw(PacketException)
+{
+    Packet::Type type = next_type();
+    if (type != Packet::Type::Object)
+        throw PacketException(PacketExceptionT::ObjectExpected);
+    UInt8 obj_length = static_cast<UInt8>(m_p->m_data[m_idx + 1]);
+    if (obj_length == 0)
+        throw PacketException(PacketExceptionT::EmptyObject);
+    if (obj_length != length)
+        throw PacketException(PacketExceptionT::WrongSizedObject);
+
+    //Ok, just skip the header
+    m_idx += 2;
+}
+
+void Packet::write_object_header(unsigned short length)
+    throw(PacketException)
+{
+    assert(length < 256);
+    if (length == 0)
+        throw PacketException(PacketExceptionT::EmptyObject);
+    m_data.push_back(static_cast<UInt8>(Packet::Type::Object));
+    m_data.push_back(static_cast<UInt8>(length));
 }
 
 } // namespace SedNL
