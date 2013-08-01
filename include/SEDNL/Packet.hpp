@@ -43,21 +43,32 @@ public:
     enum class Type
     {
         //! Reserved type
-        Unknown = 0,
-        Int8    = 1,
-        Int16   = 2,
-        Int32   = 3,
-        Int64   = 4,
-        UInt8   = 5,
-        UInt16  = 6,
-        UInt32  = 7,
-        UInt64  = 8,
-        Float   = 20,
-        Double  = 21,
+        Unknown = 0x00,
+        Int8    = 0x01,
+        Int16   = 0x02,
+        Int32   = 0x03,
+        Int64   = 0x04,
+        UInt8   = 0x05,
+        UInt16  = 0x06,
+        UInt32  = 0x07,
+        UInt64  = 0x08,
+        Float   = 0x10,
+        Double  = 0x11,
         //! \brief A C string (from a const char* or std::string)
-        String  = 30,
+        String  = 0x20,
         //! \brief An user defined type
-        Object  = 40,
+        Object  = 0x40,
+        // Different kind of arrays
+        ArrayInt8    = 0x81,
+        ArrayInt16   = 0x82,
+        ArrayInt32   = 0x83,
+        ArrayInt64   = 0x84,
+        ArrayUInt8   = 0x85,
+        ArrayUInt16  = 0x86,
+        ArrayUInt32  = 0x87,
+        ArrayUInt64  = 0x88,
+        ArrayFloat   = 0x90,
+        ArrayDouble  = 0x91,
     };
 
     //! Create an empty packet
@@ -80,9 +91,34 @@ public:
     //! conterpart. You don't have to worry for most of the systems where
     //! this library would actualy compile.
     //!
+    //! If this operation throw an std::bad_alloc, the packet is now in an invalid
+    //! state and should't be used.
+    //!
     //! \param[in] dt Data
     template<typename T>
     Packet& operator<<(T dt);
+
+    Packet& operator<< (const std::vector<char>& dt);
+
+    Packet& operator<< (const std::vector<Int8>& dt);
+
+    Packet& operator<< (const std::vector<Int16>& dt);
+
+    Packet& operator<< (const std::vector<Int32>& dt);
+
+    Packet& operator<< (const std::vector<Int64>& dt);
+
+    Packet& operator<< (const std::vector<UInt8>& dt);
+
+    Packet& operator<< (const std::vector<UInt16>& dt);
+
+    Packet& operator<< (const std::vector<UInt32>& dt);
+
+    Packet& operator<< (const std::vector<UInt64>& dt);
+
+    Packet& operator<< (const std::vector<float>& dt);
+
+    Packet& operator<< (const std::vector<double>& dt);
 
     //! \brief Return the computed data
     //!
@@ -149,6 +185,29 @@ public:
     //! \param[out] dt Data
     template<typename T>
     PacketReader& operator>>(T &dt);
+
+    PacketReader& operator>> (std::vector<char>& dt);
+
+    PacketReader& operator>> (std::vector<Int8>& dt);
+
+    PacketReader& operator>> (std::vector<Int16>& dt);
+
+    PacketReader& operator>> (std::vector<Int32>& dt);
+
+    PacketReader& operator>> (std::vector<Int64>& dt);
+
+    PacketReader& operator>> (std::vector<UInt8>& dt);
+
+    PacketReader& operator>> (std::vector<UInt16>& dt);
+
+    PacketReader& operator>> (std::vector<UInt32>& dt);
+
+    PacketReader& operator>> (std::vector<UInt64>& dt);
+
+    PacketReader& operator>> (std::vector<float>& dt);
+
+    PacketReader& operator>> (std::vector<double>& dt);
+
 
     //! \brief True until the packet was completely read
     inline operator bool() const noexcept;

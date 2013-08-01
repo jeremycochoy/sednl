@@ -53,7 +53,7 @@ namespace SedNL
     typedef uint64_t UInt64;
 
     //! \brief A byte
-    typedef Int8 Byte;
+    typedef UInt8 Byte;
 
     //! A (socket) file descriptor
     typedef int FileDescriptor;

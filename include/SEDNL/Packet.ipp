@@ -127,6 +127,22 @@ void read_as_object(PacketReader& packet_reader, Args&... args)
     swap(packet_reader, tmp_reader);
 }
 
+template<typename T>
+inline
+Packet& Packet::operator<< (T dt)
+{
+    dt.serialize(*this);
+    return *this;
+}
+
+template<typename T>
+inline
+PacketReader& PacketReader::operator>> (T& dt)
+{
+    dt.unserialize(*this);
+    return *this;
+}
+
 } // namespace SedNL
 
 namespace std

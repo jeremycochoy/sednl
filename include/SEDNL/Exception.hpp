@@ -92,8 +92,21 @@ namespace SedNL
         DoubleExpected,
         StringExpected,
         ObjectExpected,
+
+        ArrayUInt8Expected,
+        ArrayUInt16Expected,
+        ArrayUInt32Expected,
+        ArrayUInt64Expected,
+        ArrayInt8Expected,
+        ArrayInt16Expected,
+        ArrayInt32Expected,
+        ArrayInt64Expected,
+        ArrayFloatExpected,
+        ArrayDoubleExpected,
+
         EmptyObject,
         WrongSizedObject,
+        WrongArray,
         Unknown,
     };
 

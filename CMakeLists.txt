@@ -3,7 +3,7 @@ cmake_minimum_required (VERSION 2.6)
 #Create options
 option(BUILD_STATIC "Tell if the static library should be compiled" ON)
 option(BUILD_DYNAMIC "Tell if the dynamic library should be compiled" ON)
-option(BUILD_DOC "Tell if the dynamic library should be compiled" ON)
+option(BUILD_DOC "Tell if the documentation target (make doc) should be added" ON)
 option(BUILD_TEST "Compile the test applications and allow to run them with 'make test'" ON)
 option(BUILD_EXAMPLES "Tell if we should also compile the examples" ON)
 

@@ -80,8 +80,19 @@ bool Packet::is_valid() noexcept
                 return false;
             break;
         }
+        //TODO : Object and Array
         case Type::Object:
-            break;
+        case Type::ArrayInt8:
+        case Type::ArrayInt16:
+        case Type::ArrayInt32:
+        case Type::ArrayInt64:
+        case Type::ArrayUInt8:
+        case Type::ArrayUInt16:
+        case Type::ArrayUInt32:
+        case Type::ArrayUInt64:
+        case Type::ArrayFloat:
+        case Type::ArrayDouble:
+            return true;
         default:
             return false;
         }
@@ -201,6 +212,89 @@ Packet& Packet::operator<< <std::string>(std::string dt)
     return (*this) << dt.c_str();
 }
 
+#define __array(fct, cast_type, type)                           \
+    if (static_cast<UInt16>(dt.size()) != dt.size())            \
+        throw PacketException(PacketExceptionT::WrongArray);    \
+                                                                \
+    m_data.push_back(static_cast<Byte>(type));                  \
+    __push_16(m_data, static_cast<UInt16>(dt.size()));          \
+                                                                \
+    for (auto elm : dt)                                         \
+        fct(m_data, reinterpret_cast<cast_type&>(elm));         \
+
+template<typename T, typename S>
+inline
+void __push_8(std::vector<T>& data, S elm)
+{
+    data.push_back(static_cast<T>(elm));
+}
+
+Packet& Packet::operator<< (const std::vector<char>& dt)
+{
+    __array(__push_8, Int8, Type::ArrayInt8);
+    return *this;
+}
+
+Packet& Packet::operator<< (const std::vector<Int8>& dt)
+{
+    __array(__push_8, Int8, Type::ArrayInt8);
+    return *this;
+}
+
+Packet& Packet::operator<< (const std::vector<UInt8>& dt)
+{
+    __array(__push_8, UInt8, Type::ArrayUInt8);
+    return *this;
+}
+
+Packet& Packet::operator<< (const std::vector<Int16>& dt)
+{
+    __array(__push_16, Int16, Type::ArrayInt16);
+    return *this;
+}
+
+Packet& Packet::operator<< (const std::vector<UInt16>& dt)
+{
+    __array(__push_16, UInt16, Type::ArrayUInt16);
+    return *this;
+}
+
+Packet& Packet::operator<< (const std::vector<Int32>& dt)
+{
+    __array(__push_32, Int32, Type::ArrayInt32);
+    return *this;
+}
+
+Packet& Packet::operator<< (const std::vector<UInt32>& dt)
+{
+    __array(__push_32, UInt32, Type::ArrayUInt32);
+    return *this;
+}
+
+Packet& Packet::operator<< (const std::vector<Int64>& dt)
+{
+    __array(__push_64, Int64, Type::ArrayInt64);
+    return *this;
+}
+
+Packet& Packet::operator<< (const std::vector<UInt64>& dt)
+{
+    __array(__push_64, UInt64, Type::ArrayUInt64);
+    return *this;
+}
+
+Packet& Packet::operator<< (const std::vector<float>& dt)
+{
+    __array(__push_32, UInt32, Type::ArrayFloat);
+    return *this;
+}
+
+Packet& Packet::operator<< (const std::vector<double>& dt)
+{
+    __array(__push_64, UInt64, Type::ArrayDouble);
+    return *this;
+}
+
 ////////////
 // OUTPUT //
 ////////////
@@ -246,7 +340,7 @@ void exception_by_type(Packet::Type type)
     case Packet::Type::Int64:
         throw PacketException(PacketExceptionT::Int64Expected);
 
-    case  Packet::Type::UInt8:
+    case Packet::Type::UInt8:
         throw PacketException(PacketExceptionT::UInt8Expected);
     case Packet::Type::UInt16:
         throw PacketException(PacketExceptionT::UInt16Expected);
@@ -260,6 +354,29 @@ void exception_by_type(Packet::Type type)
     case Packet::Type::Double:
         throw PacketException(PacketExceptionT::DoubleExpected);
 
+    case Packet::Type::ArrayInt8:
+        throw PacketException(PacketExceptionT::ArrayInt8Expected);
+    case Packet::Type::ArrayInt16:
+        throw PacketException(PacketExceptionT::ArrayInt16Expected);
+    case Packet::Type::ArrayInt32:
+        throw PacketException(PacketExceptionT::ArrayInt32Expected);
+    case Packet::Type::ArrayInt64:
+        throw PacketException(PacketExceptionT::ArrayInt64Expected);
+
+    case Packet::Type::ArrayUInt8:
+        throw PacketException(PacketExceptionT::ArrayUInt8Expected);
+    case Packet::Type::ArrayUInt16:
+        throw PacketException(PacketExceptionT::ArrayUInt16Expected);
+    case Packet::Type::ArrayUInt32:
+        throw PacketException(PacketExceptionT::ArrayUInt32Expected);
+    case Packet::Type::ArrayUInt64:
+        throw PacketException(PacketExceptionT::ArrayUInt64Expected);
+
+    case Packet::Type::ArrayFloat:
+        throw PacketException(PacketExceptionT::ArrayFloatExpected);
+    case Packet::Type::ArrayDouble:
+        throw PacketException(PacketExceptionT::ArrayDoubleExpected);
+
     case Packet::Type::String:
         throw PacketException(PacketExceptionT::StringExpected);
 
@@ -267,6 +384,7 @@ void exception_by_type(Packet::Type type)
         throw PacketException(PacketExceptionT::ObjectExpected);
 
     default:
+        std::cout << ":" << (int)(unsigned char)type <<" " << (int)(unsigned char)Packet::Type::ArrayInt8 << " " << (int)(type == Packet::Type::ArrayInt8) << std::endl;
         throw PacketException(PacketExceptionT::Unknown);
     }
 }
@@ -292,7 +410,7 @@ PacketReader& PacketReader::operator>> <char> (char& dt)
 
     dt = static_cast<char>(__front_8(m_idx, m_p->m_data));
     m_idx += sizeof(Int8);
-                                                                        \
+
     return *this;
 }
 
@@ -377,6 +495,104 @@ PacketReader& PacketReader::operator>> <std::string> (std::string& dt)
     swap(dt, out);
 
     return *this;
+}
+
+#define __read_array(fct, cast_type, packet_type)                       \
+    if (m_p->m_data.size() <= m_idx)                                    \
+        return *this;                                                   \
+                                                                        \
+    auto type = static_cast<Packet::Type>(m_p->m_data[m_idx]);          \
+                                                                        \
+    if (type != packet_type)                                            \
+        exception_by_type(type);                                        \
+    m_idx++;                                                            \
+                                                                        \
+    unsigned short length = __front_16(m_idx, m_p->m_data);             \
+    m_idx += sizeof(UInt16);                                            \
+                                                                        \
+    dt.clear();                                                         \
+    for (int i = 0; i < length; i++)                                    \
+    {                                                                   \
+        auto t = fct(m_idx, m_p->m_data);                               \
+        dt.push_back(reinterpret_cast<cast_type&>(t));                  \
+        m_idx += sizeof(cast_type);                                     \
+    }                                                                   \
+                                                                        \
+    return *this;
+
+
+PacketReader& PacketReader::operator>> (std::vector<char>& dt)
+{
+    if (m_p->m_data.size() <= m_idx)
+        return *this;
+
+    auto type = static_cast<Packet::Type>(m_p->m_data[m_idx]);
+
+    if (type != Packet::Type::ArrayInt8 && type != Packet::Type::ArrayUInt8)
+        exception_by_type(type);
+    m_idx++;
+
+    unsigned short length = __front_16(m_idx, m_p->m_data);
+    m_idx += sizeof(UInt16);
+
+    dt.clear();
+    for (int i = 0; i < length; i++)
+    {
+        dt.push_back(static_cast<char>(m_p->m_data[m_idx]));
+        m_idx += sizeof(UInt8);
+    }
+
+    return *this;
+}
+
+PacketReader& PacketReader::operator>> (std::vector<UInt8>& dt)
+{
+    __read_array(__front_8, UInt8, Packet::Type::ArrayUInt8);
+}
+
+PacketReader& PacketReader::operator>> (std::vector<Int8>& dt)
+{
+    __read_array(__front_8, Int8, Packet::Type::ArrayInt8);
+}
+
+PacketReader& PacketReader::operator>> (std::vector<UInt16>& dt)
+{
+    __read_array(__front_16, UInt16, Packet::Type::ArrayUInt16);
+}
+
+PacketReader& PacketReader::operator>> (std::vector<Int16>& dt)
+{
+    __read_array(__front_16, Int16, Packet::Type::ArrayInt16);
+}
+
+PacketReader& PacketReader::operator>> (std::vector<UInt32>& dt)
+{
+    __read_array(__front_32, UInt32, Packet::Type::ArrayUInt32);
+}
+
+PacketReader& PacketReader::operator>> (std::vector<Int32>& dt)
+{
+    __read_array(__front_32, Int32, Packet::Type::ArrayInt32);
+}
+
+PacketReader& PacketReader::operator>> (std::vector<UInt64>& dt)
+{
+    __read_array(__front_64, UInt64, Packet::Type::ArrayUInt64);
+}
+
+PacketReader& PacketReader::operator>> (std::vector<Int64>& dt)
+{
+    __read_array(__front_64, Int64, Packet::Type::ArrayInt64);
+}
+
+PacketReader& PacketReader::operator>> (std::vector<float>& dt)
+{
+    __read_array(__front_32, float, Packet::Type::ArrayFloat);
+}
+
+PacketReader& PacketReader::operator>> (std::vector<double>& dt)
+{
+    __read_array(__front_64, double, Packet::Type::ArrayDouble);
 }
 
 std::ostream& operator<< (std::ostream& os, const Packet& p)

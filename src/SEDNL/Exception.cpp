@@ -89,14 +89,46 @@ const char* TemplateException<PacketExceptionT>::what() const noexcept
         return "The next element of this packet is an Int32.";
     case PacketExceptionT::Int64Expected:
         return "The next element of this packet is an Int64.";
+    case PacketExceptionT::FloatExpected:
+        return "The next element of this packet is a Float.";
+    case PacketExceptionT::DoubleExpected:
+        return "The next element of this packet is a Double.";
+    case PacketExceptionT::StringExpected:
+        return "The next element of this packet is a String.";
+    case PacketExceptionT::ObjectExpected:
+        return "The next element of this packet is an Object.";
+
+    case PacketExceptionT::ArrayUInt8Expected:
+        return "The next element of this packet is an ArrayUInt8.";
+    case PacketExceptionT::ArrayUInt16Expected:
+        return "The next element of this packet is an ArrayUInt16.";
+    case PacketExceptionT::ArrayUInt32Expected:
+        return "The next element of this packet is an ArrayUInt32.";
+    case PacketExceptionT::ArrayUInt64Expected:
+        return "The next element of this packet is an ArrayUInt64.";
+    case PacketExceptionT::ArrayInt8Expected:
+        return "The next element of this packet is an ArrayInt8.";
+    case PacketExceptionT::ArrayInt16Expected:
+        return "The next element of this packet is an ArrayInt16.";
+    case PacketExceptionT::ArrayInt32Expected:
+        return "The next element of this packet is an ArrayInt32.";
+    case PacketExceptionT::ArrayInt64Expected:
+        return "The next element of this packet is an ArrayInt64.";
+    case PacketExceptionT::ArrayFloatExpected:
+        return "The next element of this packet is a ArrayFloat.";
+    case PacketExceptionT::ArrayDoubleExpected:
+        return "The next element of this packet is a ArrayDouble.";
+
     case PacketExceptionT::EmptyObject:
         return "The object you tried to read/write to/from the packet"
             "haven't any data field.";
     case PacketExceptionT::WrongSizedObject:
         return "The object stored in this packet doesn't mach the size"
             " of your object.";
+    case PacketExceptionT::WrongArray:
+        return "Empty array or array too big.";
     default:
-        return "Unknown exception.";
+        return "Unknown exception";
     }
 }
 

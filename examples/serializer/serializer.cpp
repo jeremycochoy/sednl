@@ -108,7 +108,7 @@ int main(int, char*[])
 
     //Serialize the Foo instance
     Packet p;
-    first.serialize(p);
+    p << first; //same as first.serialize(p);
 
     // Here, you would probably send the packet through the network
 
@@ -117,7 +117,7 @@ int main(int, char*[])
 
     //Unserialize into the new instance
     PacketReader r(p);
-    second.unserialize(r);
+    r >> second; //same as second.unserialize(r);
 
     //Display the content
     second.show();
