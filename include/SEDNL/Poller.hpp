@@ -70,10 +70,18 @@ public:
     bool next_event(Event& e) noexcept;
 
 private:
+#ifdef SEDNL_BACKEND_EPOLL
     FileDescriptor m_epoll;
-    std::unique_ptr<struct epoll_event[]> m_events;
+    struct epoll_event m_events[MAX_EVENTS];
     unsigned int m_nb_events;
     unsigned int m_idx;
+#endif
+#ifdef SEDNL_BACKEND_SELECT
+    fd_set readfds;
+    fd_set errorfds;
+    unsigned int m_nb_events;
+    unsigned int m_idx;
+#endif
 };
 
 } // namespace SedNL

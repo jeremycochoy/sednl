@@ -33,10 +33,10 @@ namespace SedNL
 {
 
 Poller::Poller()
-    :m_epoll(-1), m_events(new struct epoll_event[MAX_EVENTS]),
+    :m_epoll(-1),
      m_nb_events(0), m_idx(0)
 {
-    bzero(m_events.get(), sizeof(*m_events.get()) * MAX_EVENTS);
+    bzero(m_events, sizeof(*m_events) * MAX_EVENTS);
     //Create epoll
     m_epoll = epoll_create(EPOLL_SIZE);
     if (m_epoll < 0)
@@ -67,7 +67,7 @@ bool Poller::add_fd(FileDescriptor fd) noexcept
     return true;
 }
 
-void remove_fd(FileDescriptor /*fd*/) noexcept
+void Poller::remove_fd(FileDescriptor /*fd*/) noexcept
 {
     /*
       EPOLL automatically remove closed FDs.
@@ -76,7 +76,7 @@ void remove_fd(FileDescriptor /*fd*/) noexcept
 
 int Poller::wait_for_events(int timeout) noexcept
 {
-    m_nb_events = epoll_wait(m_epoll, m_events.get(), MAX_EVENTS, timeout);
+    m_nb_events = epoll_wait(m_epoll, m_events, MAX_EVENTS, timeout);
     m_idx = 0;
     return m_nb_events;
 }
