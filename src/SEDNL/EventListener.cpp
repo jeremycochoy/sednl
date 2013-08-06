@@ -502,25 +502,23 @@ void EventListener::run_imp()
     {
         //Wait ~100ms, and check events (this allow to EventListener::join
         // even if nothing happens)
-        int n = m_poller->wait_for_events(100);
+        m_poller->wait_for_events(100);
 
-        for (int i = 0; i < n; i++)
+        Poller::Event e;
+        while (m_poller->next_event(e))
         {
-            FileDescriptor event_fd = m_epoll_events[i].data.fd;
             //An error occured or the connection was closed
-            if (m_epoll_events[i].events & EPOLLERR
-                || m_epoll_events[i].events & EPOLLHUP
-                || m_epoll_events[i].events & EPOLLRDHUP)
+            if (e.is_close)
             {
-                if (is_server(event_fd))
-                    close_server(event_fd);
+                if (is_server(e.fd))
+                    close_server(e.fd);
                 else
-                    close_connection(event_fd);
+                    close_connection(e.fd);
                 continue;
             }
 
             //SHOULDN't HAPPEN! If it happens, we ignore it
-            if (!(m_epoll_events[i].events & EPOLLIN))
+            if (!e.is_read)
             {
 #ifndef SEDNL_NOWARN
                 std::cerr << "Warning: "
@@ -530,18 +528,18 @@ void EventListener::run_imp()
                 continue;
             }
 
-            //So, it's a read avent.
+            //So, it's a read event.
 
             //Incoming connection
-            if (is_server(event_fd))
+            if (is_server(e.fd))
             {
-                accept_connections(event_fd);
+                accept_connections(e.fd);
                 continue;
             }
             //It's a read on a connection
             else
             {
-                read_connection(event_fd);
+                read_connection(e.fd);
                 continue;
             }
         }
@@ -556,9 +554,7 @@ void EventListener::run_imp()
         consumer->join();
 
     //Release resources
-    close(m_epoll);
-    m_epoll = -1;
-    m_epoll_events.release();
+    m_poller.release();
     m_internal_connections.clear();
     clear_consumer_links();
 }

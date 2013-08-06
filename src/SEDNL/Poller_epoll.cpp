@@ -35,7 +35,8 @@ namespace SedNL
 {
 
 Poller::Poller()
-    :m_epoll(-1), m_events(new struct epoll_event[MAX_EVENTS])
+    :m_epoll(-1), m_events(new struct epoll_event[MAX_EVENTS]),
+     m_nb_events(0), m_idx(0)
 {
     bzero(m_events.get(), sizeof(*m_events.get()) * MAX_EVENTS);
     //Create epoll
@@ -51,7 +52,7 @@ Poller::~Poller()
 }
 
 //Close fd befor throwing, to prevent resource licking
-bool Poller::add_fd(FileDescriptor fd)
+bool Poller::add_fd(FileDescriptor fd) noexcept
 {
     struct epoll_event event;
 
@@ -68,19 +69,36 @@ bool Poller::add_fd(FileDescriptor fd)
     return true;
 }
 
-void remove_fd(FileDescriptor /*fd*/)
+void remove_fd(FileDescriptor /*fd*/) noexcept
 {
     /*
       EPOLL automatically remove closed FDs.
     */
 }
 
-int Poller::wait_for_events(int timeout)
+int Poller::wait_for_events(int timeout) noexcept
 {
-    return epoll_wait(m_epoll, m_events.get(), MAX_EVENTS, timeout);
+    m_nb_events = epoll_wait(m_epoll, m_events.get(), MAX_EVENTS, timeout);
+    m_idx = 0;
+    return m_nb_events;
 }
 
-//getNextEvent
+bool Poller::next_event(Event& e) noexcept
+{
+    if (m_idx >= m_nb_events)
+        return false;
+
+    e.fd = m_events[m_idx].data.fd;
+    //An error occured or the connection was closed
+    e.is_close = m_events[m_idx].events & EPOLLERR
+        || m_events[m_idx].events & EPOLLHUP
+        || m_events[m_idx].events & EPOLLRDHUP;
+    //Ready to read
+    e.is_read = m_events[m_idx].events & EPOLLIN;
+
+    m_idx++;
+    return true;
+}
 
 } // namespace SedNL
 

@@ -249,9 +249,6 @@ private:
     //! \brief Return the Connection associated, or an empty shared_ptr.
     std::shared_ptr<Connection> get_connection(FileDescriptor fd) noexcept;
 
-    FileDescriptor m_epoll;
-    std::unique_ptr<struct epoll_event[]> m_epoll_events;
-
     //! \brief Called by a client when disconnected by disconnect()
     //!
     //! Called with cn->m_mutex locked!

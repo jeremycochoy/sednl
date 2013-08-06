@@ -50,17 +50,30 @@ public:
     SEDNL_API Poller();
     SEDNL_API ~Poller();
 
+    struct Event
+    {
+        FileDescriptor fd;
+        bool is_close;
+        bool is_read;
+    };
+
     //! \brief In case of fails, it close the poller
-    bool add_fd(FileDescriptor fd);
+    bool add_fd(FileDescriptor fd) noexcept;
 
     //! \brief Remove a file descriptor from the poll
-    void remove_fd(FileDescriptor fd);
+    void remove_fd(FileDescriptor fd) noexcept;
 
     //! \brief Return the number of events
-    int wait_for_events(int timeout);
+    int wait_for_events(int timeout) noexcept;
+
+    //! \brief return true and modify e if they are one more event
+    bool next_event(Event& e) noexcept;
+
 private:
     FileDescriptor m_epoll;
     std::unique_ptr<struct epoll_event[]> m_events;
+    unsigned int m_nb_events;
+    unsigned int m_idx;
 };
 
 } // namespace SedNL
