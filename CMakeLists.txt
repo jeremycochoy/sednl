@@ -54,6 +54,11 @@ project(SEDNL)
 # C++ 2011 flags
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -ggdb -W -Wall -fvisibility=hidden")
 
+#Remove warning from the use of gcc's __attribute__ visibility with 'enum class'.
+if(CMAKE_COMPILER_IS_GNUCXX)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-attributes")
+endif(CMAKE_COMPILER_IS_GNUCXX)
+
 #C 99 flag
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99 -ggdb -W -Wall -fvisibility=hidden")
 
