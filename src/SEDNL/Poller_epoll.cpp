@@ -19,17 +19,15 @@
 //     3. This notice may not be removed or altered from any source
 //        distribution.
 
+// This is the linux epoll backend
+
+// This flag is activated at compile time
+#ifdef SEDNL_BACKEND_EPOLL
+
 #include "SEDNL/Types.hpp"
 #include "SEDNL/Poller.hpp"
 
 #include <cstring>
-
-//DEBUG:
-#define SEDNL_BACKEND_EPOLL
-
-// This is the linux epoll backend
-
-#ifdef SEDNL_BACKEND_EPOLL
 
 namespace SedNL
 {
@@ -102,4 +100,4 @@ bool Poller::next_event(Event& e) noexcept
 
 } // namespace SedNL
 
-#endif /* !SEDNL_BACKEND_EPOLL */
+#endif /* SEDNL_BACKEND_EPOLL */

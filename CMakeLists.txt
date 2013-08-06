@@ -7,6 +7,47 @@ option(BUILD_DOC "Tell if the documentation target (make doc) should be added" O
 option(BUILD_TEST "Compile the test applications and allow to run them with 'make test'" ON)
 option(BUILD_EXAMPLES "Tell if we should also compile the examples" ON)
 
+###################
+# Backend options #
+###################
+
+#EPoll
+option(BACKEND_EPOLL "Activate the EPOLL backend (linux only)" ON)
+
+#Select
+option(BACKEND_SELECT "Activate the select back-end (windows, linux, macosx, bsd)" OFF)
+
+#WSAPoll
+if(WIN32)
+  option(BACKEND_WSAPOLL "Activate the WSAPOLL backend (windows > Vista only)" OFF)
+endif(WIN32)
+
+# Set up backends
+
+if((BACKEND_SELECT AND BACKEND_EPOLL)
+    OR (BACKEND_WSAPOLL AND BACKEND_EPOLL)
+    OR (BACKEND_SELECT AND BACKEND_WSAPOLL))
+  message(SEND_ERROR "You can't have more than one backend!")
+endif()
+
+if(NOT (BACKEND_SELECT OR BACKEND_EPOLL OR BACKEND_WSAPOLL))
+  message(SEND_ERROR "You should choose a backend. The default one is EPOLL for linux, SELECT for windows")
+endif()
+
+
+if(BACKEND_SELECT)
+  add_definitions(-DSEDNL_BACKEND_SELECT)
+endif(BACKEND_SELECT)
+
+if(BACKEND_EPOLL)
+  add_definitions(-DSEDNL_BACKEND_EPOLL)
+endif(BACKEND_EPOLL)
+
+if(BACKEND_WSAPOLL)
+  add_definitions(-DSEDNL_BACKEND_WSAPOLL)
+endif(BACKEND_WSAPOLL)
+
+
 # Project name
 project(SEDNL)
 
