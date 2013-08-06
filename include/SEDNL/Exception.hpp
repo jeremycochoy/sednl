@@ -71,8 +71,8 @@ namespace SedNL
         EventCollision,
         AlreadyListened,
         WrongParentListener,
-        EpollCreateFailed,
-        EpollCtlFailed,
+        PollerCreateFailed,
+        PollerAddFailed,
     };
 
     //////////////////////////////////////////////

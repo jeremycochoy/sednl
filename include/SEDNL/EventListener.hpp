@@ -24,25 +24,12 @@
 
 #include "SEDNL/SocketHelp.hpp"
 
-#ifndef EPOLL_SIZE
-# define EPOLL_SIZE MAX_CONNECTIONS
-#endif /* !EPOLL_SIZE */
-#ifndef MAX_EVENTS
-# define MAX_EVENTS 256
-#endif /* !MAX_EVENTS */
-
-#ifdef SEDNL_WINDOWS
-#else /* SEDNL_WINDOWS */
-
-#include <sys/epoll.h>
-
-#endif /* SEDNL_WINDOWS */
-
 #include "SEDNL/Export.hpp"
 #include "SEDNL/Exception.hpp"
 #include "SEDNL/ThreadHelp.hpp"
 #include "SEDNL/Types.hpp"
 #include "SEDNL/Event.hpp"
+#include "SEDNL/Poller.hpp"
 
 #include <queue>
 #include <map>
@@ -59,6 +46,7 @@ class TCPServer;
 class EventConsumer;
 class Event;
 class ConsumerDescriptor;
+class Poller;
 
 class SEDNL_API EventListener
 {
@@ -313,6 +301,8 @@ private:
 
     //! \brief Called by EventConsumer's set_producer
     void add_consumer(EventConsumer*) noexcept;
+
+    std::unique_ptr<Poller> m_poller;
 
     friend class Connection;
     friend class TCPServer;

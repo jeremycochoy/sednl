@@ -25,6 +25,7 @@
 #include "SEDNL/TCPServer.hpp"
 #include "SEDNL/TCPClient.hpp"
 #include "SEDNL/SocketHelp.hpp"
+#include "SEDNL/Poller.hpp"
 
 #include <algorithm>
 #include <cstring>
@@ -108,23 +109,6 @@ void EventListener::detach(Connection &connection) throw(std::bad_alloc, EventEx
     __detach(m_connections, &connection);
 }
 
-//Close fd befor throwing, to prevent resource licking
-static inline
-bool __epoll_add_fd(int epoll, int fd)
-{
-    struct epoll_event event;
-    bzero(&event, sizeof(event));
-    event.data.fd = fd;
-    event.events = EPOLLIN | EPOLLRDHUP | EPOLLET;
-    int err = epoll_ctl(epoll, EPOLL_CTL_ADD, fd, &event);
-    if (err < 0)
-    {
-        close(fd);
-        return false;
-    }
-    return true;
-}
-
 void EventListener::clear_consumer_links() noexcept
 {
     m_on_connect_link = nullptr;
@@ -158,27 +142,19 @@ void EventListener::run_init()
     // LINUX IMPLEMENTATION //
     //////////////////////////
 
-    //Here, we can throw a std::bad_alloc
-    auto events = std::unique_ptr<struct epoll_event[]>
-        (new struct epoll_event[MAX_EVENTS]);
-
-    //Create epoll
-    FileDescriptor epoll = epoll_create(EPOLL_SIZE);
-    if (epoll < 0)
-        throw EventException(EventExceptionT::EpollCreateFailed);
-
     //If __epoll_add_fd fail, it close the epoll file descriptor and
     // throw an exception.
+    std::unique_ptr<Poller> poller(new Poller);
 
     //Register servers
     for (auto server : m_servers)
-        if(server->is_connected() && !__epoll_add_fd(epoll, server->m_fd))
-            throw EventException(EventExceptionT::EpollCtlFailed);
+        if(server->is_connected() && !poller->add_fd(server->m_fd))
+            throw EventException(EventExceptionT::PollerAddFailed);
 
     //Register clients
     for (auto connection : m_connections)
-        if(connection->is_connected() && !__epoll_add_fd(epoll, connection->m_fd))
-            throw EventException(EventExceptionT::EpollCtlFailed);
+        if(connection->is_connected() && !poller->add_fd(connection->m_fd))
+            throw EventException(EventExceptionT::PollerAddFailed);
 
     // Associate registered consumer to their events (so that
     // we can wake_up the condition_variable).
@@ -196,9 +172,9 @@ void EventListener::run_init()
             link_consumer(consumer, slot_pair.second, m_links[slot_pair.first]);
     }
 
-    //Keep the event pool
-    std::swap(m_epoll_events, events);
-    m_epoll = epoll;
+    //Keep the event poll
+    using std::swap;
+    swap(m_poller, poller);
 }
 
 bool EventListener::is_server(FileDescriptor fd) const noexcept
@@ -326,7 +302,7 @@ void EventListener::accept_connections(FileDescriptor fd)
             return;
         }
 
-        if (__epoll_add_fd(m_epoll, cfd) < 0)
+        if (m_poller->add_fd(cfd) < 0)
         {
 #ifndef SEDNL_NOWARN
             std::cerr << "Warning: "
@@ -526,7 +502,7 @@ void EventListener::run_imp()
     {
         //Wait ~100ms, and check events (this allow to EventListener::join
         // even if nothing happens)
-        int n = epoll_wait(m_epoll, m_epoll_events.get(), MAX_EVENTS, 100);
+        int n = m_poller->wait_for_events(100);
 
         for (int i = 0; i < n; i++)
         {

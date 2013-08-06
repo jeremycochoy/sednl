@@ -149,10 +149,11 @@ const char* TemplateException<EventExceptionT>::what() const noexcept
     case EventExceptionT::WrongParentListener:
         return "The element on wich detach() was called wasn't attached"
             " to this listener.";
-    case EventExceptionT::EpollCreateFailed:
-        return "Failed to create the EPoll.";
-    case EventExceptionT::EpollCtlFailed:
-        return "Failed to register filedescriptors into epoll.";
+    case EventExceptionT::PollerCreateFailed:
+        return "Failed to create the Poller (epoll, select, WSAPoll).";
+    case EventExceptionT::PollerAddFailed:
+        return "Failed to register filedescriptors into the Poller"
+            " (epoll, select, WSAPoll).";
     default:
         return "Unknown exception.";
     }
