@@ -106,7 +106,7 @@ void slot_call(S& s, Args& ...args)
                   << "the following exception: "
                   << std::endl;
         std::cerr << "    "
-                  << e.what();
+                  << e.what()
                   << std::endl;
 #endif /* !SEDNL_NOWARN */
     }
