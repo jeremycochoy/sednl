@@ -111,7 +111,6 @@ void EventListener::detach(Connection &connection) throw(std::bad_alloc, EventEx
 
 void EventListener::clear_consumer_links() noexcept
 {
-    m_on_connect_link = nullptr;
     m_on_disconnect_link = nullptr;
     m_on_server_disconnect_link = nullptr;
     m_on_event_link = nullptr;
@@ -163,7 +162,6 @@ void EventListener::run_init()
     {
 #define link(slot, link) link_consumer(consumer, consumer->slot, link);
 
-        link(m_on_connect_slot, m_on_connect_link);
         link(m_on_disconnect_slot, m_on_disconnect_link);
         link(m_on_server_disconnect_slot, m_on_server_disconnect_link);
         link(m_on_event_slot, m_on_event_link);
@@ -323,6 +321,7 @@ void EventListener::accept_connections(FileDescriptor fd)
         }
 
         //Create the connection
+        std::shared_ptr<Connection> connection;
         InternalList::iterator it;
         try
         {
@@ -337,6 +336,9 @@ void EventListener::accept_connections(FileDescriptor fd)
             //There shouldn't be an old cfd file descriptor
             assert(p.second == true);
             it = p.first;
+
+            using std::swap;
+            swap(connection, cn);
         }
         //Catch std::bad_alloc and others
         catch(std::exception &e)
@@ -354,22 +356,28 @@ void EventListener::accept_connections(FileDescriptor fd)
         }
 
         //Create the event
-        if (!m_connected_queue.push(it->second))
+        try
+        {
+            if (m_on_connect_slot)
+                m_on_connect_slot(*connection);
+        }
+        catch(std::exception& e)
         {
 #ifndef SEDNL_NOWARN
-            std::cerr << "Warning: "
-                      << "Can't create 'connected' event "
-                      << cfd
+            std::cerr << "Warning: Non handled exception caugh inside on_connect."
+                      << std::endl;
+            std::cerr << "    "
+                      << e.what()
                       << std::endl;
 #endif /* !SEDNL_NOWARN */
-            m_internal_connections.erase(it);
-            close(cfd);
-            m_poller->remove_fd(cfd);
-            return;
         }
-
-        //Notify the consumer
-        notify(m_on_connect_link);
+        catch(...)
+        {
+#ifndef SEDNL_NOWARN
+            std::cerr << "Warning: Non handled exception caugh inside on_connect."
+                      << std::endl;
+#endif /* !SEDNL_NOWARN */
+        }
 
         //We did it!
     }

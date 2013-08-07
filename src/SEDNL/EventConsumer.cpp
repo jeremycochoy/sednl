@@ -159,7 +159,6 @@ void EventConsumer::consume_events() noexcept
 {
     CnEvent e;
 
-    PROCESS_MESSAGES(m_on_connect_slot, m_producer->m_connected_queue);
     PROCESS_MESSAGES(m_on_server_disconnect_slot,
                      m_producer->m_server_disconnected_queue);
     PROCESS_MESSAGES(m_on_disconnect_slot, m_producer->m_disconnected_queue);

@@ -102,9 +102,6 @@ public:
     //! \brief Join the consumer thread, and stop consuming events.
     void join();
 
-    //! \brief Bind the connect event
-    inline Slot<Connection&>& on_connect();
-
     //! \brief Bind the disconnect event
     inline Slot<Connection&>& on_disconnect();
 
@@ -133,7 +130,6 @@ private:
 
     // Member data
     EventListener* m_producer;
-    Slot<Connection&> m_on_connect_slot;
     Slot<Connection&> m_on_disconnect_slot;
     Slot<TCPServer&> m_on_server_disconnect_slot;
     Slot<Connection&, const Event&> m_on_event_slot;

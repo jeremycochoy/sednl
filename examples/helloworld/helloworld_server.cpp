@@ -73,10 +73,10 @@ int main(int /* argc */, char* /* argv */[])
 
         //Create a event listener
         EventListener listener(server);
+        listener.on_connect().set_function(on_connect);
 
         //Create a event consumer
         EventConsumer consumer(listener);
-        consumer.on_connect().set_function(on_connect);
         consumer.on_disconnect().set_function(on_disconnect);
         consumer.on_event().set_function(on_event);
 

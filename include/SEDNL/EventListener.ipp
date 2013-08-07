@@ -19,32 +19,17 @@
 //     3. This notice may not be removed or altered from any source
 //        distribution.
 
-#ifndef EVENT_CONSUMER_IPP_
-#define EVENT_CONSUMER_IPP_
+#ifndef EVENT_LISTENER_IPP_
+#define EVENT_LISTENER_IPP_
 
 namespace SedNL
 {
 
-Slot<Connection&>& EventConsumer::on_disconnect()
+Slot<Connection&>& EventListener::on_connect()
 {
-    return m_on_disconnect_slot;
-}
-
-Slot<TCPServer&>& EventConsumer::on_server_disconnect()
-{
-    return m_on_server_disconnect_slot;
-}
-
-Slot<Connection&, const Event&>& EventConsumer::on_event()
-{
-    return m_on_event_slot;
-}
-
-Slot<Connection&, const Event&>& EventConsumer::bind(std::string event_name)
-{
-    return m_slots[event_name];
+    return m_on_connect_slot;
 }
 
 } // namespace SedNL
 
-#endif /* !EVENT_CONSUMER_IPP_ */
+#endif /* !EVENT_LISTENER_IPP_ */

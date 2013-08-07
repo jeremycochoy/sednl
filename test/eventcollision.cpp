@@ -39,7 +39,7 @@ int main()
             EventListener listener;
             EventConsumer consumer(listener);
 
-            consumer.on_connect().set_function([](Connection&){});
+            listener.on_connect().set_function([](Connection&){});
             consumer.on_disconnect().set_function([](Connection&){});
             consumer.on_server_disconnect().set_function([](TCPServer&){});
             consumer.on_event().set_function([](Connection&, const Event&){});
@@ -70,14 +70,13 @@ int main()
             listener.join();                                    \
                                                                 \
             ASSERT(false, "Test case " n " failed: "            \
-           "collision not detected on on_connect");             \
+                   "collision not detected.");                  \
         }                                                       \
         catch(Exception& e)                                     \
         {}                                                      \
     }
 
-    //Test cases 2-6 : Should throw
-    TEST_THROW("2", on_connect(), [](Connection&){});
+    //Test cases 3-6 : Should throw
     TEST_THROW("3", on_disconnect(), [](Connection&){});
     TEST_THROW("4", on_server_disconnect(), [](TCPServer&){});
     TEST_THROW("5", on_event(), [](Connection&, const Event&){});

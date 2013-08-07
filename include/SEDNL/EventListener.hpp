@@ -30,6 +30,7 @@
 #include "SEDNL/Types.hpp"
 #include "SEDNL/Event.hpp"
 #include "SEDNL/Poller.hpp"
+#include "SEDNL/Slot.hpp"
 
 #include <queue>
 #include <map>
@@ -165,7 +166,19 @@ public:
     //! It means that each disconnected event will be processed.
     void join();
 
+    //! \brief Bind the connect event
+    //!
+    //! The connect event is guaranted to be processed imediately when
+    //! a connection is received from the server.
+    //!
+    //! Since the callback is executed in the listener thread,
+    //! you would like to keep the callback small and fast.
+    inline Slot<Connection&>& on_connect();
+
 private:
+    //! \brief the connection event slot
+    Slot<Connection&> m_on_connect_slot;
+
     //! \brief The EventListener thread's main function.
     void run_imp();
 
@@ -196,8 +209,6 @@ private:
     typedef SafeQueue<TCPServer *> ServerQueue;
     typedef std::map<std::string, EventQueue> EventMap;
 
-    //! \brief The 'connected' event queue
-    ConnectionQueue m_connected_queue;
     //! \brief The 'disconnected' event queue
     ConnectionQueue m_disconnected_queue;
     //! \brief The 'server disconnected' queue
@@ -269,7 +280,6 @@ private:
     ConsumerList m_consumers;
 
     // Links to consumers (by event)
-    ConsumerDescriptor* m_on_connect_link;
     ConsumerDescriptor* m_on_disconnect_link;
     ConsumerDescriptor* m_on_server_disconnect_link;
     ConsumerDescriptor* m_on_event_link;
@@ -307,5 +317,7 @@ private:
 };
 
 } // namespace SedNL
+
+#include "EventListener.ipp"
 
 #endif /* !EVENT_LISTENER_HPP_ */
