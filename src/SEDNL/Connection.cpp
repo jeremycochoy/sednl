@@ -86,9 +86,10 @@ void Connection::send(const Event& event)
         ByteArray data = event.pack();
         const char* data_ptr = reinterpret_cast<const char *>(&data[0]);
 
-        long count = 0;
-        long tmp_count = 1;
-        while ((tmp_count = write(m_fd, data_ptr + count, data.size() - count)) > 0)
+        unsigned long count = 0;
+        unsigned long tmp_count = 1;
+        while (data.size() != count
+               && (tmp_count = write(m_fd, data_ptr + count, data.size() - count)) > 0)
             count += tmp_count;
         if (data.size() != static_cast<ByteArray::size_type>(count))
         {

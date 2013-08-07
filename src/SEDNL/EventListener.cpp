@@ -209,7 +209,8 @@ void EventListener::close_server(FileDescriptor fd)
             tell_disconnected(s);
             //Close the server
             close(fd);
-            m_poller->remove_fd(fd);
+            if (m_poller)
+                m_poller->remove_fd(fd);
             return;
         }
     }
@@ -262,7 +263,8 @@ void EventListener::close_connection(FileDescriptor fd)
         return;
 
     cn->safe_disconnect();
-    m_poller->remove_fd(fd);
+    if (m_poller)
+        m_poller->remove_fd(fd);
 
     //Create the server disconnected event
     disconnected_event(m_disconnected_queue, cn, cn->get_fd(), "connection");
@@ -380,7 +382,6 @@ void EventListener::read_connection(FileDescriptor fd)
     char buf[512];
     ssize_t count = 0;
     Event e;
-
     std::shared_ptr<Connection> cn = get_connection(fd);
 
     while (true)
@@ -488,7 +489,8 @@ void EventListener::tell_disconnected(Connection *cn) noexcept
     if (!ptr)
         return;
 
-    m_poller->remove_fd(ptr->m_fd);
+    if (m_poller)
+        m_poller->remove_fd(ptr->m_fd);
     disconnected_event(m_disconnected_queue, ptr, ptr->m_fd, "connection");
 }
 

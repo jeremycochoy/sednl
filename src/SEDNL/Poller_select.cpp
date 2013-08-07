@@ -22,10 +22,13 @@
 // This is the linux epoll backend
 
 // This flag is activated at compile time
-#ifdef SEDNL_BACKEND_EPOLL
+#ifdef SEDNL_BACKEND_SELECT
 
 #include "SEDNL/Types.hpp"
 #include "SEDNL/Poller.hpp"
+
+#include <sys/select.h>
+#include <sys/time.h>
 
 #include <cstring>
 
@@ -33,70 +36,76 @@ namespace SedNL
 {
 
 Poller::Poller()
-    :m_epoll(-1),
-     m_nb_events(0), m_idx(0)
+    :m_nfds(-1), m_idx(0)
 {
-    bzero(m_events, sizeof(*m_events) * MAX_EVENTS);
-    //Create epoll
-    m_epoll = epoll_create(EPOLL_SIZE);
-    if (m_epoll < 0)
-        throw EventException(EventExceptionT::PollerCreateFailed);
+    FD_ZERO(&m_readfds);
+
+    //Useless since we have m_tmp_xx = m_xx.
+    //But for safety...
+    FD_ZERO(&m_tmp_readfds);
 }
 
 Poller::~Poller()
-{
-    if (m_epoll != -1)
-        close(m_epoll);
-}
+{}
 
 //Close fd befor throwing, to prevent resource licking
 bool Poller::add_fd(FileDescriptor fd) noexcept
 {
-    struct epoll_event event;
-
-    if (m_epoll < 0)
+    if (fd >= FD_SETSIZE || fd < 0)
         return false;
 
-    bzero(&event, sizeof(event));
-    event.data.fd = fd;
-    event.events = EPOLLIN | EPOLLRDHUP | EPOLLET;
+    FD_SET(fd, &m_readfds);
 
-    const int err = epoll_ctl(m_epoll, EPOLL_CTL_ADD, fd, &event);
-    if (err < 0)
-        return false;
+#ifndef SEDNL_WINDOWS
+    if (m_nfds <= fd)
+        m_nfds = fd + 1;
+#else
+    m_nfds = FD_SET_SIZE;
+#endif
     return true;
 }
 
-void Poller::remove_fd(FileDescriptor /*fd*/) noexcept
+void Poller::remove_fd(FileDescriptor fd) noexcept
 {
-    /*
-      EPOLL automatically remove closed FDs.
-    */
+    if (fd >= FD_SETSIZE || fd < 0)
+        return;
+
+    FD_CLR(fd, &m_readfds);
 }
 
 void Poller::wait_for_events(int timeout) noexcept
 {
-    m_nb_events = epoll_wait(m_epoll, m_events, MAX_EVENTS, timeout);
-    m_idx = 0;
+    struct timeval tv;
+    tv.tv_sec = 0;
+    tv.tv_usec = timeout * 1000;
+
+    m_tmp_readfds = m_readfds;
+    select(m_nfds, &m_tmp_readfds, nullptr, nullptr, &tv);
+
+    m_idx = -1;
 }
 
 bool Poller::next_event(Event& e) noexcept
 {
-    if (m_idx >= m_nb_events)
+    if (m_idx >= FD_SETSIZE)
         return false;
 
-    e.fd = m_events[m_idx].data.fd;
-    //An error occured or the connection was closed
-    e.is_close = m_events[m_idx].events & EPOLLERR
-        || m_events[m_idx].events & EPOLLHUP
-        || m_events[m_idx].events & EPOLLRDHUP;
-    //Ready to read
-    e.is_read = m_events[m_idx].events & EPOLLIN;
+    while (++m_idx < m_nfds)
+    {
+        if (FD_ISSET(m_idx, &m_tmp_readfds))
+            break;
+    }
 
-    m_idx++;
+    if (m_idx >= m_nfds)
+        return false;
+
+    e.fd = m_idx;
+    e.is_close = false;
+    e.is_read = FD_ISSET(m_idx, &m_tmp_readfds);
+
     return true;
 }
 
 } // namespace SedNL
 
-#endif /* SEDNL_BACKEND_EPOLL */
+#endif /* SEDNL_BACKEND_SELECT */

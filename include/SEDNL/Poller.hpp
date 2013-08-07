@@ -64,7 +64,7 @@ public:
     void remove_fd(FileDescriptor fd) noexcept;
 
     //! \brief Return the number of events
-    int wait_for_events(int timeout) noexcept;
+    void wait_for_events(int timeout) noexcept;
 
     //! \brief return true and modify e if they are one more event
     bool next_event(Event& e) noexcept;
@@ -77,10 +77,10 @@ private:
     unsigned int m_idx;
 #endif
 #ifdef SEDNL_BACKEND_SELECT
-    fd_set readfds;
-    fd_set errorfds;
-    unsigned int m_nb_events;
-    unsigned int m_idx;
+    fd_set m_readfds;
+    fd_set m_tmp_readfds;
+    int m_nfds;
+    int m_idx;
 #endif
 };
 

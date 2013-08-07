@@ -20,6 +20,7 @@ option(BACKEND_SELECT "Activate the select back-end (windows, linux, macosx, bsd
 #WSAPoll
 if(WIN32)
   option(BACKEND_WSAPOLL "Activate the WSAPOLL backend (windows > Vista only)" OFF)
+  add_definitions(-DSEDNL_WINDOWS)
 endif(WIN32)
 
 # Set up backends

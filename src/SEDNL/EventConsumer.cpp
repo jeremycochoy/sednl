@@ -103,10 +103,11 @@ void slot_call(S& s, Args& ...args)
                   << std::endl;
         std::cerr << "    "
                   << "It means that one of your callback throw"
-                  << "the following exception:"
+                  << "the following exception: "
                   << std::endl;
         std::cerr << "    "
                   << e.what();
+                  << std::endl;
 #endif /* !SEDNL_NOWARN */
     }
     catch(...)
