@@ -64,7 +64,7 @@ bool Poller::add_fd(FileDescriptor fd) noexcept
 #endif /* !SEDNL_WINDOWS */
 
     FD_SET(fd, &m_readfds);
-    std::cout << "add fd " << fd << std::endl;
+
 #ifndef SEDNL_WINDOWS
     if (m_nfds <= fd)
         m_nfds = fd + 1;
