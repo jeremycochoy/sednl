@@ -30,6 +30,17 @@
 #include "SEDNL/Packet.hpp"
 
 #ifdef SEDNL_WINDOWS
+
+#include <winsock2.h>
+#include <Ws2tcpip.h>
+#include <stdio.h>
+
+typedef unsigned long long n_64;
+typedef u_long   n_32;
+typedef u_short  n_16;
+
+#define close(s) closesocket(s)
+
 #else /* SEDNL_WINDOWS */
 
 #include <sys/types.h>
@@ -70,22 +81,32 @@ void warn_lock(std::exception& e, const char* name)
 //! \brief Set a socket file descriptor non blocking
 inline bool set_non_blocking(int fd)
 {
+#ifdef SEDNL_WINDOWS
+    u_long st = 1;
+    ioctlsocket(fd, FIONBIO, &st);
+#else
     int flags = 0;
     if ((flags = fcntl(fd, F_GETFL)) < 0)
         return false;
     if (fcntl(fd, F_SETFL, flags | O_NONBLOCK) != 0)
         return false;
+#endif
     return true;
 }
 
 //! \brief Set a socket file descriptor blocking
 inline bool set_blocking(int fd)
 {
+#ifdef SEDNL_WINDOWS
+    u_long st = 0;
+    ioctlsocket(fd, FIONBIO, &st);
+#else
     int flags = 0;
     if ((flags = fcntl(fd, F_GETFL)) < 0)
         return false;
     if (fcntl(fd, F_SETFL, flags & ~O_NONBLOCK) != 0)
         return false;
+#endif
     return true;
 }
 
@@ -93,8 +114,8 @@ inline bool set_blocking(int fd)
 //! See TCPServer::connect() and TCPClient::connect().
 template<typename T, typename U>
 void retrieve_addresses(std::string sa_node, int sa_port,
-                        struct addrinfo& hints,
-                        struct addrinfo*& addrs,
+    struct ::addrinfo& hints,
+    struct ::addrinfo*& addrs,
                         T& resources_keeper, U deleter)
 {
     bool should_try_again = true;

@@ -27,8 +27,16 @@
 #include "SEDNL/Types.hpp"
 #include "SEDNL/Poller.hpp"
 
+#ifdef SEDNL_WINDOWS
+
+#define FD_SET_SIZE FD_SETSIZE
+
+#else /* SEDNL_WINDOWS */
+
 #include <sys/select.h>
 #include <sys/time.h>
+
+#endif /* SEDNL_WINDOWS */
 
 #include <cstring>
 
@@ -48,29 +56,32 @@ Poller::Poller()
 Poller::~Poller()
 {}
 
-//Close fd befor throwing, to prevent resource licking
 bool Poller::add_fd(FileDescriptor fd) noexcept
 {
+#ifndef SEDNL_WINDOWS
     if (fd >= FD_SETSIZE || fd < 0)
         return false;
+#endif /* !SEDNL_WINDOWS */
 
     FD_SET(fd, &m_readfds);
-
+    std::cout << "add fd " << fd << std::endl;
 #ifndef SEDNL_WINDOWS
     if (m_nfds <= fd)
         m_nfds = fd + 1;
-#else
+#else /* !SEDNL_WINDOWS */
     m_nfds = FD_SET_SIZE;
-#endif
+#endif /* !SEDNL_WINDOWS */
     return true;
 }
 
 void Poller::remove_fd(FileDescriptor fd) noexcept
 {
+#ifndef SEDNL_WINDOWS
     if (fd >= FD_SETSIZE || fd < 0)
         return;
+#endif /* !SEDNL_WINDOWS */
 
-    FD_CLR(fd, &m_readfds);
+    FD_CLR(reinterpret_cast<unsigned int&>(fd), &m_readfds);
 }
 
 void Poller::wait_for_events(int timeout) noexcept
@@ -90,6 +101,7 @@ bool Poller::next_event(Event& e) noexcept
     if (m_idx >= FD_SETSIZE)
         return false;
 
+#ifndef SEDNL_WINDOWS
     while (++m_idx < m_nfds)
     {
         if (FD_ISSET(m_idx, &m_tmp_readfds))
@@ -102,6 +114,20 @@ bool Poller::next_event(Event& e) noexcept
     e.fd = m_idx;
     e.is_close = false;
     e.is_read = FD_ISSET(m_idx, &m_tmp_readfds);
+#else /* !SEDNL_WINDOWS */
+    while (++m_idx < FD_SETSIZE)
+    {
+      if (FD_ISSET(m_readfds.fd_array[m_idx], &m_tmp_readfds))
+            break;
+    }
+
+    if (m_idx >= FD_SETSIZE)
+        return false;
+
+    e.fd = m_tmp_readfds.fd_array[m_idx];
+    e.is_close = false;
+    e.is_read = FD_ISSET(m_readfds.fd_array[m_idx], &m_tmp_readfds);
+#endif /* !SEDNL_WINDOWS */
 
     return true;
 }

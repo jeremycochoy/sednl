@@ -276,14 +276,25 @@ void EventListener::accept_connections(FileDescriptor fd)
 {
     while (true)
     {
-        struct sockaddr in_addr;
-        socklen_t in_len = sizeof(in_addr);
-        FileDescriptor cfd = accept(fd, &in_addr, &in_len);
+#ifdef SEDNL_WINDOWS
+        FileDescriptor cfd = accept(fd, nullptr, nullptr);
+#else /* SEDNL_WINDOWS */
+        sockaddr_in in_addr;
+        int in_len = sizeof(in_addr);
+        FileDescriptor cfd = accept(fd, (sockaddr*)&in_addr, &in_len);
+#endif /* SEDNL_WINDOWS */
         if (cfd < 0)
         {
+#ifndef SEDNL_WINDOWS
             //No more fd
             if (errno == EAGAIN || errno == EWOULDBLOCK)
                 break;
+#else /* !SEDNL_WINDOWS */
+	    auto errc = WSAGetLastError();
+            if (errc == WSAEWOULDBLOCK)
+	        break;
+#endif /* !SEDNL_WINDOWS */
+
 #ifndef SEDNL_NOWARN
             std::cerr << "Warning: "
                       << "Can't accept on server socket "
@@ -394,13 +405,19 @@ void EventListener::read_connection(FileDescriptor fd)
 
     while (true)
     {
-        count = read(fd, buf, sizeof(buf));
+      count = recv(fd, buf, sizeof(buf), 0);
 
         if (count == -1)
         {
             //End of stream
+#ifndef SEDNL_WINDOWS
             if (errno == EAGAIN)
                 break;
+#else /* !SEDNL_WINDOWS */
+	    auto errc = WSAGetLastError();
+	    if (errc == WSAEWOULDBLOCK)
+	      break;
+#endif /* !SEDNL_WINDOWS */
 
             //Error
 #ifndef SEDNL_NOWARN
@@ -524,7 +541,7 @@ void EventListener::run_imp()
 
         Poller::Event e;
         while (m_poller->next_event(e))
-        {
+	  {
             //An error occured or the connection was closed
             if (e.is_close)
             {

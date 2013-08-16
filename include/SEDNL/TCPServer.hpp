@@ -26,6 +26,11 @@
 #include "SEDNL/SocketInterface.hpp"
 
 #ifdef SEDNL_WINDOWS
+
+#include <winsock2.h>
+#include <Ws2tcpip.h>
+#include <stdio.h>
+
 #else /* SEDNL_WINDOWS */
 
 #include <sys/types.h>

@@ -89,7 +89,7 @@ void Connection::send(const Event& event)
         unsigned long count = 0;
         unsigned long tmp_count = 1;
         while (data.size() != count
-               && (tmp_count = write(m_fd, data_ptr + count, data.size() - count)) > 0)
+               && (tmp_count = ::send(m_fd, data_ptr + count, data.size() - count, 0)) > 0)
             count += tmp_count;
         if (data.size() != static_cast<ByteArray::size_type>(count))
         {

@@ -50,7 +50,7 @@ int main(int /* argc */, char* /* argv */[])
     try
     {
         //Create a client and connect it to localhost, port 1337
-        TCPClient client(SocketAddress(1337, "localhost"));
+      TCPClient client(SocketAddress(1337, "localhost"));
 
         //Create a packet
         Packet packet;

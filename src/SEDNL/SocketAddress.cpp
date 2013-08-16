@@ -46,5 +46,32 @@ bool SocketAddress::is_server_valid() const noexcept
     return (!m_empty);
 }
 
+} // namespace SedNL
+
+#ifdef SEDNL_WINDOWS
+
+#include "windows.h"
+
+namespace SedNL
+{
+
+/* Windows need initialisation/cleanup to use sockets. */
+struct SocketInit
+{
+    SocketInit()
+    {
+        WSADATA v;
+        WSAStartup(MAKEWORD(2, 2), &v);
+    }
+    ~SocketInit()
+    {
+        WSACleanup();
+    }
+};
+
+SocketInit windows_socket_init;
+
 }
+
+#endif /* SEDNL_WINDOWS */
 

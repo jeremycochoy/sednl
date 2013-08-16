@@ -24,12 +24,20 @@ if(BUILD_STATIC)
   add_library(SEDNLStatic STATIC ${SOURCE_FILES})
   set_target_properties(SEDNLStatic PROPERTIES OUTPUT_NAME ${SEDNL_LIBRARY_NAME})
 
+  if(WIN32)
+    target_link_libraries(SEDNLStatic "Ws2_32.lib")
+  endif(WIN32)
+
   install(TARGETS SEDNLStatic DESTINATION lib)
 endif(BUILD_STATIC)
 
 if(BUILD_DYNAMIC)
   add_library(SEDNLDyn SHARED ${SOURCE_FILES})
   set_target_properties(SEDNLDyn PROPERTIES OUTPUT_NAME ${SEDNL_LIBRARY_NAME})
+
+  if(WIN32)
+    target_link_libraries(SEDNLDyn "Ws2_32.lib")
+  endif(WIN32)
 
   install(TARGETS SEDNLDyn DESTINATION lib)
 endif(BUILD_DYNAMIC)

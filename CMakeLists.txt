@@ -53,7 +53,7 @@ endif(BACKEND_WSAPOLL)
 project(SEDNL)
 
 # C++ 2011 flags
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -ggdb -W -Wall -fvisibility=hidden")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -ggdb -W -Wall -fvisibility=hidden")
 
 #Remove warning from the use of gcc's __attribute__ visibility with 'enum class'.
 if(CMAKE_COMPILER_IS_GNUCXX)

@@ -45,7 +45,7 @@ void TCPClient::connect(const SocketAddress& socket_address, int timeout)
     if (!socket_address.is_client_valid())
         throw NetworkException(NetworkExceptionT::InvalidSocketAddress);
 
-    struct addrinfo hints;
+    struct ::addrinfo hints;
     std::memset(&hints, 0, sizeof(hints));
     hints.ai_family = AF_UNSPEC; // Both IPV6 and IPV4
     hints.ai_socktype = SOCK_STREAM; // TCP
@@ -81,8 +81,7 @@ void TCPClient::connect(const SocketAddress& socket_address, int timeout)
             //Success
             if (blocking_connect(fd, addr))
             {
-                std::cout << "ici";
-                //set_non_blocking(fd);
+                set_non_blocking(fd);
                 break;
             }
         }
@@ -109,12 +108,12 @@ void TCPClient::connect(const SocketAddress& socket_address, int timeout)
     m_fd = fd;
 }
 
-bool TCPClient::blocking_connect(FileDescriptor fd, struct addrinfo *addr)
+  bool TCPClient::blocking_connect(FileDescriptor fd, struct addrinfo *addr)
 {
     return (::connect(fd, addr->ai_addr, addr->ai_addrlen) == 0);
 }
 
-bool TCPClient::non_blocking_connect(FileDescriptor fd, struct addrinfo *addr,
+  bool TCPClient::non_blocking_connect(FileDescriptor fd, struct addrinfo *addr,
                                      int timeout)
 {
     //Set non-blocking
@@ -124,6 +123,17 @@ bool TCPClient::non_blocking_connect(FileDescriptor fd, struct addrinfo *addr,
     //Try to connect
     int errcode = ::connect(fd, addr->ai_addr, addr->ai_addrlen);
 
+#ifdef SEDNL_WINDOWS
+    auto errc = WSAGetLastError();
+
+    //We are lucky, it worked instantaneously
+    if (errc == WSAEISCONN)
+        return true;
+
+    //Failed to start processing connect
+    if (errc != WSAEALREADY && errc != WSAEWOULDBLOCK)
+        return false;
+#else /* SEDNL_WINDOWS */
     //We are lucky, it worked instantaneously
     if (errcode == 0)
         return true;
@@ -131,6 +141,7 @@ bool TCPClient::non_blocking_connect(FileDescriptor fd, struct addrinfo *addr,
     //Failed to start processing connect
     if (EINPROGRESS != errno)
         return false;
+#endif /* SEDNL_WINDOWS */
 
     //We have to wait a bit with select
     fd_set wfds;
@@ -149,7 +160,11 @@ bool TCPClient::non_blocking_connect(FileDescriptor fd, struct addrinfo *addr,
     int so_error = -1;
     int optlen = sizeof(so_error);
 
+#ifdef SEDNL_WINDOWS
+    if (getsockopt(fd, SOL_SOCKET, SO_ERROR, (char*)&so_error, (socklen_t*)&optlen) == -1)
+#else /* SEDNL_WINDOWS */
     if (getsockopt(fd, SOL_SOCKET, SO_ERROR, &so_error, (socklen_t*)&optlen) == -1)
+#endif /* SEDNL_WINDOWS */
         return false;
 
     //The connection is valid if so_error == 0
