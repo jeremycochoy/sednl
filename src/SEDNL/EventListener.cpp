@@ -280,7 +280,7 @@ void EventListener::accept_connections(FileDescriptor fd)
         FileDescriptor cfd = accept(fd, nullptr, nullptr);
 #else /* SEDNL_WINDOWS */
         sockaddr_in in_addr;
-        int in_len = sizeof(in_addr);
+        socklen_t in_len = sizeof(in_addr);
         FileDescriptor cfd = accept(fd, (sockaddr*)&in_addr, &in_len);
 #endif /* SEDNL_WINDOWS */
         if (cfd < 0)
