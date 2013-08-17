@@ -19,7 +19,7 @@
 //     3. This notice may not be removed or altered from any source
 //        distribution.
 
-// This is the linux epoll backend
+// This is the linux/windows select backend
 
 // This flag is activated at compile time
 #ifdef SEDNL_BACKEND_SELECT
