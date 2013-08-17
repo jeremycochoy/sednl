@@ -417,8 +417,14 @@ void EventListener::read_connection(FileDescriptor fd)
                 break;
 #else /* !SEDNL_WINDOWS */
 	    auto errc = WSAGetLastError();
+
 	    if (errc == WSAEWOULDBLOCK)
-	      break;
+            break;
+        //With the WSAPoll poller, we have some of those events.
+        //As a good window developer, we avoid the error message just
+        // by hidding it.
+        if (errc == WSAECONNRESET)
+            break;
 #endif /* !SEDNL_WINDOWS */
 
             //Error

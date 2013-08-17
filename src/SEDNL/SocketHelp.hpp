@@ -31,6 +31,13 @@
 
 #ifdef SEDNL_WINDOWS
 
+#ifdef SEDNL_BACKEND_WSAPOLL
+#if _WIN32_WINNT <= 0x0600
+#undef _WIN32_WINNT
+#define _WIN32_WINNT 0x0600
+#endif /* _WIN32_WINNT <= 0x0600 */
+#endif /* SEDNL_BACKEND_WSAPOLL */
+
 #include <winsock2.h>
 #include <Ws2tcpip.h>
 #include <stdio.h>
@@ -40,6 +47,17 @@ typedef u_long   n_32;
 typedef u_short  n_16;
 
 #define close(s) closesocket(s)
+
+#ifdef SEDNL_BACKEND_WSAPOLL
+
+#ifdef __MINGW64__
+#define SEDNL_DEF_WSAPOLL
+#endif /* __MINGW64__ */
+#ifdef __MINGW32__
+#define SEDNL_DEF_WSAPOLL
+#endif /* __MINGW32__ */
+
+#endif /* SEDNL_BACKEND_WSAPOLL */
 
 #else /* SEDNL_WINDOWS */
 

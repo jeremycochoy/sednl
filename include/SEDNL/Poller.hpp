@@ -73,8 +73,14 @@ private:
 #ifdef SEDNL_BACKEND_EPOLL
     FileDescriptor m_epoll;
     struct epoll_event m_events[MAX_EVENTS];
-    unsigned int m_nb_events;
-    unsigned int m_idx;
+    int m_nb_events;
+    int m_idx;
+#endif
+#ifdef SEDNL_BACKEND_WSAPOLL
+    WSAPOLLFD m_events[MAX_EVENTS];
+    int m_nb_events;
+    int m_idx;
+    int m_cur_ev;
 #endif
 #ifdef SEDNL_BACKEND_SELECT
     fd_set m_readfds;

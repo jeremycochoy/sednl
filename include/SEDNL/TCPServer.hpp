@@ -24,6 +24,7 @@
 
 #include "SEDNL/Export.hpp"
 #include "SEDNL/SocketInterface.hpp"
+#include "SEDNL/SocketHelp.hpp"
 
 #ifdef SEDNL_WINDOWS
 

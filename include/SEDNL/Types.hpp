@@ -57,6 +57,7 @@ namespace SedNL
 
     //! A (socket) file descriptor
     typedef int FileDescriptor;
+
 }
 
 #endif /* !TYPES_HPP_ */

@@ -115,18 +115,31 @@ bool Poller::next_event(Event& e) noexcept
     e.is_close = false;
     e.is_read = FD_ISSET(m_idx, &m_tmp_readfds);
 #else /* !SEDNL_WINDOWS */
+    // We do not use FD_ISSET to have a O(n)
+    // algorithm.
+
+    // The fact that a winows socket can be any number make that we can't
+    // use m_idx as the file descriptor.
+    // We have to look it from the fd_set struct.
+
+    // We should avoid everything after fd_count
+    // valid events of m_tmp_readfd.
+    static unsigned int nb_fd = 0;
+    if (m_idx == -1)
+        nb_fd = -1;
+
     while (++m_idx < FD_SETSIZE)
     {
-      if (FD_ISSET(m_readfds.fd_array[m_idx], &m_tmp_readfds))
+        if (m_tmp_readfds.fd_array[m_idx] && m_tmp_readfds.fd_array[m_idx] != INVALID_SOCKET)
             break;
     }
 
-    if (m_idx >= FD_SETSIZE)
+    if (m_idx >= FD_SETSIZE || ++nb_fd >= m_tmp_readfds.fd_count)
         return false;
 
     e.fd = m_tmp_readfds.fd_array[m_idx];
     e.is_close = false;
-    e.is_read = FD_ISSET(m_readfds.fd_array[m_idx], &m_tmp_readfds);
+    e.is_read = true;
 #endif /* !SEDNL_WINDOWS */
 
     return true;

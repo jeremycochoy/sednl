@@ -12,10 +12,18 @@ option(BUILD_EXAMPLES "Tell if we should also compile the examples" ON)
 ###################
 
 #EPoll
-option(BACKEND_EPOLL "Activate the EPOLL backend (linux only)" ON)
+if(WIN32)
+  option(BACKEND_EPOLL "Activate the EPOLL backend (linux only)" OFF)
+else(WIN32)
+  option(BACKEND_EPOLL "Activate the EPOLL backend (linux only)" ON)
+endif(WIN32)
 
 #Select
-option(BACKEND_SELECT "Activate the select back-end (windows, linux, macosx, bsd)" OFF)
+if(WIN32)
+  option(BACKEND_SELECT "Activate the select back-end (windows, linux, macosx, bsd)" ON)
+else(WIN32)
+  option(BACKEND_SELECT "Activate the select back-end (windows, linux, macosx, bsd)" OFF)
+endif(WIN32)
 
 #WSAPoll
 if(WIN32)

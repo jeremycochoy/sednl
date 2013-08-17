@@ -22,6 +22,7 @@
 #ifndef TCP_CLIENT_HPP_
 #define TCP_CLIENT_HPP_
 
+#include "SEDNL/SocketHelp.hpp"
 #include "SEDNL/Export.hpp"
 #include "SEDNL/Connection.hpp"
 
