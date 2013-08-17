@@ -159,13 +159,8 @@ void EventConsumer::consume_events() noexcept
 {
     CnEvent e;
 
-    PROCESS_MESSAGES(m_on_server_disconnect_slot,
-                     m_producer->m_server_disconnected_queue);
-    PROCESS_MESSAGES(m_on_disconnect_slot, m_producer->m_disconnected_queue);
-
     for (auto& pair : m_slots)
         PROCESS_MESSAGES(pair.second, m_producer->m_events[pair.first]);
-
 
     if (m_on_event_slot)
     {
@@ -173,12 +168,15 @@ void EventConsumer::consume_events() noexcept
         for (auto& pair : m_producer->m_events)
         {
             //If there is no consumer assigned
-            if (!m_producer->m_links[pair.first])
+            if (m_producer->m_links.find(pair.first) == m_producer->m_links.end())
                 //Process it
                 PROCESS_MESSAGES(m_on_event_slot, pair.second);
         }
     }
 
+    PROCESS_MESSAGES(m_on_server_disconnect_slot,
+                     m_producer->m_server_disconnected_queue);
+    PROCESS_MESSAGES(m_on_disconnect_slot, m_producer->m_disconnected_queue);
 }
 
 void EventConsumer::run_imp()

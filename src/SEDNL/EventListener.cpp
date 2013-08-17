@@ -407,7 +407,7 @@ void EventListener::read_connection(FileDescriptor fd)
 
     while (true)
     {
-      count = recv(fd, buf, sizeof(buf), 0);
+        count = recv(fd, buf, sizeof(buf), 0);
 
         if (count == -1)
         {
@@ -416,15 +416,15 @@ void EventListener::read_connection(FileDescriptor fd)
             if (errno == EAGAIN)
                 break;
 #else /* !SEDNL_WINDOWS */
-	    auto errc = WSAGetLastError();
+            auto errc = WSAGetLastError();
 
-	    if (errc == WSAEWOULDBLOCK)
-            break;
+            if (errc == WSAEWOULDBLOCK)
+                break;
         //With the WSAPoll poller, we have some of those events.
         //As a good window developer, we avoid the error message just
         // by hidding it.
-        if (errc == WSAECONNRESET)
-            break;
+            if (errc == WSAECONNRESET)
+                break;
 #endif /* !SEDNL_WINDOWS */
 
             //Error
@@ -464,7 +464,8 @@ void EventListener::read_connection(FileDescriptor fd)
             }
             else
             {
-                if (m_links.find(e.get_name()) != m_links.end())
+                if (m_links.find(e.get_name()) != m_links.end()
+                    && m_links[e.get_name()])
                     notify(m_links[e.get_name()]);
                 else
                     notify(m_on_event_link);

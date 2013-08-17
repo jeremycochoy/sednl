@@ -284,6 +284,8 @@ private:
     ConsumerDescriptor* m_on_server_disconnect_link;
     ConsumerDescriptor* m_on_event_link;
     typedef std::map<std::string, ConsumerDescriptor*> DescriptorMap;
+    //Do not use [] with m_links if you don't want to add a new link.
+    //Use m_links.find().
     DescriptorMap m_links;
 
     //! \brief Add links to the consumer descriptor for the right events
