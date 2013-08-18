@@ -30,9 +30,6 @@
 namespace SedNL
 {
 
-class Packet;
-class RingBuf;
-
 class SEDNL_API Event
 {
 public:
@@ -84,6 +81,15 @@ private:
     friend RingBuf;
 };
 
+//! \brief Allow creating easily new events.
+//!
+//! You can create an event with make_event(event_name, arg1, arg2, ...).
+//!
+//! \return The newly created event.
+template<typename... Args>
+Event make_packet(const std::string& event_name, Args... args);
+
+//! \brief Display an Event in a JSON like format.
 SEDNL_API std::ostream&  operator<< (std::ostream& os, const Event& e);
 
 } // namespace SedNL

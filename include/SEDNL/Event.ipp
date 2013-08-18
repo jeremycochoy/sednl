@@ -43,6 +43,13 @@ const Packet& Event::get_packet() const noexcept
     return m_packet;
 }
 
+template<typename... Args>
+inline
+Event make_event(const std::string& event_name, Args... args)
+{
+    return Event(event_name, make_packet(args...));
+}
+
 } //namespace SedNL
 
 #endif /* !EVENT_IPP_ */
