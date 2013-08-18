@@ -1,4 +1,4 @@
-sednl
+SedNL
 =====
 
 Simple Event Driven Network Library
