@@ -33,51 +33,58 @@ namespace SedNL
 class SEDNL_API Event
 {
 public:
-    //! \brief Construct an empty event
+    //! \brief Construct an empty event.
     //!
-    //! \param[in] name Name of the event
+    //! \param[in] name Name of the event.
     inline Event(std::string name = "");
 
-    //! \brief Construct an event from a packet
+    //! \brief Construct an event from a packet.
     //!
-    //! \param[in] name Name of the event
-    //! \param[in] packet The data attached
+    //! \param[in] name Name of the event.
+    //! \param[in] packet The data attached.
     inline Event(std::string name, const Packet& packet);
 
-    //! \brief Return a reference to the packet
+    //! \brief Return a reference to the packet handled.
     //!
-    //! \return The currently handled packet
+    //! Once this event is destructed, the packet will be
+    //! destructed and the reference invalid.
+    //!
+    //! \return The currently handled packet.
     inline const Packet& get_packet() const noexcept;
 
-    //! \brief Return the event name
+    //! \brief Return the event name.
     //!
     //! Notice it's actualy a const reference to
     //! the handler. Make a copy if you expect
     //! the event to die before the string.
     //!
-    //! \return A handler to the event name
+    //! \return A handler to the event name.
     inline const std::string& get_name() const noexcept;
 
-    //! \brief Compute the binary header of an event
+    //! \brief Compute the binary header of an event.
     //!
-    //! Low level function.
+    //! Low level function, used by the implementation.
+    //!
+    //! You probably don't want to use it.
     //!
     //! \return The binary header.
     ByteArray get_header() const;
 
-    //! \brief Compute a binary event ready to send
+    //! \brief Compute a binary string representing the event.
     //!
     //! Low level function. Return the concatenated value
     //! of Event::get_header() and Packet::get_data().
     //!
-    //! \return The serialised event as a binary string
+    //! \return The serialised event as a binary string.
     ByteArray pack() const;
 
 private:
+    //! \brief Event name.
     std::string m_name;
+
+    //! \brief Packet containing data.
     Packet m_packet;
 
-    //! Allowed to create an event from data
     friend RingBuf;
 };
 
@@ -97,3 +104,29 @@ SEDNL_API std::ostream&  operator<< (std::ostream& os, const Event& e);
 #include "SEDNL/Event.ipp"
 
 #endif /* !EVENT_HPP_ */
+
+////////////////////////////////////////////////////////////
+//!
+//! \class SedNL::Event
+//!
+//! The Event object is an event as send by TCPConnect::send
+//! or received by EventListener and given to your callbacks
+//! through EventConsumer.
+//!
+//! Event are basically a "named Packet", where Packet contain
+//! the data you want to send / you just received.
+//!
+//! \code
+//!
+//! //Create an event
+//! Event event("hit_monster", make_packet(damage));
+//!
+//! //Send it
+//! connection.send(event);
+//!
+//! //Extract data from an event (make a mutable copy)
+//! std::string event_name = event.get_name();
+//! Packet packet = event.get_packet();
+//!
+//! \endcode
+////////////////////////////////////////////////////////////
