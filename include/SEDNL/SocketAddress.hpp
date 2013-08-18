@@ -29,22 +29,37 @@
 namespace SedNL
 {
 
+////////////////////////////////////////////////////////////
+//! \brief Contains an inet address (ip(v4 or v6) and port).
+////////////////////////////////////////////////////////////
 class SEDNL_API SocketAddress
 {
 public:
-    //! \brief Construct an empty SocketAddress
+    //! \brief Construct an empty SocketAddress.
     SocketAddress();
 
-    //! \brief Construct a SocketAddress containing only a port number
+    //! \brief Construct a SocketAddress containing only a port number.
+    //!
+    //! Save the port number and store and empty server_name.
+    //!
+    //! \param[in] port Port number.
     SocketAddress(int port);
 
-    //! \brief Construct a SocketAddress containing port and server name
+    //! \brief Construct a SocketAddress containing port and server name.
+    //!
+    //! \param[in] port Port number.
+    //! \param[in] server_name IP or host name. Examples : google.fr,
+    //!                        127.0.0.1, localhost, etc.
     SocketAddress(int port, std::string server_name);
 
-    //! \brief Tell if it's a valid TCPClient SocketAddress
+    //! \brief Tell if it's a valid TCPClient SocketAddress.
+    //!
+    //! \return True if it's a valid address for TCPClient, False otherwise.
     bool is_client_valid() const noexcept;
 
-    //! \brief Tell if it's a valid TCPServer SocketAddress
+    //! \brief Tell if it's a valid TCPServer SocketAddress.
+    //!
+    //! \return True if it's a valid address for TCPServer, False otherwise.
     bool is_server_valid() const noexcept;
 
 private:
@@ -64,3 +79,11 @@ private:
 } // namespace SedNL
 
 #endif /* !SOCKET_ADDRESS_HPP_ */
+
+////////////////////////////////////////////////////////////
+//!
+//! \class SedNL::SocketAddress
+//!
+//! For use cases, see TCPClient and TCPServer.
+//!
+////////////////////////////////////////////////////////////

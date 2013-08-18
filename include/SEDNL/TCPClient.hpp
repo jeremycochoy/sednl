@@ -22,6 +22,8 @@
 #ifndef TCP_CLIENT_HPP_
 #define TCP_CLIENT_HPP_
 
+#include "SEDNL/sednlfwd.hpp"
+
 #include "SEDNL/SocketHelp.hpp"
 #include "SEDNL/Export.hpp"
 #include "SEDNL/Connection.hpp"
@@ -44,8 +46,6 @@
 
 namespace SedNL
 {
-
-class SocketAddress;
 
 ////////////////////////////////////////////////////////////
 //! \brief Create a connection to a server
@@ -120,7 +120,7 @@ private:
 //!
 //! The TCPClient class is a client TCP connection to a server.
 //! It's basicaly the object used in a client application.
-//! Server application use a TCPServer object.
+//! Server applications use a TCPServer object.
 //! (But you can mix TCPClient and TCPServer objects in the same
 //! application if you want.)
 //!

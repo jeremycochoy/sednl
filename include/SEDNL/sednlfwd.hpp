@@ -31,6 +31,8 @@ class EventListener;
 class EventConsumer;
 class Packet;
 class Event;
+class SocketAddress;
+class SocketInterface;
 
 } //namespace SedNL
 
