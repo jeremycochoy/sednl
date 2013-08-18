@@ -32,29 +32,31 @@ namespace SedNL
 {
 
 ///////////////////////////////////////////////////////////////
-//! \brief Describe functions that connect, client and server
-//!        should have (like a connected/unconnected state).
+//! \brief Describe functions that Connection, TCPClient and
+//!        TCPServer should have (like a connected
+//!        / unconnected state).
 ///////////////////////////////////////////////////////////////
 class SEDNL_API SocketInterface : NonCopyable
 {
 public:
-    //! \brief Initialise member data
+    //! \brief Initialise member data.
     inline SocketInterface() noexcept;
 
     //! \brief Should be implemented by client/server/connection.
     virtual void disconnect() noexcept = 0;
 
     //! \brief Tell if the client/server/connection is connected.
+    //! \return True if connected, false otherwise.
     inline bool is_connected() const noexcept;
 
-    //! \brief Call is_connected()
+    //! \brief Call is_connected().
     inline operator bool() const noexcept;
 
 protected:
-    //! \brief Connection state
+    //! \brief Connection state.
     bool m_connected;
 
-    //! \brief Socket file descriptor
+    //! \brief Socket file descriptor.
     FileDescriptor m_fd;
 
     //! \brief Mutex used for synchronisation while sending events,
@@ -69,3 +71,12 @@ protected:
 #include "SEDNL/SocketInterface.ipp"
 
 #endif /* !SOCKET_INTERFACE_HPP_ */
+
+////////////////////////////////////////////////////////////
+//!
+//! \class SedNL::SocketInterface
+//!
+//! For use cases, see TCPClient, TCPServer and Connecton
+//!  objects.
+//!
+////////////////////////////////////////////////////////////

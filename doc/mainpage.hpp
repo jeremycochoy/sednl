@@ -60,6 +60,8 @@
 //!
 //! A simple client :
 //! \code
+//! #include <SEDNL/sednl.hpp>
+//!
 //! using namespace SedNL;
 //!
 //! int main(int argc, char* argv[])
@@ -76,6 +78,8 @@
 //!
 //! And a simple server :
 //! \code
+//! #include <SEDNL/sednl.hpp>
+//!
 //! using namespace SedNL;
 //!
 //! void on_disconnect(Connection&)

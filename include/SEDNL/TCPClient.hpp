@@ -45,10 +45,7 @@
 namespace SedNL
 {
 
-    class SocketAddress;
-
-    //! A binary array
-    typedef std::vector<Byte> ByteArray;
+class SocketAddress;
 
 ////////////////////////////////////////////////////////////
 //! \brief Create a connection to a server
@@ -56,10 +53,10 @@ namespace SedNL
 class SEDNL_API TCPClient : public Connection
 {
 public:
-    //! \brief Create an empty client
+    //! \brief Create an empty client.
     TCPClient() noexcept;
 
-    //! \brief Create a connection to the SocketAddress
+    //! \brief Create a connection to the SocketAddress.
     //!
     //! Calling this constructor is the same as creating an
     //! empty TCPClient and then calling TCPClient::connect().
@@ -69,7 +66,7 @@ public:
     //!                    See TCPClient::connect.
     TCPClient(const SocketAddress& socket_address, int timeout = 1000);
 
-    //! \brief Connect to a SocketAddress
+    //! \brief Connect to a SocketAddress.
     //!
     //! If the connection was already openend, it thrown
     //! an exception. You can check if the connection was already
@@ -79,6 +76,7 @@ public:
     //! If you want to block until sucess or failure
     //! (it's discouraged), put 0 or -1. You'll then
     //! have a "blocking" connect call.
+    //!
     //! You should know that it doesn't means that
     //! connect will return after timeout miliseconds.
     //! Actualy, connect will try with each available
@@ -88,7 +86,7 @@ public:
     //! google.fr have 4 ips, it will try at least 4
     //! times.
     //!
-    //! \param[in] socket_address Server and port to connect to
+    //! \param[in] socket_address Server and port to connect to.
     //! \param[in] timeout The socket timeout in miliseconds.
     void connect(const SocketAddress& socket_address, int timeout = 1000);
 
@@ -98,17 +96,17 @@ private:
     //!
     //! If the function success, fd is now a blocking socket.
     //!
-    //! \param[in] fd The socket file descriptor
-    //! \param[in] addr The addrinfo description of the server
+    //! \param[in] fd The socket file descriptor.
+    //! \param[in] addr The addrinfo description of the server.
     bool blocking_connect(FileDescriptor fd, struct addrinfo *addr);
 
     //! \brief Try to connect with connect, select, and non blocking socket.
     //!
     //! If the function success, fd is now a nonblocking socket.
     //!
-    //! \param[in] fd The socket file descriptor
-    //! \param[in] addr The addrinfo description of the server
-    //! \param[in] timeout Select's timeout in ms
+    //! \param[in] fd The socket file descriptor.
+    //! \param[in] addr The addrinfo description of the server.
+    //! \param[in] timeout Select's timeout in ms.
     bool non_blocking_connect(FileDescriptor fd, struct addrinfo *addr, int timeout);
 };
 
@@ -119,6 +117,12 @@ private:
 ////////////////////////////////////////////////////////////
 //!
 //! \class SedNL::TCPClient
+//!
+//! The TCPClient class is a client TCP connection to a server.
+//! It's basicaly the object used in a client application.
+//! Server application use a TCPServer object.
+//! (But you can mix TCPClient and TCPServer objects in the same
+//! application if you want.)
 //!
 //! Here is a basic use of a TCPClient :
 //!

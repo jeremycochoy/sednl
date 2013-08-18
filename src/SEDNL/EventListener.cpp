@@ -550,7 +550,7 @@ void EventListener::run_imp()
 
         Poller::Event e;
         while (m_poller->next_event(e))
-	  {
+        {
             //An error occured or the connection was closed
             if (e.is_close)
             {
