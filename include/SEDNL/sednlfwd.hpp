@@ -30,6 +30,7 @@ class TCPServer;
 class EventListener;
 class EventConsumer;
 class Packet;
+class PacketReader;
 class RingBuf;
 class Event;
 class SocketAddress;

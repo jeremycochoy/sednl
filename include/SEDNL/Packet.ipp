@@ -55,6 +55,8 @@ PacketReader::operator bool() const noexcept
 
 Packet::Type PacketReader::next_type() const noexcept
 {
+    if (!*this)
+        return Packet::Type::Unknown;
     return static_cast<Packet::Type>(m_p->m_data[m_idx]);
 }
 

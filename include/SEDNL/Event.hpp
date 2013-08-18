@@ -30,6 +30,9 @@
 namespace SedNL
 {
 
+////////////////////////////////////////////////////////////
+//! \brief A user event.
+////////////////////////////////////////////////////////////
 class SEDNL_API Event
 {
 public:
@@ -92,11 +95,17 @@ private:
 //!
 //! You can create an event with make_event(event_name, arg1, arg2, ...).
 //!
+//! \param[in] event_name Name of the event.
+//! \param[in] args Values to write into the packet.
 //! \return The newly created event.
 template<typename... Args>
 Event make_packet(const std::string& event_name, Args... args);
 
 //! \brief Display an Event in a JSON like format.
+//!
+//! \param[out] os The output stream.
+//! \param[in] e The packet to show.
+//! \return The output stream.
 SEDNL_API std::ostream&  operator<< (std::ostream& os, const Event& e);
 
 } // namespace SedNL

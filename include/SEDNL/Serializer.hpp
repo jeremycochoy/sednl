@@ -29,11 +29,6 @@
 namespace SedNL
 {
 
-    class Packet;
-    class PacketReader;
-    template <class T>
-    struct Serializer;
-
 //! \brief Allow object to be serialized
 //!
 //! To allow one of you class to be serialisable, you can

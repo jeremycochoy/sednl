@@ -39,7 +39,8 @@
 //!
 //! This library is intended for application that need to send events
 //! that should'nt be lost, and should always be received in the same order they
-//! was send. Basicaly, online games.
+//! was send (althought they will be processed asynchronously).
+//! Basicaly, online games.
 //! For this purpose, the library rely on TCP.
 //!
 //! This library was developed to provide a reliable and simple API
@@ -49,11 +50,13 @@
 //!
 //! \section tcp_udp TCP or UDP ?
 //!
-//! If you need the ability to lost event, and the order do not count,
-//! then you may want to look at a UDP library. SedNL provide reliability,
-//! and reliability has a cost (small, but not null). If you need to send
+//! If you need the ability to lost event (yes, you need it for online game
+//! with real time battle. Missed events should be ignored, so that the game
+//! can continue), and the order of reception / emission do not count,
+//! then you may want to look at a UDP library. SedNL provide reliability and a
+//! high level API, and it has a cost (small, but not null). If you need to send
 //! a huge amount of events (let's says hundread by second by client), then
-//! maybe you'll prefer a UDP library. Otherwise, you'll probably prefer
+//! maybe you'll prefer an UDP library. Otherwise, you'll probably prefer
 //! the reliability and simple API provided by SedNL.
 //!
 //! \section example A short example
