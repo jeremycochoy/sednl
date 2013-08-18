@@ -49,6 +49,10 @@ int main()
         p << (UInt64)4;
         p << 42.0f;
         p << 3.14;
+        std::vector<unsigned char> vec {1, 2, 3, 4};
+        p << vec;
+        std::vector<double> vec2 {1., 2., 3., 4.};
+        p << vec2;
 
         ASSERT(p.is_valid(), "Valid packet with is_valid() == false!");
     }
@@ -204,6 +208,8 @@ int main()
 
             r >> u1 >> u2 >> u3 >> u4 >> u5 >> u6 >> u7 >> u8 >> u9 >> u10 >> u11;
 
+            ASSERT(p.is_valid(), "Vectors : Valid packet with is_valid() == false!");
+
             ASSERT(v1 == u1, "UInt8 vector corrupted");
             ASSERT(v2 == u2, "Int8 vector corrupted");
             ASSERT(v3 == u3, "UInt16 vector corrupted");
@@ -215,6 +221,106 @@ int main()
             ASSERT(v9 == u9, "Int64 vector corrupted");
             ASSERT(v10 == u10, "Float vector corrupted");
             ASSERT(v11 == u11, "Double vector corrupted");
+        }
+        catch(PacketException& e)
+        {
+            std::cout << (int)e.get_type() << std::endl;
+            ASSERT(false, "An exception occured : " << e.what());
+        }
+    }
+
+    //Test case 6 : Check that >> . << = id for some serialized objects
+    {
+        Packet p;
+
+        try
+        {
+            std::vector<UInt8>   v1({1, 2});
+            std::vector<Int8>    v2({1, 2});
+            std::vector<UInt16>  v3({1, 2});
+            std::vector<Int16>   v4({1, 2});
+            std::vector<Int32>   v5({1, 2});
+            std::vector<UInt32>  v6({1, 2});
+            std::vector<Int32>   v7({1, 2});
+            std::vector<UInt64>  v8({1, 2});
+            std::vector<Int64>   v9({1, 2});
+            std::vector<float>  v10({1.f, 2.f});
+            std::vector<double> v11({1., 2.});
+
+            std::string in = "Hello";
+            Int8 a1 = 42;
+            Int16 a2 = 2;
+            Int32 a3 = 3;
+            Int64 a4 = 4;
+            UInt8 a5 = 42;
+            UInt16 a6 = 2;
+            UInt32 a7 = 3;
+            UInt64 a8 = 4;
+            float af = 42.0f;
+            double ad = 3.14;
+
+            write_as_object(p, v1, v2, v3, v4, v5,
+                            in, a1, a2, a3,
+                            a4, a5, a6, a7,
+                            a8, af, ad,
+                            v6, v7, v8, v9, v10, v11);
+
+            ASSERT(p.is_valid(), "Object : Valid packet with is_valid() == false!");
+
+            std::vector<UInt8>   u1;
+            std::vector<Int8>    u2;
+            std::vector<UInt16>  u3;
+            std::vector<Int16>   u4;
+            std::vector<Int32>   u5;
+            std::vector<UInt32>  u6;
+            std::vector<Int32>   u7;
+            std::vector<UInt64>  u8;
+            std::vector<Int64>   u9;
+            std::vector<float>  u10;
+            std::vector<double> u11;
+            std::string s;
+            Int8 i8;
+            Int16 i16;
+            Int32 i32;
+            Int64 i64;
+            UInt8 ui8;
+            UInt16 ui16;
+            UInt32 ui32;
+            UInt64 ui64;
+            float f;
+            double d;
+
+            PacketReader r(p);
+            read_as_object(r, u1, u2, u3, u4, u5,
+                           s, i8, i16, i32,
+                           i64, ui8, ui16, ui32,
+                           ui64, f, d,
+                           u6, u7, u8, u9, u10, u11);
+
+            ASSERT(v1 == u1, "Object : UInt8 vector corrupted");
+            ASSERT(v2 == u2, "Object : Int8 vector corrupted");
+            ASSERT(v3 == u3, "Object : UInt16 vector corrupted");
+            ASSERT(v4 == u4, "Object : Int16 vector corrupted");
+            ASSERT(v5 == u5, "Object : Int32 vector corrupted");
+            ASSERT(v6 == u6, "Object : UInt32 vector corrupted")
+            ASSERT(v7 == u7, "Object : Int32 vector corrupted");
+            ASSERT(v8 == u8, "Object : UInt64 vector corrupted");
+            ASSERT(v9 == u9, "Object : Int64 vector corrupted");
+            ASSERT(v10 == u10, "Object : Float vector corrupted");
+            ASSERT(v11 == u11, "Object : Double vector corrupted");
+
+            ASSERT(s == "Hello", "Object : The message string was corrupted");
+            ASSERT(i8 == a1, "Object : The message Int8 was corruped");
+            ASSERT(i16 == a2, "Object : The message Int16 was corruped");
+            ASSERT(i32 == a3, "Object : The message Int32 was corruped");
+            ASSERT(i64 == a4, "Object : The message Int64 was corruped");
+            ASSERT(ui8 == a5, "Object : The message UInt8 was corruped");
+            ASSERT(ui16 == a6, "Object : The message UInt16 was corruped");
+            ASSERT(ui32 == a7, "Object : The message UInt32 was corruped");
+            ASSERT(ui64 == a8, "Object : The message UInt64 was corruped");
+            ASSERT(f == af, "Object : The message float was corruped");
+            ASSERT(d == ad, "Object : The message double was corruped");
+
         }
         catch(PacketException& e)
         {

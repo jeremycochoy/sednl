@@ -115,7 +115,6 @@ void write_as_object(Packet& packet, Args&... args)
     write_to_packet(packet, args...);
 }
 
-//! \brief Read all the argument as an object of length number_of_args(args)
 template<typename... Args>
 void read_as_object(PacketReader& packet_reader, Args&... args)
 {

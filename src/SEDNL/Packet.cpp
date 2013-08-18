@@ -30,6 +30,125 @@ namespace SedNL
 Packet::Packet()
 {}
 
+bool Packet::valid_next_item(unsigned int size, unsigned int& i) noexcept
+{
+    Type t = static_cast<Type>(m_data[i]);
+
+    switch(t)
+    {
+    case Type::Int8:
+        i += sizeof(Int8);
+        break;
+    case Type::Int16:
+        i += sizeof(Int16);
+        break;
+    case Type::Int32:
+        i += sizeof(Int32);
+        break;
+    case Type::Int64:
+        i += sizeof(Int64);
+        break;
+    case Type::UInt8:
+        i += sizeof(UInt8);
+        break;
+    case Type::UInt16:
+        i += sizeof(UInt16);
+        break;
+    case Type::UInt32:
+        i += sizeof(UInt32);
+        break;
+    case Type::UInt64:
+        i += sizeof(UInt64);
+        break;
+    case Type::Float:
+        i += sizeof(UInt32);
+        break;
+    case Type::Double:
+        i += sizeof(UInt64);
+        break;
+    case Type::String:
+    {
+        i++;
+        while (m_data[i] != '\0' && i < size)
+            i++;
+        if (i == size)
+            return false;
+        break;
+    }
+    //TODO : Object and Array
+    case Type::Object:
+    {
+        i++;
+
+        if (i + sizeof(UInt8) > m_data.size())
+            return false;
+        unsigned short length = static_cast<unsigned char>(m_data[i]);
+        i += sizeof(UInt8);
+
+        for (int j = 0; j < length; j++)
+        {
+            if (!valid_next_item(size, i))
+                return false;
+            i++;
+        }
+        //Because of the for i++ :
+        i--;
+        break;
+    }
+
+    case Type::ArrayInt8:
+    case Type::ArrayUInt8:
+    case Type::ArrayInt16:
+    case Type::ArrayUInt16:
+    case Type::ArrayInt32:
+    case Type::ArrayUInt32:
+    case Type::ArrayFloat:
+    case Type::ArrayInt64:
+    case Type::ArrayUInt64:
+    case Type::ArrayDouble:
+    {
+        i++;
+        if (i + sizeof(UInt16) > size)
+            return false;
+        unsigned short length = __front_16(i, m_data);
+
+        i += sizeof(UInt16);
+        switch (t)
+        {
+        case Type::ArrayInt8:
+        case Type::ArrayUInt8:
+            i += length * sizeof(UInt8);
+            break;
+        case Type::ArrayInt16:
+        case Type::ArrayUInt16:
+            i += length * sizeof(UInt16);
+            break;
+        case Type::ArrayInt32:
+        case Type::ArrayUInt32:
+        case Type::ArrayFloat:
+            i += length * sizeof(UInt32);
+            break;
+        case Type::ArrayInt64:
+        case Type::ArrayUInt64:
+        case Type::ArrayDouble:
+            i += length * sizeof(UInt64);
+            break;
+            // Shouldn't happen
+        default:
+            break;
+        }
+
+        // Because of the for loop that increment to jump other
+        // the Packet::Type byte.
+        i--;
+        break;
+    }
+    default:
+        return false;
+    }
+    return true;
+}
+
 bool Packet::is_valid() noexcept
 {
     unsigned int size = m_data.size();
@@ -37,65 +156,8 @@ bool Packet::is_valid() noexcept
     unsigned int i = 0;
     for (; i < size; i++)
     {
-        Type t = static_cast<Type>(m_data[i]);
-
-        switch(t)
-        {
-        case Type::Int8:
-            i += sizeof(Int8);
-            break;
-        case Type::Int16:
-            i += sizeof(Int16);
-            break;
-        case Type::Int32:
-            i += sizeof(Int32);
-            break;
-        case Type::Int64:
-            i += sizeof(Int64);
-            break;
-        case Type::UInt8:
-            i += sizeof(UInt8);
-            break;
-        case Type::UInt16:
-            i += sizeof(UInt16);
-            break;
-        case Type::UInt32:
-            i += sizeof(UInt32);
-            break;
-        case Type::UInt64:
-            i += sizeof(UInt64);
-            break;
-        case Type::Float:
-            i += sizeof(UInt32);
-            break;
-        case Type::Double:
-            i += sizeof(UInt64);
-            break;
-        case Type::String:
-        {
-            i++;
-            while (m_data[i] != '\0' && i < size)
-                i++;
-            if (i == size)
-                return false;
-            break;
-        }
-        //TODO : Object and Array
-        case Type::Object:
-        case Type::ArrayInt8:
-        case Type::ArrayInt16:
-        case Type::ArrayInt32:
-        case Type::ArrayInt64:
-        case Type::ArrayUInt8:
-        case Type::ArrayUInt16:
-        case Type::ArrayUInt32:
-        case Type::ArrayUInt64:
-        case Type::ArrayFloat:
-        case Type::ArrayDouble:
-            return true;
-        default:
+        if (!valid_next_item(size, i))
             return false;
-        }
     }
 
     if (i != size)
@@ -384,7 +446,6 @@ void exception_by_type(Packet::Type type)
         throw PacketException(PacketExceptionT::ObjectExpected);
 
     default:
-        std::cout << ":" << (int)(unsigned char)type <<" " << (int)(unsigned char)Packet::Type::ArrayInt8 << " " << (int)(type == Packet::Type::ArrayInt8) << std::endl;
         throw PacketException(PacketExceptionT::Unknown);
     }
 }

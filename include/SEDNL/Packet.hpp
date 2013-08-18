@@ -193,6 +193,9 @@ private:
     //!        in the packet (without any data).
     void write_object_header(unsigned short length) throw(PacketException);
 
+    //! \brief Try to validate one more item.
+    bool valid_next_item(unsigned int size, unsigned int& i) noexcept;
+
     friend class PacketReader;
     friend class RingBuf;
 };
