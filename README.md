@@ -7,7 +7,7 @@ A network library
 -----------------
 
 SedNL is a C++11 network library with a high level API. It is event driven,
-which means you bind functions on events and your callback will be asymchronously
+which means you bind functions on events and your callback will be asynchronously
 called in a multi-threaded environment.
 This reduce network to 'designing good events' and 'reacting to events'.
 
