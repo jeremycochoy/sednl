@@ -47,7 +47,7 @@ public:
     //! environment.
     //!
     //! \return The value stored.
-    inline operator T ();
+    inline operator T () const;
 
     //! \brief Change the value stored.
     //!
@@ -60,7 +60,7 @@ public:
     inline SafeType<T>& operator=(T v);
 private:
     T m_value;
-    std::mutex m_mutex;
+    mutable std::mutex m_mutex;
 };
 
 ////////////////////////////////////////////////////////////
@@ -74,6 +74,11 @@ public:
     //!
     //! \return True if empty, False otherwise.
     inline bool empty() const noexcept;
+
+    //! \brief Return the size of the underlying container.
+    //!
+    //! \return Number of elements stored.
+    inline typename Container::size_type size() const noexcept;
 
     //! \brief Push elements to the back of the queue.
     //!
@@ -90,7 +95,7 @@ public:
     inline bool pop(T& value) noexcept;
 
 private:
-    std::mutex m_mutex;
+    mutable std::mutex m_mutex;
     typedef Container QType;
     QType m_queue;
 };
@@ -100,3 +105,10 @@ private:
 #include "ThreadHelp.ipp"
 
 #endif /* !THREAD_HELP_HPP */
+
+////////////////////////////////////////////////////////////
+//!
+//! \file ThreadHelp.hpp
+//! \brief Some usefull classes to work with threads.
+//!
+////////////////////////////////////////////////////////////

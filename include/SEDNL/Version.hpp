@@ -29,11 +29,31 @@ namespace SedNL
 
 namespace Version
 {
+    //! \brief Major library version.
+    //!
+    //! Increased in case of major changes / API break.
     extern const int SEDNL_API Major;
+    //! \brief Minor library version.
+    //!
+    //! Increased for each new release.
     extern const int SEDNL_API Minor;
+    //! \brief Micro library version.
+    //!
+    //! Increased in case of small fixes / bug fixes.
     extern const int SEDNL_API Micro;
 }
 
 } // namespace SedNL
 
 #endif /* !VERSION_HPP_ */
+
+////////////////////////////////////////////////////////////
+//!
+//! \file Version.hpp
+//!
+//! Define version constants (Major, Minor et Micro) that are
+//! read from the library.
+//! It's usefull if your application is dinamically linked
+//! to a library.
+//!
+////////////////////////////////////////////////////////////

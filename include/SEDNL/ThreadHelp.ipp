@@ -34,7 +34,7 @@ SafeType<T>::SafeType(T v) noexcept
 }
 
 template<class T>
-SafeType<T>::operator T()
+SafeType<T>::operator T() const
 {
     std::lock_guard<std::mutex> lock(m_mutex);
     return m_value;
@@ -55,6 +55,26 @@ bool SafeQueue<T, C>::empty() const noexcept
     {
         std::lock_guard<std::mutex> lock(m_mutex);
         return m_queue.empty();
+    }
+    catch(std::exception &e)
+    {
+#ifndef SEDNL_NOWARN
+            std::cerr << "Error: std::mutex::lock failed."
+                      << std::endl;
+            std::cerr << e.what() << std::endl;
+#endif /* !SEDNL_NOWARN */
+
+    }
+    return false;
+}
+
+template<class T, class C>
+typename C::size_type SafeQueue<T, C>::size() const noexcept
+{
+    try
+    {
+        std::lock_guard<std::mutex> lock(m_mutex);
+        return m_queue.size();
     }
     catch(std::exception &e)
     {

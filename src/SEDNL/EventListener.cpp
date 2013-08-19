@@ -214,11 +214,20 @@ void EventListener::close_server(FileDescriptor fd)
     }
 }
 
+template <class T>
+static
+inline
+bool is_full(T& queue, unsigned int max_queue_size)
+{
+    return (max_queue_size > 0 && queue.size() > max_queue_size);
+}
+
 template <class T, class U>
 static inline
-void disconnected_event(T &queue, U cn, FileDescriptor fd, const char* type)
+void disconnected_event(T& queue, U cn, FileDescriptor fd,
+                        const char* type, unsigned int max_queue_size)
 {
-    if (!queue.push(cn))
+    if (is_full(queue, max_queue_size) || !queue.push(cn))
     {
 #ifndef SEDNL_NOWARN
         std::cerr << "Error: "
@@ -265,7 +274,8 @@ void EventListener::close_connection(FileDescriptor fd)
         m_poller->remove_fd(fd);
 
     //Create the server disconnected event
-    disconnected_event(m_disconnected_queue, cn, cn->get_fd(), "connection");
+    disconnected_event(m_disconnected_queue, cn, cn->get_fd(),
+                       "connection", m_max_queue_size);
 
     //Wake up consumer
     notify(m_on_disconnect_link);
@@ -452,7 +462,8 @@ void EventListener::read_connection(FileDescriptor fd)
         //Try to read some events
         while (cn->m_buffer.pick_event(e))
         {
-            if (!m_events[e.get_name()].push(std::make_pair(cn, e)))
+            if (is_full(m_events[e.get_name()], m_max_queue_size)
+                || !m_events[e.get_name()].push(std::make_pair(cn, e)))
             {
 #ifndef SEDNL_NOWARN
                 std::cerr << "Error: "
@@ -525,13 +536,15 @@ void EventListener::tell_disconnected(Connection *cn) noexcept
 
     if (m_poller)
         m_poller->remove_fd(ptr->m_fd);
-    disconnected_event(m_disconnected_queue, ptr, ptr->m_fd, "connection");
+    disconnected_event(m_disconnected_queue, ptr, ptr->m_fd,
+                       "connection", m_max_queue_size);
 }
 
 //We are called with the m_fd lock
 void EventListener::tell_disconnected(TCPServer *s) noexcept
 {
-    disconnected_event(m_server_disconnected_queue, s, s->get_fd(), "server");
+    disconnected_event(m_server_disconnected_queue, s, s->get_fd(),
+                       "server", m_max_queue_size);
     notify(m_on_server_disconnect_link);
 }
 

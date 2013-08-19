@@ -22,8 +22,8 @@
 #ifndef EVENT_LISTENER_HPP_
 #define EVENT_LISTENER_HPP_
 
+#include "SEDNL/sednlfwd.hpp"
 #include "SEDNL/SocketHelp.hpp"
-
 #include "SEDNL/Export.hpp"
 #include "SEDNL/Exception.hpp"
 #include "SEDNL/ThreadHelp.hpp"
@@ -42,28 +42,24 @@
 namespace SedNL
 {
 
-class Connection;
-class TCPServer;
-class EventConsumer;
-class Event;
-class ConsumerDescriptor;
-class Poller;
-
+////////////////////////////////////////////////////////////
+//! \brief Listen from events and incoming connections.
+////////////////////////////////////////////////////////////
 class SEDNL_API EventListener
 {
 private:
     typedef std::vector<EventConsumer*> ConsumerList;
 
 public:
-    //! \brief Construct an event listener from a TCPServer
+    //! \brief Construct an event listener from a TCPServer.
     //!
     //! Does exactly the same thing as constructing an empty
     //! listener, and then calling attach(server).
     //!
-    //! \param[in] server The server to listen
+    //! \param[in] server The server to listen.
     //! \param[in] max_queue_size Upper bound of the size of an
     //!                           event queue.
-    EventListener(TCPServer &server, unsigned int max_queue_size = 100);
+    EventListener(TCPServer &server, unsigned int max_queue_size = 1000);
 
     //! \brief Construct an event listener from a Connection
     //!
@@ -76,7 +72,7 @@ public:
     //! \param[in] connection The connection to listen
     //! \param[in] max_queue_size Upper bound of the size of an
     //!                           event queue.
-    EventListener(Connection &connection, unsigned int max_queue_size = 100);
+    EventListener(Connection &connection, unsigned int max_queue_size = 1000);
 
     //! \brief Construct an empty listener.
     //!
@@ -86,7 +82,7 @@ public:
     //!
     //! \param[in] max_queue_size Upper bound of the size of an
     //!                           event queue.
-    EventListener(unsigned int max_queue_size = 100);
+    EventListener(unsigned int max_queue_size = 1000);
 
     //! \brief Add a server into the managed list
     //!

@@ -27,6 +27,7 @@ namespace SedNL
 
 class TCPClient;
 class TCPServer;
+class Connection;
 class EventListener;
 class EventConsumer;
 class Packet;
