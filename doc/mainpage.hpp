@@ -104,9 +104,9 @@
 //! {
 //!     TCPServer server(SocketAddress(4242));
 //!     EventListener listener(server);
+//!     listener.on_connect().set_function(on_connect);
 //!
 //!     EventConsumer consumer(listener);
-//!     consumer.on_connect().set_function(on_connect);
 //!     consumer.on_disconnect().set_function(on_disconnect);
 //!     consumer.on_event().set_function(on_event);
 //!
@@ -116,6 +116,9 @@
 //!     // Sleep
 //!     while (true)
 //!         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+//!
+//!    listener.join();
+//!    consumer.join();
 //!
 //!     return EXIT_SUCCESS;
 //! }

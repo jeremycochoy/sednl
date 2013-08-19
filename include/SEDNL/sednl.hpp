@@ -33,5 +33,18 @@
 #include "SEDNL/EventConsumer.hpp"
 #include "SEDNL/Packet.hpp"
 #include "SEDNL/Serializer.hpp"
+#include "SEDNL/ThreadHelp.hpp"
 
 #endif /* !SEDNL_HPP_ */
+
+////////////////////////////////////////////////////////////
+//!
+//! \file sednl.hpp
+//! \brief Include all SedNL headers.
+//!
+//! This file include all usefull SedNL headers.
+//! It is recomanded for small project or if you don't care
+//! about compilation time. If you want to increase
+//! compilation speed, include only the relevent headers.
+//!
+////////////////////////////////////////////////////////////

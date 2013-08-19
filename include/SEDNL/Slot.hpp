@@ -121,7 +121,7 @@ private:
 //!   - A pointer to member function, with a reference to an instance of
 //!     the class.
 //!
-//! Slot are the way you bind you callbacks to event consumers.
+//! Slots are the way you bind your callbacks to event consumers.
 //!
 //! \code
 //!

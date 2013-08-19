@@ -35,7 +35,28 @@ class RingBuf;
 class Event;
 class SocketAddress;
 class SocketInterface;
+class ConsumerDescriptor;
+class Exception;
+template<typename T>
+class TemplateException;
+class Poller;
+template<class T>
+struct Serializer;
+template<class T>
+class SafeType;
+template<class T, class Container>
+class SafeQueue;
 
 } //namespace SedNL
 
 #endif /* SEDNL_FWD_HPP_ */
+
+////////////////////////////////////////////////////////////
+//!
+//! \file sednlfwd.hpp
+//! \brief Forward declaration of SedNL objects.
+//!
+//! This file contain forward declaration of SedNL's classes
+//! and structs.
+//!
+////////////////////////////////////////////////////////////
