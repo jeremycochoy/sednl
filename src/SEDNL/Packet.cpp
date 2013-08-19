@@ -75,7 +75,7 @@ bool Packet::valid_next_item(unsigned int size, unsigned int& i) noexcept
             return false;
         break;
     }
-    //TODO : Object and Array
+
     case Type::Object:
     {
         i++;
@@ -656,52 +656,112 @@ PacketReader& PacketReader::operator>> (std::vector<double>& dt)
     __read_array(__front_64, double, Packet::Type::ArrayDouble);
 }
 
+template<class T>
+static
+void show_array(std::ostream& os, std::vector<T> &v)
+{
+    os << "{ ";
+    for (auto e : v)
+        os << e << ", ";
+    os << " }";
+}
+
+bool PacketReader::output_one(int& i, std::ostream& os)
+{
+    Packet::Type type = next_type();
+    i++;
+
+#define __show_data_case(type) {type v; *this >> v; os << v; break;}
+
+#define __show_array_case(type) {std::vector<type> v; *this >> v; show_array(os, v); break;}
+
+    os << type_to_string(type) << "_" << i << " : ";
+    switch(type)
+    {
+    case Packet::Type::Int8:
+        __show_data_case(Int8);
+    case Packet::Type::Int16:
+        __show_data_case(Int16);
+    case Packet::Type::Int32:
+        __show_data_case(Int32);
+    case Packet::Type::Int64:
+        __show_data_case(Int64);
+
+    case Packet::Type::UInt8:
+        __show_data_case(UInt8);
+    case Packet::Type::UInt16:
+        __show_data_case(UInt16);
+    case Packet::Type::UInt32:
+        __show_data_case(UInt32);
+    case Packet::Type::UInt64:
+        __show_data_case(UInt64);
+
+    case Packet::Type::Float:
+        __show_data_case(float);
+    case Packet::Type::Double:
+        __show_data_case(double);
+
+    case Packet::Type::String:
+        __show_data_case(std::string);
+
+    case Packet::Type::Object:
+    {
+        os << "{ ";
+
+        // Read object length and jump other Packet::Type and object's length.
+        unsigned short obj_length = static_cast<UInt8>(m_p->m_data[m_idx + 1]);
+        m_idx += sizeof(UInt8) + sizeof(UInt8);
+
+        for (int j = 0; j < obj_length; j++)
+        {
+            if (!output_one(i, os))
+                return false;
+            os << ", ";
+        }
+        os << " }";
+        break;
+    }
+
+    case Packet::Type::ArrayInt8:
+        __show_array_case(Int8);
+    case Packet::Type::ArrayInt16:
+        __show_array_case(Int16);
+    case Packet::Type::ArrayInt32:
+        __show_array_case(Int32);
+    case Packet::Type::ArrayInt64:
+        __show_array_case(Int64);
+
+    case Packet::Type::ArrayUInt8:
+        __show_array_case(UInt8);
+    case Packet::Type::ArrayUInt16:
+        __show_array_case(UInt16);
+    case Packet::Type::ArrayUInt32:
+        __show_array_case(UInt32);
+    case Packet::Type::ArrayUInt64:
+        __show_array_case(UInt64);
+
+    case Packet::Type::ArrayFloat:
+        __show_array_case(float);
+    case Packet::Type::ArrayDouble:
+        __show_array_case(double);
+
+    default:
+        return false;
+    }
+    return true;
+}
+
 std::ostream& operator<< (std::ostream& os, const Packet& p)
 {
     PacketReader r(p);
-    Packet::Type type;
-
-#define __show_data_case(type) {type v; r >> v; os << v; break;}
+    int i = 0;
 
     os << "{ ";
     while (r)
     {
-        switch(type = r.next_type())
-        {
-        case Packet::Type::Int8:
-            __show_data_case(Int8);
-        case Packet::Type::Int16:
-            __show_data_case(Int16);
-        case Packet::Type::Int32:
-            __show_data_case(Int32);
-        case Packet::Type::Int64:
-            __show_data_case(Int64);
-
-        case Packet::Type::UInt8:
-            __show_data_case(UInt8);
-        case Packet::Type::UInt16:
-            __show_data_case(UInt16);
-        case Packet::Type::UInt32:
-            __show_data_case(UInt32);
-        case Packet::Type::UInt64:
-            __show_data_case(UInt64);
-
-        case Packet::Type::Float:
-            __show_data_case(float);
-        case Packet::Type::Double:
-            __show_data_case(double);
-
-        case Packet::Type::String:
-            __show_data_case(std::string);
-
-        case Packet::Type::Object:
-            //TODO : handle the case of objects
-            return os << "OBJECT }";
-
-        default:
-            return os << "CORRUPTED }";
-        }
-        os << " : " << type_to_string(type) << ", ";
+        if (!r.output_one(i, os))
+            return os << " CORRUPTED ---";
+        os << ", ";
     }
     return os << "}";
 }
@@ -734,6 +794,27 @@ const char* type_to_string(Packet::Type type)
         return "String";
     case Packet::Type::Object:
         return "Object";
+    case Packet::Type:: ArrayInt8:
+        return "ArrayInt8";
+    case Packet::Type::ArrayInt16:
+        return "ArrayInt16";
+    case Packet::Type::ArrayInt32:
+        return "ArrayInt32";
+    case Packet::Type::ArrayInt64:
+        return "ArrayInt64";
+    case Packet::Type::ArrayUInt8:
+        return "ArrayUInt8";
+    case Packet::Type::ArrayUInt16:
+        return "ArrayUInt16";
+    case Packet::Type::ArrayUInt32:
+        return "ArrayUInt32";
+    case Packet::Type::ArrayUInt64:
+        return "ArrayUInt64";
+    case Packet::Type::ArrayFloat:
+        return "ArrayFloat";
+    case Packet::Type::ArrayDouble:
+        return "ArrayDouble";
+
     case Packet::Type::Unknown:
     default:
         return "Unknown";

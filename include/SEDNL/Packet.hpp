@@ -262,24 +262,20 @@ public:
     //!         end was reached.
     inline Packet::Type next_type() const noexcept;
 
-    //! \brief Read all the argument as an object of length number_of_args(args).
-    //!
-    //! Its the same behavior as unserialising a serialisable object containing
-    //! fields in the same order and same type as \a args.
-    //! See Serializer.hpp.
-    //!
-    //! \param[in] packet_reader Reader from wich to read data.
-    //! \param[out] args Variables to write into.
-    template<typename... Args>
-    friend
-    void read_as_object(PacketReader& packet_reader, Args&... args);
-
 private:
     //! \brief Consume the header of an object if it's a valid one (i.e. {Type::Object, length})
     void read_object_header(unsigned short length) throw(PacketException);
 
     const Packet* m_p;
     unsigned int m_idx;
+
+    //! \brief Write the next element of \a r into the stream \a os.
+    bool output_one(int& i, std::ostream& os);
+
+    template<typename... Args>
+    friend void read_as_object(PacketReader& packet_reader, Args&... args);
+
+    friend std::ostream& operator<< (std::ostream& os, const Packet& p);
 };
 
 //IN
@@ -351,6 +347,18 @@ PacketReader& operator>> (Packet &p, T &dt);
 //! \param[in] p The packet to show.
 //! \return The output stream.
 SEDNL_API std::ostream& operator<< (std::ostream& os, const Packet& p);
+
+//! \brief Read all the argument as an object of length number_of_args(args).
+//!
+//! Its the same behavior as unserialising a serialisable object containing
+//! fields in the same order and same type as \a args.
+//! See Serializer.hpp.
+//!
+//! \param[in] packet_reader Reader from wich to read data.
+//! \param[out] args Variables to write into.
+template<typename... Args>
+void read_as_object(PacketReader& packet_reader, Args&... args);
+
 
 //! \brief Allow creating easily new packets.
 //!

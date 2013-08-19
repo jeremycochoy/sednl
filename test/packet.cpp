@@ -259,8 +259,8 @@ int main()
             float af = 42.0f;
             double ad = 3.14;
 
-            write_as_object(p, v1, v2, v3, v4, v5,
-                            in, a1, a2, a3,
+            write_as_object(p, a1, v1, v2, v3, v4, v5,
+                            in, a2, a3,
                             a4, a5, a6, a7,
                             a8, af, ad,
                             v6, v7, v8, v9, v10, v11);
@@ -291,8 +291,8 @@ int main()
             double d;
 
             PacketReader r(p);
-            read_as_object(r, u1, u2, u3, u4, u5,
-                           s, i8, i16, i32,
+            read_as_object(r, i8, u1, u2, u3, u4, u5,
+                           s, i16, i32,
                            i64, ui8, ui16, ui32,
                            ui64, f, d,
                            u6, u7, u8, u9, u10, u11);
