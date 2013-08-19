@@ -28,35 +28,65 @@
 namespace SedNL
 {
 
-//! \brief Allow to protect a type T with a mutex
+////////////////////////////////////////////////////////////
+//! \brief Allow to protect a type T with a mutex.
+////////////////////////////////////////////////////////////
 template<class T>
 class SafeType
 {
 public:
+    //! \brief Create an atomic T from a value \a v.
+    //!
+    //! \param[in] v Initial value.
     inline SafeType(T v) noexcept;
+
+    //! \brief Conversion from SafeType<T> to T.
+    //!
+    //! This operator use the internal mutex
+    //! to allow using this object in a multithreaded
+    //! environment.
+    //!
+    //! \return The value stored.
     inline operator T ();
+
+    //! \brief Change the value stored.
+    //!
+    //! This operator use the internal mutex
+    //! to allow using this object in a multithreaded
+    //! environment.
+    //!
+    //! \param[in] v Value to store.
+    //! \return A reference to this.
     inline SafeType<T>& operator=(T v);
 private:
     T m_value;
     std::mutex m_mutex;
 };
 
-//! \brief A std::queue protected with a mutex
+////////////////////////////////////////////////////////////
+//! \brief A std::queue like protected with a mutex.
+////////////////////////////////////////////////////////////
 template<class T, class Container = std::deque<T>>
 class SafeQueue
 {
 public:
-    //! \brief Checks whether the underlying container is empty
+    //! \brief Checks whether the underlying container is empty.
+    //!
+    //! \return True if empty, False otherwise.
     inline bool empty() const noexcept;
 
-    //! \brief Inserts element at the end
+    //! \brief Push elements to the back of the queue.
+    //!
+    //! \param[in] value The value to push.
+    //! \return True if it succeed, False if it failed.
     inline bool push(const T& value) noexcept;
 
-    //! \brief Remove the first element and store it into \a value
+    //! \brief Remove the first element and store it into \a value.
     //!
     //! If the queue is empty, return false and do not modify \a value.
     //!
-    //! \param[in] value Where to store the data
+    //! \param[in] value Where to store the data read.
+    //! \return True if it succeed, False if it failed.
     inline bool pop(T& value) noexcept;
 
 private:

@@ -46,6 +46,10 @@
 namespace SedNL
 {
 
+////////////////////////////////////////////////////////////
+//! \brief Bind a server socket (to allow listening for
+//!        incoming connections).
+////////////////////////////////////////////////////////////
 class SEDNL_API TCPServer : public SocketInterface
 {
 public:
