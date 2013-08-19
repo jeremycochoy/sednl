@@ -101,7 +101,7 @@ void Connection::send(const Event& event)
                                    strerror(errno));
         }
     }
-    catch(std::exception &e)
+    catch(std::system_error &e)
     {
 #ifndef SEDNL_NOWARN
             std::cerr << "Error: "

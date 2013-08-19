@@ -49,32 +49,70 @@ namespace SedNL
 class SEDNL_API Connection : public SocketInterface
 {
 public:
-    //! \brief Construct an empty connection
+    //! \brief Construct an empty connection.
     inline Connection();
 
-    //! \brief Call disconnect
+    //! \brief Close the connection if needed.
+    //!
+    //! The connection is closed without thread safety, and
+    //! without sending any message to an eventual parent listener.
     inline ~Connection() noexcept;
 
-    //! \brief Cut the connection
+    //! \brief Close the connection.
+    //!
+    //! This function is thread safe. You can use it
+    //! to close a connection while processing events.
+    //!
+    //! For example :
+    //! \code
+    //! void on_pear(Connect& c, const Event&)
+    //! {
+    //!     c.disconnect();
+    //! }
+    //!
+    //! //...
+    //!
+    //! EventConsumer consumer;
+    //! consumer.bind("pear_event").set_function(on_pear);
+    //! \endcode
     virtual void disconnect() noexcept;
 
-    //! \brief Send an event
+    //! \brief Send the event \a event through the connection.
     //!
-    //! \param event The event to send
-    void send(const Event& event);
+    //! Send an event packet. It can throw exceptions
+    //! (std::exception or NetworkException) if failed.
+    //!
+    //! This function is thread safe, and you can use it to answer
+    //! to events with events.
+    //!
+    //! For example :
+    //! \code
+    //! void on_pear(Connect& c, const Event&)
+    //! {
+    //!     c.send(make_event("answer", 42));
+    //! }
+    //!
+    //! //...
+    //!
+    //! EventConsumer consumer;
+    //! consumer.bind("pear_event").set_function(on_pear);
+    //! \endcode
+    //!
+    //! \param[in] event The event to send.
+    void send(const Event& event) throw(NetworkException, std::exception);
 
-    //! \brief Store a value specific to this connection
+    //! \brief Link a value to this connection.
     //!
     //! This class assume that you will allways use the same
     //! datatype, until you released it with Connection::release_user_data().
     //!
     //! \param[in] data Value to store. If the string was allocated,
     //!                 you shouldn't free it before the connection was
-    //!                 destroyed, or released.
+    //!                 destroyed, or the resource released.
     void set_user_data(const char* data)
         throw(TypeException, std::system_error);
 
-    //! \brief Store a value specific to this connection
+    //! \brief Link a value to this connection.
     //!
     //! This class assume that you will allways use the same
     //! datatype, until you released it with Connection::release_user_data().
@@ -83,7 +121,7 @@ public:
     void set_user_data(int data)
         throw(TypeException, std::system_error);
 
-    //! \brief Store a value specifit to this connection
+    //! \brief Link a value to this connection.
     //!
     //! This class assume that you will allways use the same
     //! datatype, until you released it with Connection::release_user_data().
@@ -92,7 +130,7 @@ public:
     void set_user_data(char data)
         throw(TypeException, std::system_error);
 
-    //! \brief Store a value specifit to this connection
+    //! \brief Link a value to this connection.
     //!
     //! This class assume that you will allways use the same
     //! datatype, until you released it with Connection::release_user_data().
@@ -101,7 +139,7 @@ public:
     void set_user_data(float data)
         throw(TypeException, std::system_error);
 
-    //! \brief Store a value specifit to this connection
+    //! \brief Link a value to this connection.
     //!
     //! This class assume that you will allways use the same
     //! datatype, until you released it with Connection::release_user_data().
@@ -110,15 +148,15 @@ public:
     void set_user_data(double data)
         throw(TypeException, std::system_error);
 
-    //! \brief Store a value specifit to this connection
-    //!
-    //! This class assume that you will allways use the same
-    //! datatype, until you released it with Connection::release_user_data().
+    //! \brief Link a value to this connection.
     //!
     //! You can use this function to store a "User" instance containing
     //! all the data relate to this connection. If you do so, you'll
-    //! have to be sure you are always using the right type, and take care
-    //! of releasing/freeing the resource.
+    //! have to be sure you are always using the right type (it's a void pointer),
+    //! and take care of releasing/freeing the resource.
+    //!
+    //! This class assume that you will allways use the same
+    //! datatype, until you released it with Connection::release_user_data().
     //!
     //! An other solution is to use a connection id, and then use this id
     //! to retrive your data. See the integer version of Connection::set_user_data.
@@ -135,21 +173,27 @@ public:
     //! If no values was set, it will also raise a TypeException.
     //!
     //! Types allowed are :
-    //! int, float, double, char, void*, const char*
+    //!   - int
+    //!   - float
+    //!   - double
+    //!   - char
+    //!   - void*
+    //!   - const char*
     //!
     //! \return The value previously stored by set_user_data().
     template<class T>
     T get_user_data()
         throw(TypeException, std::system_error);
 
-    //! \brief Release a data stored via Connection::set_user_data.
+    //! \brief Release a resource stored via Connection::set_user_data().
     //!
-    //! Warning, if you stored an object as a void* pointer, you should
+    //! Warning: if you stored an object as a void* pointer and want
+    //! to free the memory allocated (or delete an instance), you should
     //! retrieve the pointer before calling release_user_data().
     void release_user_data() throw(std::system_error);
 
 private:
-    //! \brief List of types that can be stored
+    //! \brief List of types that can be stored.
     enum class UserDataType
     {
         String,
@@ -161,9 +205,10 @@ private:
         None,
     };
 
-    //! \brief The type stored
+    //! \brief The type stored.
     UserDataType m_data_type;
-    //! \brief User data
+
+    //! \brief Value stored.
     union
     {
         const char* m_data_string;
@@ -174,13 +219,14 @@ private:
         double m_data_double;
     };
 
-    //! \brief the current listener
+    //! \brief The listener listening to this connection.
     EventListener *m_listener;
 
     void unsafe_disconnect() noexcept;
     void safe_disconnect() noexcept;
 
-    //! \brief Buffer where data are stored
+    //! \brief Network input stream (partialy received events
+    //!        are stored here).
     RingBuf m_buffer;
 
     friend class EventListener;
@@ -200,11 +246,72 @@ private:
 //! (created by an EventListener) or a TCPClient object.
 //!
 //! TCPServer aren't connection, because it's meaningless to
-//! 'send an event' throught a server. You should select one (or more)
-//! users, which are represented as connections.
+//! 'send an event' throught a server. But, when you receive an event,
+//! or when incoming connection are created, you callback are called
+//! with a Connection object.
 //!
 //! std::system_error exceptions come from std::mutex::lock that can
 //! fail. You can handle them or just think that if the system refuse
-//! to lock a mutex, your application won't work anymore.
+//! to lock a mutex, your application won't work anymore, and you don't
+//! care.
 //!
+//! When a user connect to your server, you often want to keep
+//! an instance associated to this user, which will be freed when
+//! he will disconnect.
+//!
+//! This can be a index, a pointer, a binary string...
+//!
+//! SedNL provide many set_user_data() functions with different types.
+//! Only __one__ value can be stored at the same type. Before setting a new
+//! value of a different type, you have to release the resource by calling
+//! release_user_data().
+//! Then, the template function get_user_data() won't allow you to take the value
+//! as a different type. If you put an integer, and then ask for a floating number,
+//! it will throw an exception. This is done to allow dectection of bug in
+//! early development stages.
+//!
+//! Here is an exemple on how you can handle users :
+//! \code
+//!
+//! struct User
+//! {
+//!     User()
+//!         :user_name("guest"), password(""), age(-1), logged(false)
+//!     {};
+//!
+//!     std::string user_name;
+//!     std::string password;
+//!     int         age;
+//!     bool        logged;
+//! };
+//!
+//! void on_connect(Connection& c)
+//! {
+//!     User* user = new User;
+//!     c->set_user_data((void*)user);
+//! }
+//!
+//! void on_login(Connection& c, Event &e)
+//! {
+//!     User* const user = (User*)c.get_user_data<void*>();
+//!     if (user->logged)
+//!     {
+//!         c.send(make_event("already_logged", user->user_name));
+//!         return;
+//!     }
+//!
+//!     e >> user->user_name >> user->password >> user->age;
+//!     user->logged = true;
+//!     c.send(make_event("logged"));
+//! }
+//!
+//! //...
+//!
+//! EventListener listener;
+//! listener.on_connect().set_function(on_connect);
+//!
+//! EventConsumer consumer(listener);
+//! consumer.bind("loggin").set_function(on_login);
+//!
+//! \endcode
 ////////////////////////////////////////////////////////////

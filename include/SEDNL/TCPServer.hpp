@@ -127,7 +127,8 @@ private:
 //!
 //! EventConsumer consumer(listener);
 //! consumer.on_disconnect().set_function(my_on_disconnect);
-//! consumer.on_event().set_function(my_on_event);
+//! consumer.bind("apples").set_function(my_apples); //'apples' events
+//! consumer.on_event().set_function(my_on_event); //All other events
 //!
 //! //Listen for incoming connections and other events
 //! listener.run(); //Launch a thread
