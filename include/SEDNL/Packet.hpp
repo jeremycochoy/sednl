@@ -102,7 +102,7 @@ public:
     //! Swap the content of \a packet with the content of
     //! the current packet.
     //!
-    //! \param[in,out] Packet to swap.
+    //! \param[in,out] packet Packet to swap.
     inline
     void swap(Packet& packet) noexcept;
 
@@ -411,12 +411,13 @@ template<typename... Args>
 inline
 unsigned short number_of_args(Args... args);
 
-//! Swap two events.
+//! Swap two packets.
 //!
-//! Swap the content of \a event with the content of
-//! the current event.
+//! Swap the content of \a a with the content of
+//! \a b.
 //!
-//! \param[in,out] Event to swap.
+//! \param[in,out] a First Packet to swap.
+//! \param[in,out] b Second Packet to swap.
 inline
 void swap(Packet& a, Packet& b) noexcept;
 

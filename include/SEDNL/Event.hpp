@@ -86,7 +86,7 @@ public:
     //! Swap the content of \a event with the content of
     //! the current event.
     //!
-    //! \param[in,out] Event to swap.
+    //! \param[in,out] event to swap.
     inline
     void swap(Event& event) noexcept;
 
