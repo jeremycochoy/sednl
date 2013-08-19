@@ -117,25 +117,30 @@ namespace SedNL
     class SEDNL_API TemplateException : virtual public Exception
     {
     public:
-        //! \brief Create an Exception
+        //! \brief Create an Exception from an error code.
+        //!
+        //! \param[in] type Error code.
         inline TemplateException(T type);
 
-        //! \brief Create an exception with a message
+        //! \brief Create an exception with a message.
         //!
         //! The message should be a static string (you shouldn't
-        //! use string from std::string::c_str() oranything that
+        //! use string from std::string::c_str() or anything that
         //! will be destructed / freed).
+        //!
+        //! \param[in] type Error code.
+        //! \param[in] msg Message.
         inline TemplateException(T type, const char* msg);
 
-        //! \brief Return the type of the exception
+        //! \brief Return the type of the exception.
         inline T get_type();
 
-        //! \brief Return an attached message
+        //! \brief Return an attached message.
         //!
         //!  Return system-dependent error message, given by a
-        //!  call to the socket api.
+        //!  call to strerror for example.
         //!
-        //! \return A message, or nullptr if nothing is available
+        //! \return A message, or nullptr if nothing is available.
         inline const char* get_message();
 
         //! \brief Return a message describing the exception,
@@ -176,3 +181,12 @@ namespace SedNL
 #include "SEDNL/Exception.ipp"
 
 #endif /* !EXCEPTION_HPP_ */
+
+
+////////////////////////////////////////////////////////////
+//!
+//! \file Exception.hpp
+//!
+//! Declare exceptions throw by SedNL.
+//!
+////////////////////////////////////////////////////////////

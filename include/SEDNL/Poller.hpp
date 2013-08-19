@@ -57,16 +57,16 @@ public:
         bool is_read;
     };
 
-    //! \brief In case of fails, it close the poller
+    //! \brief In case of fails, it close the poller.
     bool add_fd(FileDescriptor fd) noexcept;
 
-    //! \brief Remove a file descriptor from the poll
+    //! \brief Remove a file descriptor from the poll.
     void remove_fd(FileDescriptor fd) noexcept;
 
-    //! \brief Return the number of events
+    //! \brief Return the number of events.
     void wait_for_events(int timeout) noexcept;
 
-    //! \brief return true and modify e if they are one more event
+    //! \brief return True and modify \a e if they are one more event.
     bool next_event(Event& e) noexcept;
 
 private:

@@ -32,26 +32,18 @@ namespace SedNL
 
 class Event;
 
-//! \brief A ring buffer, for implementation purpose
+///////////////////////////////////////////////////////////////
+//! \brief A ring buffer, for implementation purpose.
 //!
-//! You probably won't have to use it, although you are modifying SEDNL's code.
+//! You probably won't have to use it, although you are
+//! modifying SedNL's code.
 //!
+///////////////////////////////////////////////////////////////
 class SEDNL_API RingBuf
 {
 public:
 
-    //! \brief An iterator
-    class Iterator
-    {
-    public:
-        Iterator(RingBuf &buf);
-        UInt8 operator* ();
-        Iterator& operator++ ();
-    private:
-        unsigned int pos;
-    };
-
-    //! \brief Build a ring buffer of fixed size \a size
+    //! \brief Build a ring buffer of fixed size \a size.
     RingBuf(unsigned int size) throw (std::bad_alloc);
 
     //! \brief Try tu put \a length characters into the buffer.
@@ -59,15 +51,15 @@ public:
     //! \return False if failed (unmodified buffer), True otherwise.
     bool put(const char* string, unsigned int length) noexcept;
 
-    //! \brief Return the buffer size
+    //! \brief Return the buffer size.
     //!
-    //! \return size available
+    //! \return Size available.
     inline
     unsigned int size() const noexcept;
 
-    //! \brief Calculate the length user
+    //! \brief Calculate the length used.
     //!
-    //! \return length used
+    //! \return Length used.
     inline
     unsigned int length() const noexcept;
 
@@ -89,8 +81,6 @@ private:
     unsigned int m_size;
     unsigned int m_start;
     unsigned int m_end;
-
-    friend Iterator;
 };
 
 } // namespace SedNL
