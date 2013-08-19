@@ -22,8 +22,26 @@
 #ifndef EVENT_IPP_
 #define EVENT_IPP_
 
+#include "SEDNL/Packet.hpp"
+
 namespace SedNL
 {
+
+inline
+void Event::swap(Event& event) noexcept
+{
+    using std::swap;
+
+    //basic_string's swap doesn't throw.
+    swap(event.m_name, m_name);
+    swap(event.m_packet, m_packet);
+}
+
+inline
+void swap(Event& a, Event& b) noexcept
+{
+    a.swap(b);
+}
 
 Event::Event(std::string name)
     :m_name(name)

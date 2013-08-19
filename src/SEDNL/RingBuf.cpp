@@ -133,12 +133,8 @@ bool RingBuf::pick_event(Event& event) noexcept
         //Save the new start position
         m_start = ROUND(dt_idx);
 
-        {
-            using std::swap;
-            //basic_string's swap doesn't throw.
-            swap(event.m_name, name);
-            swap(event.m_packet, packet);
-        }
+        //Exception safe swap
+        Event(name, packet).swap(event);
 
         return true;
     }

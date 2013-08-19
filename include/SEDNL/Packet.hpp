@@ -94,15 +94,15 @@ public:
         ArrayDouble  = 0x91,
     };
 
-    //! Create an empty packet
+    //! Create an empty packet.
     Packet();
 
-    //! Swap two packets
+    //! Swap two packets.
     //!
-    //! Swap the content if \a packet with the content of
+    //! Swap the content of \a packet with the content of
     //! the current packet.
     //!
-    //! \param[in,out] packet
+    //! \param[in,out] Packet to swap.
     inline
     void swap(Packet& packet) noexcept;
 
@@ -209,7 +209,7 @@ public:
     //! \brief Build a reader from a Packet \a p.
     inline PacketReader(const Packet& p);
 
-    //! \brief Read \a dt from the packet
+    //! \brief Read \a dt from the PacketReader.
     //!
     //! This call is ignored if the end of the packet was reached.
     //! See PackerReader::operator bool().
@@ -263,7 +263,7 @@ public:
     inline Packet::Type next_type() const noexcept;
 
 private:
-    //! \brief Consume the header of an object if it's a valid one (i.e. {Type::Object, length})
+    //! \brief Consume the header of an object if it's a valid one (i.e. {Type::Object, length}).
     void read_object_header(unsigned short length) throw(PacketException);
 
     const Packet* m_p;
@@ -393,7 +393,7 @@ void read_from_packet(PacketReader& packet_reader, Args&... args);
 //! \return The type's name as a readable string.
 SEDNL_API const char* type_to_string(Packet::Type type);
 
-//! \brief Call type_to_string and output it
+//! \brief Call type_to_string and output it.
 //!
 //! \param[out] os The output stream.
 //! \param[in] type The type to show.
@@ -410,6 +410,15 @@ SEDNL_API std::ostream& operator<< (std::ostream& os, Packet::Type type);
 template<typename... Args>
 inline
 unsigned short number_of_args(Args... args);
+
+//! Swap two events.
+//!
+//! Swap the content of \a event with the content of
+//! the current event.
+//!
+//! \param[in,out] Event to swap.
+inline
+void swap(Packet& a, Packet& b) noexcept;
 
 } // namespace SedNL
 
