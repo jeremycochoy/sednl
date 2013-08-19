@@ -77,7 +77,7 @@ void Connection::unsafe_disconnect() noexcept
     }
 }
 
-void Connection::send(const Event& event)
+void Connection::send(const Event& event) throw(NetworkException, std::exception)
 {
     try
     {
