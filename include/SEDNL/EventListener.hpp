@@ -84,6 +84,9 @@ public:
     //!                           event queue.
     EventListener(unsigned int max_queue_size = 1000);
 
+    //! \brief Destruct the event listener by calling join.
+    ~EventListener();
+
     //! \brief Add a server into the managed list.
     //!
     //! Same behavior as attach() on a Connection object.
@@ -163,6 +166,8 @@ public:
     void join();
 
     //! \brief Bind the _connect_ event.
+    //!
+    //! Callback prototype : void my_on_connect(Connection&);
     //!
     //! The _connect_ event is guaranted to be processed imediately when
     //! a connection is received from the server.

@@ -53,6 +53,11 @@ EventListener::EventListener(TCPServer& server, unsigned int max_queue_size)
     attach(server);
 }
 
+EventListener::~EventListener()
+{
+    join();
+}
+
 //
 // When an object is attached/detached, a pointer to the listener
 // is stored inside this object. We also have to check that we

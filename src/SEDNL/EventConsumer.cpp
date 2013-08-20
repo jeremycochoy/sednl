@@ -36,6 +36,11 @@ EventConsumer::EventConsumer(EventListener &producer)
     set_producer(producer);
 }
 
+EventConsumer::~EventConsumer()
+{
+    join();
+}
+
 void EventConsumer::remove_producer() noexcept
 {
     if (m_running)
