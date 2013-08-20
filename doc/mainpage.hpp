@@ -123,3 +123,13 @@
 //!     return EXIT_SUCCESS;
 //! }
 //! \endcode
+//!
+//! \section learn_more Learn more
+//!
+//! If you wan't to learn more about SedNL, I would recomand you
+//! to read the documentation of classes EventListener, EventConsumer,
+//! Packet and Event, a quick look at TCPClient / TCPServer, and then
+//! the SEDNL_SERIALIZABLE macro. Once you read that, you'll prety well
+//! understand the whole library.
+//!
+
