@@ -15,6 +15,13 @@ This reduce network to 'designing good events' and 'reacting to events'.
 
 SedNL use TCP to send and receive events.
 
+Binary release (Version 1.0)
+--------------
+
+### Linux ###
+32 Bits beta release is [available here](http://zenol.fr/sednl/sednl_clang_m32.tar.gz).
+64 Bits beta release is [available here](http://zenol.fr/sednl/sednl_clang_m64.tar.gz).
+
 Installation
 ------------
 
