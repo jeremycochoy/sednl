@@ -3,6 +3,8 @@ SedNL
 
 Simple Event Driven Network Library
 
+__Version 1.0 is now in Beta!__
+
 A network library
 -----------------
 
@@ -77,7 +79,7 @@ API documentation
 
 You can look at examples to have simple examples of use.
 
-Documentation is available here : http://zenol.fr/sednl/
+Documentation (very detailed) is available here : http://zenol.fr/sednl/
 
 
 [![Build Status](https://drone.io/github.com/Zenol/sednl/status.png)](https://drone.io/github.com/Zenol/sednl/latest)
