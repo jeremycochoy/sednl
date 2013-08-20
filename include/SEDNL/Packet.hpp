@@ -352,7 +352,7 @@ SEDNL_API std::ostream& operator<< (std::ostream& os, const Packet& p);
 //!
 //! Its the same behavior as unserialising a serialisable object containing
 //! fields in the same order and same type as \a args.
-//! See Serializer.hpp.
+//! See SEDNL_SERIALIZABLE in Serializer.hpp.
 //!
 //! \param[in] packet_reader Reader from wich to read data.
 //! \param[out] args Variables to write into.
@@ -463,7 +463,7 @@ void swap(Packet& a, Packet& b) noexcept;
 //!
 //! packet << ints;
 //!
-//! //For serialised object, see Serializer.hpp
+//! //For serialised object, see SEDNL_SERIALIZABLE in Serializer.hpp.
 //!
 //! //Then you can read from it.
 //! PackerReader r1(packet);
