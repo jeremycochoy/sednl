@@ -330,11 +330,11 @@ private:
 //! \class SedNL::EventListener
 //!
 //! The EventListener class is one of the central class of
-//! SedNL. You should use it on 'server side' to listen from
+//! SedNL. You should use it on _server side_ to listen from
 //! incoming connections, and event from those connections.
 //!
-//! You should also use it to listen from events from
-//! TCPClient connections.
+//! You should also use it on _client side_ to listen from events
+//! from TCPClient connections.
 //!
 //! You can give as much TCPClient and TCPServer objects as
 //! you want to the same EventListener, it will handle all of
