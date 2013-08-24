@@ -39,7 +39,7 @@ If you want to build in _sednl/build_, to generate MinGW makefiles you
 can type `cmake -G "MinGW Makefiles" ..`.
 
 Notice that Visual Studio's compiler isn't C++11 compliant, and it's probably that SedNL won't build.
-Seams like VC++ 20013 will solve it. You can use Visual Studio with Clang++ or MinGW (or any C++11 compiler).
+Seams like VC++ 2013 will solve it. You can use Visual Studio with Clang++ or MinGW (or any C++11 compiler).
 
 
 Binding on events
