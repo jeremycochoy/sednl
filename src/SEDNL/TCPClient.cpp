@@ -108,12 +108,12 @@ void TCPClient::connect(const SocketAddress& socket_address, int timeout)
     m_fd = fd;
 }
 
-  bool TCPClient::blocking_connect(FileDescriptor fd, struct addrinfo *addr)
+bool TCPClient::blocking_connect(FileDescriptor fd, struct addrinfo *addr)
 {
     return (::connect(fd, addr->ai_addr, addr->ai_addrlen) == 0);
 }
 
-  bool TCPClient::non_blocking_connect(FileDescriptor fd, struct addrinfo *addr,
+bool TCPClient::non_blocking_connect(FileDescriptor fd, struct addrinfo *addr,
                                      int timeout)
 {
     //Set non-blocking

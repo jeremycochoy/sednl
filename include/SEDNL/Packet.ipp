@@ -43,7 +43,7 @@ PacketReader::PacketReader(const Packet &p)
 
 template<typename T>
 inline
-PacketReader& operator>>(Packet &p, T &dt)
+PacketReader& operator>>(const Packet &p, T &dt)
 {
     return (PacketReader(p) >> (Int8&)dt);
 }

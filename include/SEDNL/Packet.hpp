@@ -226,7 +226,7 @@ public:
     //! \param[out] dt Data
     //! \return A reference to this.
     template<typename T>
-    PacketReader& operator>>(T &dt);
+    PacketReader& operator>> (T &dt);
 
     PacketReader& operator>> (std::vector<char>& dt);
 
@@ -339,7 +339,7 @@ PacketReader& PacketReader::operator>> <std::string>(std::string& dt);
 
 template<typename T>
 inline
-PacketReader& operator>> (Packet &p, T &dt);
+PacketReader& operator>> (const Packet &p, T &dt);
 
 //! \brief Write a short description of a packet in a JSON like fashion.
 //!

@@ -22,7 +22,9 @@
 #include "SEDNL/EventConsumer.hpp"
 #include "SEDNL/EventListener.hpp"
 #include "SEDNL/Exception.hpp"
+
 #include<iostream>
+
 namespace SedNL
 {
 
