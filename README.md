@@ -15,6 +15,13 @@ This reduce network to 'designing good events' and 'reacting to events'.
 
 SedNL use TCP to send and receive events.
 
+Binary release (Version 1.0)
+--------------
+
+### Linux ###
+32 Bits beta release is [available here](http://zenol.fr/sednl/sednl_clang_m32.tar.gz).
+64 Bits beta release is [available here](http://zenol.fr/sednl/sednl_clang_m64.tar.gz).
+
 Installation
 ------------
 
@@ -32,7 +39,7 @@ If you want to build in _sednl/build_, to generate MinGW makefiles you
 can type `cmake -G "MinGW Makefiles" ..`.
 
 Notice that Visual Studio's compiler isn't C++11 compliant, and it's probably that SedNL won't build.
-Seams like VC++ 20013 will solve it. You can use Visual Studio with Clang++ or MinGW (or any C++11 compiler).
+Seams like VC++ 2013 will solve it. You can use Visual Studio with Clang++ or MinGW (or any C++11 compiler).
 
 
 Binding on events
@@ -81,5 +88,20 @@ You can look at examples to have simple examples of use.
 
 Documentation (very detailed) is available here : http://zenol.fr/sednl/
 
+Design
+------
+
+SedNL use queue to store events when they are received. That's the job of the EventListener class. Then, queues are
+read by consumers thread. Creating a thread and setting callbacks is the work of the EventConsumer class.
+
+For easy building of message, we provide a serialisation macro (although you can write yourself the small
+template code generated) and rely on variadic templates. Events are instances of the Event class, which is nothing
+more than a Packet instance with a name. The packet class provide way to stack data and build an Event.
+
+For short events, it's easier to write the packet by hand. For more complex object, the good choice is serialising
+big objects so that your packet reduce to few serialized object. This way, your code is more flexible.
+
+You may notice that most of the library code isn't networking, but providing a hight level API so that you don't
+have to worry (too much) about concurency, and hide the complexity of using condition variables, mutexes, etc.
 
 [![Build Status](https://drone.io/github.com/Zenol/sednl/status.png)](https://drone.io/github.com/Zenol/sednl/latest)
