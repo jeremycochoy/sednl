@@ -96,7 +96,7 @@ int main()
         //May throw a badtype exception
         try
         {
-            p >> c;
+            PacketReader(p) >> c;
         }
         catch(...)
         {

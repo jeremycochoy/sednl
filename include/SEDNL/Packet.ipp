@@ -41,13 +41,6 @@ PacketReader::PacketReader(const Packet &p)
     :m_p(&p), m_idx(0)
 {}
 
-template<typename T>
-inline
-PacketReader& operator>>(const Packet &p, T &dt)
-{
-    return (PacketReader(p) >> (Int8&)dt);
-}
-
 PacketReader::operator bool() const noexcept
 {
     return !(m_idx >= m_p->m_data.size());

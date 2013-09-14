@@ -542,11 +542,11 @@ PacketReader& PacketReader::operator>> <std::string> (std::string& dt)
         return *this;
 
     auto type = static_cast<Packet::Type>(m_p->m_data[m_idx]);
-
+    std::cout << "ok2";
     if (type != Packet::Type::String)
-        throw PacketException(PacketExceptionT::StringExpected);
+        exception_by_type(type);
     m_idx++;
-
+    std::cout << "ok1";
     std::string out;
     while (m_p->m_data[m_idx] != '\0')
         out.push_back(m_p->m_data[m_idx++]);

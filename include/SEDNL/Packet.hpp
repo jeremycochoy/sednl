@@ -313,6 +313,10 @@ Packet& Packet::operator<< <const char*>(const char* dt);
 template<>
 PacketReader& PacketReader::operator>> <char>(char& dt);
 template<>
+PacketReader& PacketReader::operator>> <unsigned char>(unsigned char& dt);
+template<>
+PacketReader& PacketReader::operator>> <signed char>(signed char& dt);
+template<>
 PacketReader& PacketReader::operator>> <Int8>(Int8& dt);
 template<>
 PacketReader& PacketReader::operator>> <Int16>(Int16& dt);
@@ -336,10 +340,6 @@ PacketReader& PacketReader::operator>> <double>(double& dt);
 
 template<>
 PacketReader& PacketReader::operator>> <std::string>(std::string& dt);
-
-template<typename T>
-inline
-PacketReader& operator>> (const Packet &p, T &dt);
 
 //! \brief Write a short description of a packet in a JSON like fashion.
 //!
