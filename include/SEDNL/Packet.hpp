@@ -305,6 +305,8 @@ Packet& Packet::operator<< <double>(double dt);
 template<>
 Packet& Packet::operator<< <std::string>(std::string dt);
 template<>
+Packet& Packet::operator<< <char*>(char* dt);
+template<>
 Packet& Packet::operator<< <const char*>(const char* dt);
 
 //OUT

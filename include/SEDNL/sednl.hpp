@@ -34,6 +34,7 @@
 #include "SEDNL/Packet.hpp"
 #include "SEDNL/Serializer.hpp"
 #include "SEDNL/ThreadHelp.hpp"
+#include "SEDNL/SocketAddress.hpp"
 
 #endif /* !SEDNL_HPP_ */
 

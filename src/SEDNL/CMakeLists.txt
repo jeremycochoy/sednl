@@ -12,7 +12,7 @@ configure_file(${SEDNL_VERSION_TEMPLATE}
 include_directories (${PROJECT_SOURCE_DIR}/include/ ${PROJECT_SOURCE_DIR}/src/)
 
 # Add files that should be compiled
-file(GLOB_RECURSE INCLUDE_FILES ${PROJECT_SOURCE_DIR}/include/*.hpp)
+file(GLOB_RECURSE INCLUDE_FILES ${PROJECT_SOURCE_DIR}/include/*.hpp ${PROJECT_SOURCE_DIR}/include/*.ipp)
 file(GLOB_RECURSE SOURCE_FILES ${PROJECT_SOURCE_DIR}/src/*.cpp)
 list(APPEND SOURCE_FILES ${SEDNL_VERSION_FILE})
 

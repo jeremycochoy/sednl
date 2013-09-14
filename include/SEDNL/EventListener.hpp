@@ -23,13 +23,12 @@
 #define EVENT_LISTENER_HPP_
 
 #include "SEDNL/sednlfwd.hpp"
-#include "SEDNL/SocketHelp.hpp"
+#include "SEDNL/NetworkHeader.hpp"
 #include "SEDNL/Export.hpp"
 #include "SEDNL/Exception.hpp"
 #include "SEDNL/ThreadHelp.hpp"
 #include "SEDNL/Types.hpp"
 #include "SEDNL/Event.hpp"
-#include "SEDNL/Poller.hpp"
 #include "SEDNL/Slot.hpp"
 
 #include <queue>

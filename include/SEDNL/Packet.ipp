@@ -144,6 +144,13 @@ PacketReader& PacketReader::operator>> (T& dt)
     return *this;
 }
 
+template<>
+inline
+Packet& Packet::operator<< <char*>(char* dt)
+{
+    return operator<< <const char*>(dt);
+}
+
 } // namespace SedNL
 
 namespace std

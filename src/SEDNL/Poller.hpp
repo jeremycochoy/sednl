@@ -23,7 +23,7 @@
 #define POLLER_HPP_
 
 #include "SEDNL/Export.hpp"
-#include "SEDNL/SocketHelp.hpp"
+#include "SEDNL/NetworkHeader.hpp"
 
 #ifndef EPOLL_SIZE
 # define EPOLL_SIZE MAX_CONNECTIONS

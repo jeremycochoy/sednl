@@ -24,7 +24,7 @@
 
 #include "SEDNL/sednlfwd.hpp"
 
-#include "SEDNL/SocketHelp.hpp"
+#include "SEDNL/NetworkHeader.hpp"
 #include "SEDNL/Export.hpp"
 #include "SEDNL/Connection.hpp"
 

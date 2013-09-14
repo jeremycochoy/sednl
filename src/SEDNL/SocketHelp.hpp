@@ -22,59 +22,7 @@
 #ifndef SOCKET_HELP_HPP_
 #define SOCKET_HELP_HPP_
 
-#ifndef MAX_CONNECTIONS
-# define MAX_CONNECTIONS 10000
-#endif /* !MAX_CONNECTIONS */
-
-#include "SEDNL/Exception.hpp"
-#include "SEDNL/Packet.hpp"
-
-#ifdef SEDNL_WINDOWS
-
-#ifdef SEDNL_BACKEND_WSAPOLL
-#if _WIN32_WINNT <= 0x0600
-#undef _WIN32_WINNT
-#define _WIN32_WINNT 0x0600
-#endif /* _WIN32_WINNT <= 0x0600 */
-#endif /* SEDNL_BACKEND_WSAPOLL */
-
-#include <winsock2.h>
-#include <Ws2tcpip.h>
-#include <stdio.h>
-
-typedef unsigned long long n_64;
-typedef u_long   n_32;
-typedef u_short  n_16;
-
-#define close(s) closesocket(s)
-
-#ifdef SEDNL_BACKEND_WSAPOLL
-
-#ifdef __MINGW64__
-#define SEDNL_DEF_WSAPOLL
-#endif /* __MINGW64__ */
-#ifdef __MINGW32__
-#define SEDNL_DEF_WSAPOLL
-#endif /* __MINGW32__ */
-
-#endif /* SEDNL_BACKEND_WSAPOLL */
-
-#else /* SEDNL_WINDOWS */
-
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netdb.h>
-#include <unistd.h>
-#include <fcntl.h>
-
-#include <arpa/inet.h>
-#include <netinet/in.h>
-
-typedef uint64_t n_64;
-typedef uint32_t n_32;
-typedef uint16_t n_16;
-
-#endif /* SEDNL_WINDOWS */
+#include "SEDNL/NetworkHeader.hpp"
 
 #include <utility>
 #include <thread>

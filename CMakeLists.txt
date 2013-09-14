@@ -61,7 +61,7 @@ endif(BACKEND_WSAPOLL)
 project(SEDNL)
 
 # C++ 2011 flags
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -ggdb -W -Wall -fvisibility=hidden")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -O3 -W -Wall -fvisibility=hidden")
 
 #Remove warning from the use of gcc's __attribute__ visibility with 'enum class'.
 if(CMAKE_COMPILER_IS_GNUCXX)
@@ -69,7 +69,7 @@ if(CMAKE_COMPILER_IS_GNUCXX)
 endif(CMAKE_COMPILER_IS_GNUCXX)
 
 #C 99 flag
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99 -ggdb -W -Wall -fvisibility=hidden")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99 -O3 -W -Wall -fvisibility=hidden")
 
 # Set version numbers
 set(SEDNL_VERSION_MAJOR 1)
@@ -77,7 +77,7 @@ set(SEDNL_VERSION_MINOR 0)
 set(SEDNL_VERSION_MICRO 0)
 
 #define the dyn/static library name
-set(SEDNL_INCLUDE_DIRECTORY_NAME "sednl-${SEDNL_VERSION_MAJOR}.${SEDNL_VERSION_MINOR}")
+set(SEDNL_INCLUDE_DIRECTORY_NAME "sednl-${SEDNL_VERSION_MAJOR}.${SEDNL_VERSION_MINOR}/SEDNL")
 set(SEDNL_LIBRARY_NAME "sednl-${SEDNL_VERSION_MAJOR}.${SEDNL_VERSION_MINOR}")
 
 #Set include directories
