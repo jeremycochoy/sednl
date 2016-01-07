@@ -18,4 +18,4 @@ target_link_libraries(helloworld_server ${CMAKE_THREAD_LIBS_INIT})
 #Build serializer example
 add_executable (serializer "${PROJECT_SOURCE_DIR}/examples/serializer/serializer.cpp")
 target_link_libraries(serializer ${SEDNL_LIBRARY_NAME})
-#target_link_libraries(serializer ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(serializer ${CMAKE_THREAD_LIBS_INIT})
