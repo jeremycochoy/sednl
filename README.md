@@ -78,6 +78,8 @@ Then, create a build directory. We will use a _build_ directory in the clone : `
 And now, we generate all the makefiles with `cmake ..`.
 Then, you are home, and you can type `make ; sudo make install`.
 
+If you want to build the documentation, type `make doc`.
+
 ### Windows ###
 
 You should use cmake.exe / cmake-gui.exe.
