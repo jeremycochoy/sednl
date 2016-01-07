@@ -26,40 +26,10 @@
 //! detailed description of classes and functions provided by the
 //! library, with short examples.
 //!
-//! \section description Description
-//! SedNL (for Simple Event Driven Network Library) is a C++11 library
-//! that provide a simple hight level API to send and receive easily
-//! events through network.
-//!
-//! An event is a string (the event name) followed by some data.
-//! You build your own events easily, and can serialize instances.
-//! You easily bind callback (lambda, functor, function or member function)
-//! to events, and don't have to worry too much on how to queue events
-//! and handle concurency.
-//!
-//! This library is intended for application that need to send events
-//! that should'nt be lost, and should always be received in the same order they
-//! was send (althought they will be processed asynchronously).
-//! Basicaly, online games.
-//! For this purpose, the library rely on TCP.
-//!
-//! This library was developed to provide a reliable and simple API
-//! for a turn by turn MMORPG. By reliability, we means that event if
-//! the os can't provide more memory, the behavior of the server is still
-//! well defined, and it won't crash.
-//!
-//! \section tcp_udp TCP or UDP ?
-//!
-//! If you need the ability to lost event (yes, you need it for online game
-//! with real time battle. Missed events should be ignored, so that the game
-//! can continue), and the order of reception / emission do not count,
-//! then you may want to look at a UDP library. SedNL provide reliability and a
-//! high level API, and it has a cost (small, but not null). If you need to send
-//! a huge amount of events (let's says hundread by second by client), then
-//! maybe you'll prefer an UDP library. Otherwise, you'll probably prefer
-//! the reliability and simple API provided by SedNL.
-//!
 //! \section example A short example
+//!
+//! Here is a simple example to show how you can set up client and server
+//! in few lines.
 //!
 //! A simple client :
 //! \code
@@ -124,12 +94,32 @@
 //! }
 //! \endcode
 //!
+//! \section description Description
+//! SedNL (for Simple Event Driven Network Library) is a C++11 library
+//! that provide a simple hight level API to send and receive easily
+//! events through network.
+//!
+//! An event is a string (the event name) followed by some data.
+//! You build your own events easily, and can serialize instances.
+//! You easily bind callback (lambda, functor, function or member function)
+//! to events, and don't have to worry on how to queue events
+//! and handle concurency.
+//!
+//! This library is intended for application that want to communicate using
+//! messages. Messages can't be lost, and will always be received in the same order as they
+//! was send (althought they will be processed asynchronously).
+//! This library is especialy suitable fo online video games.
+//! For this purpose, the library rely on TCP.
+//!
+//! \section tcp_udp TCP or UDP ?
+//!
+//! The underlying protocol used by SedNL is TCP.
+//!
 //! \section learn_more Learn more
 //!
 //! If you wan't to learn more about SedNL, I would recomand you
-//! to read the documentation of classes EventListener, EventConsumer,
-//! Packet and Event, a quick look at TCPClient / TCPServer, and then
-//! the SEDNL_SERIALIZABLE macro. Once you read that, you'll prety well
+//! to read the documentation of classes SedNL::EventListener, SedNL::EventConsumer,
+//! Packet and Event, a quick look at SedNL::TCPClient / SedNL::TCPServer, and then
+//! the \ref SEDNL_SERIALIZABLE macro. Once you read that, you'll prety well
 //! understand the whole library.
 //!
-
