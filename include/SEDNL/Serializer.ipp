@@ -27,6 +27,9 @@ namespace SedNL
 
 //! @cond
 
+//! Implementation of the serialisation of
+//! a used data type. See 'Serializer.hpp' for
+//! use case.
 template<class T>
 struct Serializer
 {
