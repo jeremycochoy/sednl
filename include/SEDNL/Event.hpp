@@ -117,7 +117,7 @@ SEDNL_API std::ostream&  operator<< (std::ostream& os, const Event& e);
 
 //! Swap two events.
 //!
-//! Swap the content of \a a with the content of \b.
+//! Swap the content of \a a with the content of \b .
 //!
 //! \param[in,out] a First Event to swap.
 //! \param[in,out] b Second Event to swap.

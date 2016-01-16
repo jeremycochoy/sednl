@@ -40,24 +40,36 @@ namespace SedNL
     ///////////////////////////////////////////
     enum class SEDNL_API TypeExceptionT
     {
+        //! Unknow type
         Unknown,
+        //! Wron type asked by an acessor.
         UserDataWrongTypeAsked,
+        //! Wrong type given to a mutator.
         UserDataWrongTypeGiven,
     };
 
     //////////////////////////////////////////////
-    //! \brief Different kind of NetowrkException.
+    //! \brief Different kind of NetworkException.
     //////////////////////////////////////////////
     enum class SEDNL_API NetworkExceptionT
     {
+        //! The socket adress is invalid.
         InvalidSocketAddress,
+        //! Cannot retrieve host.
         CantRetrieveHost,
+        //! Failed to open a connection.
         ConnectFailed,
+        //! Tryed to send empty message.
         EmptySend,
+        //! Sending the message failed.
         SendFailed,
+        //! Binding the function failed.
         BindFailed,
+        //! Listening to the socket adress failed.
         ListenFailed,
+        //! Cannot set non blocking listening.
         CantSetNonblocking,
+        //! Connection timed out.
         TimedOut,
     };
 
@@ -66,12 +78,19 @@ namespace SedNL
     //////////////////////////////////////////////
     enum class SEDNL_API EventExceptionT
     {
+        //! Event listener already running.
         EventListenerRunning,
+        //! Event consumer already running.
         EventConsumerRunning,
+        //! Collision in event binding,
         EventCollision,
+        //! Already listening.
         AlreadyListened,
+        //! Tried to detach from the wrong listener.
         WrongParentListener,
+        //! Failing to create the poller.
         PollerCreateFailed,
+        //! Failed to add a connection to the poller.
         PollerAddFailed,
     };
 
@@ -80,6 +99,8 @@ namespace SedNL
     //////////////////////////////////////////////
     enum class SEDNL_API PacketExceptionT
     {
+        //! @cond Doxygen_Suppress
+
         UInt8Expected,
         UInt16Expected,
         UInt32Expected,
@@ -108,6 +129,8 @@ namespace SedNL
         WrongSizedObject,
         WrongArray,
         Unknown,
+
+        //! @endcond
     };
 
     ////////////////////////////////////////////////////

@@ -52,24 +52,33 @@ private:
 public:
     //! \brief Construct an event listener from a TCPServer.
     //!
-    //! Does exactly the same thing as constructing an empty
-    //! listener, and then calling attach(server).
+    //! Does exactly the same thing as the following lines:
+    //!
+    //! \code
+    //! EventLister listener;
+    //! listener.attach(my_tcpserver);
+    //! \endcode
     //!
     //! \param[in] server The server to listen.
-    //! \param[in] max_queue_size Upper bound of the size of an
+    //! \param[in] max_queue_size Upper bound on the size of an
     //!                           event queue.
     EventListener(TCPServer &server, unsigned int max_queue_size = 1000);
 
     //! \brief Construct an event listener from a Connection
     //!
     //! Since TCPClient is a connection, you can also call
-    //! EventListener(TCPConnection &connection).
+    //! \code
+    //! EventListener(TCPClient &connection).
+    //! \endcode
     //!
-    //! Does exactly the same thing as constructing an empty
-    //! listener, and then calling attach(connection).
+    //! Does exactly the same thing as the following lines:
+    //! \code
+    //! EventLister listener;
+    //! listener.attach(my_connection);
+    //! \endcode
     //!
     //! \param[in] connection The connection to listen
-    //! \param[in] max_queue_size Upper bound of the size of an
+    //! \param[in] max_queue_size Upper bound on the size of an
     //!                           event queue.
     EventListener(Connection &connection, unsigned int max_queue_size = 1000);
 
@@ -79,7 +88,7 @@ public:
     //! an other value. You can suppress the upper bound by setting
     //! max_queue_size to 0, but it's not recommended.
     //!
-    //! \param[in] max_queue_size Upper bound of the size of an
+    //! \param[in] max_queue_size Upper bound on the size of an
     //!                           event queue.
     EventListener(unsigned int max_queue_size = 1000);
 
@@ -88,7 +97,7 @@ public:
 
     //! \brief Add a server into the managed list.
     //!
-    //! Same behavior as attach() on a Connection object.
+    //! Same behavior as attach(Connection&) on a Connection object.
     //!
     //! \param[in] server The server to attach.
     void attach(TCPServer &server) throw(std::bad_alloc, EventException);
@@ -129,7 +138,8 @@ public:
     //! WrongParentListener exception.
     //!
     //! You can't call detach while the listener is runing.
-    //! If you do so, it will throw a EventListenerRunning
+    //! You need to call join() before.
+    //! If try to do it, it will result in a EventListenerRunning
     //! exception.
     //!
     //! \param[in] connection The connection to detach.
@@ -138,7 +148,7 @@ public:
     //! \brief Launch the EventListener thread.
     //!
     //! EventListener::run() launch a new thread and start listening to
-    //! incoming events from TCPConnection, Connection and TCPServer.
+    //! incoming events from TCPClient, Connection and TCPServer.
     //!
     //! If a new connection occure from TCPServer, a new Connection is
     //! created and added into the connection list.
@@ -146,7 +156,7 @@ public:
     //! The EventListener will take care of the memory allocated by new
     //! connections, and memory desalocation.
     //!
-    //! If more than one attached consumer bind the same event, then
+    //! If more than one attached EventConsumer bind the same event, then
     //! it will throw a EventCollision exception at startup.
     //!
     //! To stop the listener, call join().
@@ -342,11 +352,14 @@ private:
 //! When a new connection is created, it produce a _connect_
 //! event which is immediately processed (which means
 //! that the listener thread will call the callback you put
-//! on the slot returned by on_connect()).
+//! on the slot returned by on_connect().
 //!
-//! Then, every event comming from TCPConnection and Connections
+//! Then, every event comming from TCPClient and Connection
 //! will be placed in queue (one queue by event name, placed
 //! in a deterministic order).
+//!
+//! A Connection (TCPClient or TCPServer) cannot be attached
+//! to more than one listener at a time.
 //!
 //! The next step is creating one or more EventConsumer
 //! that would be able to consume events stored in queue.
@@ -415,8 +428,8 @@ private:
 //! If in this example, you would need to differenciate messages from
 //! foo and messages from bar, you could check the address of the first
 //! parameter of you callback (Connection&).
-//! It is always a reference to the TCPClient object you given, casted to
-//! a Connection object.
+//! It is always a reference to the TCPClient object you gave, casted to
+//! a Connection* object.
 //!
 //! So, you would do something like :
 //!

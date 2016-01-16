@@ -25,6 +25,8 @@
 namespace SedNL
 {
 
+//! @cond Doxygen_Suppress
+
 class TCPClient;
 class TCPServer;
 class Connection;
@@ -47,6 +49,8 @@ template<class T>
 class SafeType;
 template<class T, class Container>
 class SafeQueue;
+
+//! @endcond
 
 } //namespace SedNL
 

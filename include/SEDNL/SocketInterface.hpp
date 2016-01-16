@@ -63,6 +63,9 @@ protected:
     //!        closing the connection, or changing the user data.
     std::mutex m_mutex;
 
+    //! \brief Return the file descriptor associated to this socket.
+    //!
+    //! \return File descriptor.
     inline FileDescriptor get_fd() noexcept;
 };
 

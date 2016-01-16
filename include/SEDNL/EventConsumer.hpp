@@ -46,8 +46,14 @@ public:
     ConsumerDescriptor()
         :wake_up(false)
     {};
+
+    //! The mutex.
     std::mutex mutex;
+
+    //! Wake up variable.
     bool wake_up;
+
+    //! Condition variable for notification.
     std::condition_variable cv;
 };
 
@@ -66,8 +72,11 @@ public:
 
     //! \brief Construct a consumer consuming events from \a producer.
     //!
-    //! Same effet as calling the empty constructor and then calling
-    //! set_producer().
+    //! Same effet as calling the following lines:
+    //! \code
+    //! EventConsumer consumer;
+    //! consumer.attach(producer);
+    //! \endcode
     //!
     //! \param[in] producer The event listener from which events will
     //!                     be consumed.
@@ -81,9 +90,9 @@ public:
     //! The \a producer shoulde live until the EventConsumer die
     //! (or, at least, until the EventConsumer stop to use \a producer,
     //!  which means that once the producer is destroyed,
-    //!  you shouldn't call run, and the consumer shouldn't be running).
+    //!  you shouldn't call run(), and the consumer shouldn't be running).
     //!
-    //! Setting the same producer to two consumer that bind the same
+    //! Linking the same \a producer to two consumer that bind the same
     //! event will result in a deffered throw : the call to producer's run
     //! will throw an EventException with code EventCollision.
     //!
@@ -98,12 +107,16 @@ public:
 
     //! \brief Start the consumer thread.
     //!
-    //! Once launcher, the consumer will read events from
+    //! Once launched, the consumer will read events from
     //! producer's queues. It will only consume events that
     //! are bound by this consumer.
     //!
     //! Notice that on_event() allow binding all events not
-    //! already bound by a consumer (this one or an other one).
+    //! already bound by any of the consumer connected to the
+    //! current listener.
+    //!
+    //! In a multi consumer scheme, only one of them can bind the
+    //! on_event() slot.
     void run() throw(EventException);
 
     //! \brief Join the consumer thread, and stop consuming events.
@@ -111,7 +124,7 @@ public:
 
     //! \brief Bind the _disconnect_ event.
     //!
-    //! Callback prototype : void my_on_disconnect(Connection&);
+    //! Callback prototype : `void my_on_disconnect(Connection&);`
     //!
     //! Warning: A disconnect event can be computed before
     //! an other event from the same client!
@@ -123,9 +136,9 @@ public:
     //! prevent an other consumer thread to be processing
     //! an other event while we start processing
     //! a disconnect event.
-    //! It was experimentaly saw that some time,
-    //! disconnect event occure before some other
-    //! events. You are warned! If you wan't to
+    //! It was experimentaly show that some time,
+    //! disconnect event are processed before an other
+    //! event. You are warned! If you want to
     //! free resources when you receive a _disconnected_
     //! event, you'll have to always check if this resource
     //! is available, and remember that it can be destroyed
@@ -141,7 +154,7 @@ public:
     //! which is ofted caused by you closing the socket, or network drop.
     //!
     //! The same warnings as on_disconnect() apply.
-    //! You CAN'T assume that this event will be the last event
+    //! You can't assume that this event will be the last event
     //! processed from this server. You may see incoming connection
     //! after this event was processed.
     inline Slot<TCPServer&>& on_server_disconnect();

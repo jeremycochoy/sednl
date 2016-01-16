@@ -97,7 +97,7 @@ public:
     //! Create an empty packet.
     Packet();
 
-    //! Swap two packets.
+    //! \brief Swap two packets.
     //!
     //! Swap the content of \a packet with the content of
     //! the current packet.
@@ -133,26 +133,37 @@ public:
     template<typename T>
     Packet& operator<<(T dt);
 
+    //! \brief See operator<<(T dt).
     Packet& operator<< (const std::vector<char>& dt);
 
+    //! \brief See operator<<(T dt).
     Packet& operator<< (const std::vector<Int8>& dt);
 
+    //! \brief See operator<<(T dt).
     Packet& operator<< (const std::vector<Int16>& dt);
 
+    //! \brief See operator<<(T dt).
     Packet& operator<< (const std::vector<Int32>& dt);
 
+    //! \brief See operator<<(T dt).
     Packet& operator<< (const std::vector<Int64>& dt);
 
+    //! \brief See operator<<(T dt).
     Packet& operator<< (const std::vector<UInt8>& dt);
 
+    //! \brief See operator<<(T dt).
     Packet& operator<< (const std::vector<UInt16>& dt);
 
+    //! \brief See operator<<(T dt).
     Packet& operator<< (const std::vector<UInt32>& dt);
 
+    //! \brief See operator<<(T dt).
     Packet& operator<< (const std::vector<UInt64>& dt);
 
+    //! \brief See operator<<(T dt).
     Packet& operator<< (const std::vector<float>& dt);
 
+    //! \brief See operator<<(T dt).
     Packet& operator<< (const std::vector<double>& dt);
 
     //! \brief Return the computed data as a binary array.
@@ -182,6 +193,9 @@ public:
     //!
     //! This produce the same behavior as serialising an object containing the
     //! values \a args with Packet::operator<<().
+    //!
+    //! \param[in] args Typed values to pack as an object.
+    //! \param[in] packet Packet to write into.
     template<typename... Args>
     friend
     void write_as_object(Packet& packet, Args&... args);
@@ -202,6 +216,11 @@ private:
 
 ////////////////////////////////////////////////////////////
 //! \brief A reader (allow reading content from a Packet).
+//!
+//! This class allow reading data stored in a packet.
+//! You can have more than one reader  reading from the same
+//! packet at a time.
+//! See the Packet class documentation for an example of use.
 ////////////////////////////////////////////////////////////
 class SEDNL_API PacketReader
 {
@@ -228,26 +247,37 @@ public:
     template<typename T>
     PacketReader& operator>> (T &dt);
 
+    //! See operator>> (T &dt).
     PacketReader& operator>> (std::vector<char>& dt);
 
+    //! See operator>> (T &dt).
     PacketReader& operator>> (std::vector<Int8>& dt);
 
+    //! See operator>> (T &dt).
     PacketReader& operator>> (std::vector<Int16>& dt);
 
+    //! See operator>> (T &dt).
     PacketReader& operator>> (std::vector<Int32>& dt);
 
+    //! See operator>> (T &dt).
     PacketReader& operator>> (std::vector<Int64>& dt);
 
+    //! See operator>> (T &dt).
     PacketReader& operator>> (std::vector<UInt8>& dt);
 
+    //! See operator>> (T &dt).
     PacketReader& operator>> (std::vector<UInt16>& dt);
 
+    //! See operator>> (T &dt).
     PacketReader& operator>> (std::vector<UInt32>& dt);
 
+    //! See operator>> (T &dt).
     PacketReader& operator>> (std::vector<UInt64>& dt);
 
+    //! See operator>> (T &dt).
     PacketReader& operator>> (std::vector<float>& dt);
 
+    //! See operator>> (T &dt).
     PacketReader& operator>> (std::vector<double>& dt);
 
 
@@ -277,6 +307,8 @@ private:
 
     friend std::ostream& operator<< (std::ostream& os, const Packet& p);
 };
+
+//! @cond Doxygen_Suppress
 
 //IN
 template<>
@@ -340,6 +372,8 @@ PacketReader& PacketReader::operator>> <double>(double& dt);
 
 template<>
 PacketReader& PacketReader::operator>> <std::string>(std::string& dt);
+
+//! @endcond
 
 //! \brief Write a short description of a packet in a JSON like fashion.
 //!
