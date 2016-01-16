@@ -25,6 +25,8 @@
 namespace SedNL
 {
 
+//! @cond
+
 template<class T>
 struct Serializer
 {
@@ -94,5 +96,7 @@ void serializer_unserialize(PacketReader& packet_reader, T& inst, Args&... args)
 }
 
 } //namespace SedNL
+
+//! @endcond
 
 #endif /* !SERIALIZER_IPP_ */

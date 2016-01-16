@@ -106,7 +106,8 @@ private:
 //! \param[in] args Values to write into the packet.
 //! \return The newly created event.
 template<typename... Args>
-Event make_packet(const std::string& event_name, Args... args);
+Event make_event(const std::string& event_name, Args... args);
+
 
 //! \brief Display an Event in a JSON like format.
 //!

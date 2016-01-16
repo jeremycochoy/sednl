@@ -57,6 +57,7 @@ public:
     std::condition_variable cv;
 };
 
+//! List of named slot.
 template<typename... Args>
 using SlotMap = std::unordered_map<std::string, Slot<Args...>>;
 

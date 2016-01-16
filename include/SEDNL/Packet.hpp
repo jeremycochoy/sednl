@@ -31,6 +31,7 @@
 namespace SedNL
 {
 
+//! An array of 'Byte's.
 typedef std::vector<Byte> ByteArray;
 
 class RingBuf;

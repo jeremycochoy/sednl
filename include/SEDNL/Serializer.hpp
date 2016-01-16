@@ -41,9 +41,11 @@ namespace SedNL
     inline void unserialize(const Packet& p)                         \
     { PacketReader r(p); unserialize(r); };
 
+//! Implementation of serialization.
 template<typename T, typename... Args>
 void serializer_serialize(Packet& packet, T&inst, Args&... args);
 
+//! Implementation of unserialization.
 template<typename T, typename... Args>
 void serializer_unserialize(PacketReader& packet_reader, T&inst, Args&... args);
 

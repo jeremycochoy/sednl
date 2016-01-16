@@ -25,6 +25,8 @@
 namespace SedNL
 {
 
+//! @cond Doxygen_Suppress
+
 inline
 void Packet::swap(Packet& p) noexcept
 {
@@ -143,6 +145,8 @@ Packet& Packet::operator<< <char*>(char* dt)
 {
     return operator<< <const char*>(dt);
 }
+
+//! @endcond
 
 } // namespace SedNL
 
