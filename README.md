@@ -19,6 +19,24 @@ in the structure of messages.
 
 SedNL support asynchronous messaging through the use of TCP.
 
+Building a hello world
+----------------------
+
+To check your installation and get started, you can compile the following code:
+```
+#include <SEDNL/sednl.hpp>
+using namespace SedNL;
+int main(int argc, char* argv[])
+{
+    TCPClient client(SocketAddress(4242, "localhost"));
+    client.send(Event("hello_msg", make_packet("Hello world")));
+    client.disconnect();
+    return EXIT_SUCCESS;
+}
+```
+
+with the compile line `g++ -std=c++11 -lpthread -lsednl file.cpp`.
+
 Binding on events
 -----------------
 
@@ -73,7 +91,9 @@ Compilation and Installation
 
 ### Linux ###
 
-Installation is simple. First, you have to `git clone https://github.com/Zenol/sednl.git`.
+Some distributions provide a package. For example, on archlinux, you can type `yaourt -S sednl`.
+
+**Installation from sources:** First, you have to `git clone https://github.com/Zenol/sednl.git`.
 Then, create a build directory. We will use a _build_ directory in the clone : `cd sednl ; mkdir build`.
 And now, we generate all the makefiles with `cmake ..`.
 Then, you are home, and you can type `make ; sudo make install`.
