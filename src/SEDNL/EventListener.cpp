@@ -322,7 +322,7 @@ void EventListener::accept_connections(FileDescriptor fd)
             return;
         }
 
-        if (set_non_blocking(cfd) < 0)
+        if (set_non_blocking(cfd) == false)
         {
 #ifndef SEDNL_NOWARN
             std::cerr << "Warning: "
@@ -335,7 +335,7 @@ void EventListener::accept_connections(FileDescriptor fd)
             return;
         }
 
-        if (m_poller->add_fd(cfd) < 0)
+        if (m_poller->add_fd(cfd) == false)
         {
 #ifndef SEDNL_NOWARN
             std::cerr << "Warning: "
