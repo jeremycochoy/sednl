@@ -23,7 +23,7 @@ Building a hello world
 ----------------------
 
 To check your installation and get started, you can compile the following code:
-```
+```c++
 #include <SEDNL/sednl.hpp>
 using namespace SedNL;
 int main(int argc, char* argv[])
