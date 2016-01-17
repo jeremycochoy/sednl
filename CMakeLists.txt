@@ -65,7 +65,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -O3 -W -Wall -fvisibility=hid
 
 #Remove warning from the use of gcc's __attribute__ visibility with 'enum class'.
 if(CMAKE_COMPILER_IS_GNUCXX)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-attributes")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-attributes -fno-strict-aliasing")
 endif(CMAKE_COMPILER_IS_GNUCXX)
 
 #C 99 flag
