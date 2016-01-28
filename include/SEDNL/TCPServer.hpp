@@ -66,7 +66,10 @@ public:
     //!
     //! \param[in] socket_address Describe the port on wich the server
     //!                           will bind.
-    TCPServer(const SocketAddress &socket_address);
+    //! \param[in] reuseaddr Set the SO_REUSEADDR flag wich allow to
+    //!                      rebind immediatly the socket. Could be usefull
+    //!                      in developpement.
+    TCPServer(const SocketAddress &socket_address, bool reuseaddr = false);
 
     //! \brief Create a server connection from a SocketAddress.
     //!
@@ -76,7 +79,10 @@ public:
     //!
     //! \param[in] socket_address Describe the port on wich the server
     //!                           will bind.
-    void connect(const SocketAddress &socket_address);
+    //! \param[in] reuseaddr Set the SO_REUSEADDR flag wich allow to
+    //!                      rebind immediatly the socket. Could be usefull
+    //!                      in developpement.
+    void connect(const SocketAddress &socket_address, bool reuseaddr);
 
     //! \brief Close the connection.
     //!

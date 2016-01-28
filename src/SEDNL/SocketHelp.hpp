@@ -76,6 +76,25 @@ inline bool set_blocking(int fd)
     return true;
 }
 
+//! \brief Set the reuseaddr flag for server socket.
+inline bool set_reuseaddr(int fd)
+{
+#ifdef SEDNL_WINDOWS
+    int flag = 1;
+    if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR,
+                   (const char *)&flag,
+                   sizeof(flag)) < 0)
+        return false;
+#else
+    int flag = 1;
+    if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR,
+                   (const char *)&flag,
+                   sizeof(flag)) < 0)
+        return false;
+#endif
+    return true;
+}
+
 //! Try to obtain addresses with getaddrinfo
 //! See TCPServer::connect() and TCPClient::connect().
 template<typename T, typename U>

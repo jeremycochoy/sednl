@@ -35,10 +35,10 @@ TCPServer::TCPServer() noexcept
     :m_listener(nullptr)
 {}
 
-TCPServer::TCPServer(const SocketAddress& socket_address)
+    TCPServer::TCPServer(const SocketAddress& socket_address, bool reuseaddr)
     :m_listener(nullptr)
 {
-    connect(socket_address);
+    connect(socket_address, reuseaddr);
 }
 
 TCPServer::~TCPServer() noexcept
@@ -46,7 +46,7 @@ TCPServer::~TCPServer() noexcept
     unsafe_disconnect();
 }
 
-void TCPServer::connect(const SocketAddress& socket_address)
+    void TCPServer::connect(const SocketAddress& socket_address, bool reuseaddr)
 {
     if (!socket_address.is_server_valid())
         throw NetworkException(NetworkExceptionT::InvalidSocketAddress);
@@ -92,6 +92,16 @@ void TCPServer::connect(const SocketAddress& socket_address)
 
     if (addr == nullptr)
         throw NetworkException(NetworkExceptionT::BindFailed);
+
+    if (reuseaddr)
+        if (!set_reuseaddr(fd))
+        {
+#ifndef SEDNL_NOWARN
+            std::cerr << "Error: "
+                      << "failed to set the SO_REUSEADDR flag."
+                      << std::endl;
+#endif /* !SEDNL_NOWARN */
+        }
 
     if (!set_non_blocking(fd))
         throw NetworkException(NetworkExceptionT::CantSetNonblocking);

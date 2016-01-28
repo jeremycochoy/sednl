@@ -73,7 +73,7 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99 -O3 -W -Wall -fvisibility=hidden")
 
 # Set version numbers
 set(SEDNL_VERSION_MAJOR 1)
-set(SEDNL_VERSION_MINOR 0)
+set(SEDNL_VERSION_MINOR 1)
 set(SEDNL_VERSION_MICRO 0)
 
 #define the dyn/static library name
