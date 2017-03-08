@@ -101,6 +101,17 @@ public:
     //! \param[in] event The event to send.
     void send(const Event& event) throw(NetworkException, std::exception);
 
+    //! \brief Create an event and send it through the connection.
+    //!
+    //! Same as:
+    //! \code
+    //! send(Event(name, packet));
+    //! //...
+    //!
+    //! \param[in] name Name of the event.
+    //! \param[in] packet The data attached.
+    void send(std::string name, const Packet& packet) throw(NetworkException, std::exception);
+
     //! \brief Link a value to this connection.
     //!
     //! This class assume that you will allways use the same
