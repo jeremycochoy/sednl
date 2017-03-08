@@ -33,9 +33,10 @@ namespace SedNL
 template<class T>
 struct Serializer
 {
-    template<class = decltype(&T::before_serialization)>
+    template<class U>
     static inline
-    void pre_serialize(T& object, int)
+    auto pre_serialize(U& object, int) ->
+    decltype((&U::before_serialization), void())
     {
         object.before_serialization();
     };
@@ -45,9 +46,10 @@ struct Serializer
     void pre_serialize(T&, U)
     {};
 
-    template<class = decltype(&T::after_serialization)>
+    template<class U>
     static inline
-    void post_serialize(T& object, int)
+    auto post_serialize(U& object, int) ->
+        decltype((&U::after_serialization), void())
     {
         object.after_serialization();
     };
@@ -57,9 +59,10 @@ struct Serializer
     void post_serialize(T&, U)
     {};
 
-    template<class = decltype(&T::before_unserialization)>
+    template<class U>
     static inline
-    void pre_unserialize(T& object, int)
+    auto pre_unserialize(U& object, int) ->
+        decltype((&U::before_unserialization), void())
     {
         object.before_unserialization();
     };
@@ -69,9 +72,10 @@ struct Serializer
     void pre_unserialize(T&, U)
     {};
 
-    template<class = decltype(&T::after_unserialization)>
+    template<class U>
     static inline
-    void post_unserialize(T& object, int)
+    auto post_unserialize(U& object, int) ->
+        decltype((&U::after_unserialization), void())
     {
         object.after_unserialization();
     };

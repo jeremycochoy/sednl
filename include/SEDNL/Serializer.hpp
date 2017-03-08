@@ -30,16 +30,16 @@ namespace SedNL
 {
 
 #define SEDNL_SERIALIZABLE(...)                                      \
-    inline void serialize(Packet& p)                                 \
+    inline void serialize(SedNL::Packet& p)                          \
     {                                                                \
-        serializer_serialize(p, *this, __VA_ARGS__);                 \
+        SedNL::serializer_serialize(p, *this, __VA_ARGS__);          \
     }                                                                \
-    inline void unserialize(PacketReader& p)                         \
+    inline void unserialize(SedNL::PacketReader& p)                  \
     {                                                                \
-        serializer_unserialize(p, *this, __VA_ARGS__);               \
+        SedNL::serializer_unserialize(p, *this, __VA_ARGS__);        \
     }                                                                \
-    inline void unserialize(const Packet& p)                         \
-    { PacketReader r(p); unserialize(r); };
+    inline void unserialize(const SedNL::Packet& p)                  \
+    { SedNL::PacketReader r(p); unserialize(r); };
 
 //! Implementation of serialization.
 template<typename T, typename... Args>
