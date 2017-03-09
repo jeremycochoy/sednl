@@ -41,6 +41,7 @@ namespace SedNL
     template<typename... Arguments>
     class Slot;
     class EventListener;
+    class Packet;
 
 ///////////////////////////////////////////////////////////////
 //! \brief Define the the Connection type wich
@@ -110,7 +111,17 @@ public:
     //!
     //! \param[in] name Name of the event.
     //! \param[in] packet The data attached.
-    void send(std::string name, const Packet& packet) throw(NetworkException, std::exception);
+    void send(const std::string& name, const Packet& packet) throw(NetworkException, std::exception);
+
+    //! \brief Create an empty event named \a name
+    //!
+    //! Same as:
+    //! \code
+    //! send(Event(name));
+    //! //...
+    //!
+    //! \param[in] name Name of the event.
+    void send(const std::string& name) throw(NetworkException, std::exception);
 
     //! \brief Link a value to this connection.
     //!

@@ -47,7 +47,7 @@ Event::Event(std::string name)
     :m_name(name)
 {}
 
-Event::Event(std::string name, const Packet& packet)
+Event::Event(const std::string& name, const Packet& packet)
     :m_name(name), m_packet(packet)
 {}
 

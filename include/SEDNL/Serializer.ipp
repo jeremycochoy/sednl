@@ -43,7 +43,7 @@ struct Serializer
 
     template<class U>
     static inline
-    void pre_serialize(T&, U)
+    void pre_serialize(U&, long)
     {};
 
     template<class U>
@@ -56,7 +56,7 @@ struct Serializer
 
     template<class U>
     static inline
-    void post_serialize(T&, U)
+    void post_serialize(U&, long)
     {};
 
     template<class U>
@@ -69,7 +69,7 @@ struct Serializer
 
     template<class U>
     static inline
-    void pre_unserialize(T&, U)
+    void pre_unserialize(U&, long)
     {};
 
     template<class U>
@@ -82,7 +82,7 @@ struct Serializer
 
     template<class U>
     static inline
-    void post_unserialize(T&, U)
+    void post_unserialize(U&, long)
     {};
 };
 

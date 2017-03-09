@@ -23,6 +23,7 @@
 #include "SEDNL/Event.hpp"
 #include "SEDNL/EventListener.hpp"
 #include "SEDNL/SocketHelp.hpp"
+#include "SEDNL/Packet.hpp"
 
 #ifdef SEDNL_WINDOWS
 #else /* SEDNL_WINDOWS */
@@ -112,9 +113,14 @@ void Connection::send(const Event& event) throw(NetworkException, std::exception
     }
 }
 
-void send(std::string name, const Packet& packet) throw(NetworkException, std::exception)
+void Connection::send(const std::string& name, const Packet& packet) throw(NetworkException, std::exception)
 {
     send(Event(name, packet));
+}
+
+void Connection::send(const std::string& name) throw(NetworkException, std::exception)
+{
+    send(Event(name));
 }
 
 void Connection::set_user_data(const char* data)

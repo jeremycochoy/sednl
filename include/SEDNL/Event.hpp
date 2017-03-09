@@ -45,7 +45,7 @@ public:
     //!
     //! \param[in] name Name of the event.
     //! \param[in] packet The data attached.
-    inline Event(std::string name, const Packet& packet);
+    inline Event(const std::string& name, const Packet& packet);
 
     //! \brief Return a reference to the packet handled.
     //!
