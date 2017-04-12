@@ -19,6 +19,7 @@
 //     3. This notice may not be removed or altered from any source
 //        distribution.
 
+#include "SEDNL/Packet.hpp"
 #include "SEDNL/Connection.hpp"
 #include "SEDNL/Event.hpp"
 #include "SEDNL/EventListener.hpp"
@@ -112,7 +113,7 @@ void Connection::send(const Event& event) throw(NetworkException, std::exception
     }
 }
 
-void send(std::string name, const Packet& packet) throw(NetworkException, std::exception)
+void Connection::send(std::string name, const Packet& packet) throw(NetworkException, std::exception)
 {
     send(Event(name, packet));
 }

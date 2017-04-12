@@ -41,9 +41,8 @@ struct Serializer
         object.before_serialization();
     };
 
-    template<class U>
     static inline
-    void pre_serialize(T&, U)
+    void pre_serialize(T&, long)
     {};
 
     template<class U>
@@ -54,9 +53,8 @@ struct Serializer
         object.after_serialization();
     };
 
-    template<class U>
     static inline
-    void post_serialize(T&, U)
+    void post_serialize(T&, long)
     {};
 
     template<class U>
@@ -67,9 +65,8 @@ struct Serializer
         object.before_unserialization();
     };
 
-    template<class U>
     static inline
-    void pre_unserialize(T&, U)
+    void pre_unserialize(T&, long)
     {};
 
     template<class U>
@@ -80,9 +77,8 @@ struct Serializer
         object.after_unserialization();
     };
 
-    template<class U>
     static inline
-    void post_unserialize(T&, U)
+    void post_unserialize(T&, long)
     {};
 };
 

@@ -36,6 +36,7 @@
 namespace SedNL
 {
 
+    class Packet;
     class Event;
     class Connection;
     template<typename... Arguments>
