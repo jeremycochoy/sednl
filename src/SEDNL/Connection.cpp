@@ -118,6 +118,12 @@ void Connection::send(std::string name, const Packet& packet) throw(NetworkExcep
     send(Event(name, packet));
 }
 
+ 
+void Connection::send(std::string name) throw(NetworkException, std::exception)
+{
+    send(Event(name));
+}
+
 void Connection::set_user_data(const char* data)
     throw(TypeException, std::system_error)
 {
