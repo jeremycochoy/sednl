@@ -19,6 +19,7 @@
 //     3. This notice may not be removed or altered from any source
 //        distribution.
 
+#include "SEDNL/Packet.hpp"
 #include "SEDNL/Connection.hpp"
 #include "SEDNL/Event.hpp"
 #include "SEDNL/EventListener.hpp"

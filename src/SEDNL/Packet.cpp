@@ -175,6 +175,7 @@ Packet& Packet::operator<< <char> (char dt)
 {
     m_data.push_back(static_cast<Byte>(Type::Int8));
     m_data.push_back(dt);
+
     return *this;
 }
 

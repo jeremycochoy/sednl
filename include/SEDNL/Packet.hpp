@@ -396,7 +396,6 @@ SEDNL_API std::ostream& operator<< (std::ostream& os, const Packet& p);
 template<typename... Args>
 void read_as_object(PacketReader& packet_reader, Args&... args);
 
-
 //! \brief Allow creating easily new packets.
 //!
 //! You can create a packet with make_packet(arg1, arg2, ...).
