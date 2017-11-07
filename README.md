@@ -3,7 +3,9 @@ SedNL
 
 Simple Event Driven Network Library
 
-__Last version : 1.0__
+__Last released version : 1.0__
+
+The current master branch is version 1.2.
 
 A network library
 -----------------
