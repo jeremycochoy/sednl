@@ -94,7 +94,7 @@ Compilation and Installation
 Some distributions provide a package. For example, on archlinux, you can type `yaourt -S sednl`.
 
 **Installation from sources:** First, you have to `git clone https://github.com/Zenol/sednl.git`.
-Then, create a build directory. We will use a _build_ directory in the clone : `cd sednl ; mkdir build`.
+Then, create a build directory. We will use a _build_ directory in the clone : `cd sednl ; mkdir build ; cd build`.
 And now, we generate all the makefiles with `cmake ..`.
 Then, you are home, and you can type `make ; sudo make install`.
 
